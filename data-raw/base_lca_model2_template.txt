@@ -1,0 +1,66 @@
+[[init]]
+iterators = classes;
+classes = 1:4;
+filename = "[[classes]]_base_lca_model2_lca.inp";
+outputDirectory = "base_lca_model2_lca";
+[[/init]]
+
+TITLE: base_lca [[classes]] classes
+DATA: FILE IS base_lca_model2_lca.dat;
+VARIABLE: 
+NAMES = id cat1 cat2 nd ndc ndi ndci p pi;
+MISSING = .;
+IDVARIABLE = id;
+AUXILIARY = p pi;
+USEVARIABLES = nd ndc ndi ndci;
+CATEGORICAL = cat1 cat2;
+CLASSES = class ([[classes]]);
+
+MODEL: 
+%CLASS#1%
+nd;
+ndc; 
+ndi;
+[[classes > 1]] 
+%CLASS#2%
+nd;
+ndc; 
+ndi;
+[[/classes > 1]]
+[[classes > 2]] 
+%CLASS#3%
+nd;
+ndc; 
+ndi;
+[[/classes > 2]]
+[[classes > 3]] 
+%CLASS#4%
+nd;
+ndc; 
+ndi;
+[[/classes > 3]]
+
+ANALYSIS: 
+TYPE = MIXTURE;
+PROCESSORS = 16;
+[[classes = 1]]
+STITERATIONS = 16;
+STARTS = 160 16;
+[[/classes = 1]]
+[[classes = 2]]
+STITERATIONS = 16;
+STARTS = 160 16;
+[[/classes = 2]]
+[[classes = 3]]
+STITERATIONS = 16;
+STARTS = 160 16;
+[[/classes = 3]]
+[[classes = 4]]
+STITERATIONS = 32;
+STARTS = 320 32;
+[[/classes = 4]]
+
+PLOT: TYPE=PLOT1 PLOT2 PLOT3;
+SAVEDATA:
+FILE IS base_lca_model2_lca_[[classes]].dat;
+SAVE = cprobabilities bchweights;
