@@ -7,7 +7,7 @@ outputDirectory = "base_lca_model1_lca";
 
 TITLE: base_lca [[classes]] classes
 DATA: FILE IS base_lca_model1_lca.dat;
-VARIABLE: 
+VARIABLE:
 NAMES = id cat1 cat2 nd ndc ndi ndci p pi;
 MISSING = .;
 IDVARIABLE = id;
@@ -16,12 +16,12 @@ USEVARIABLES = nd ndc ndi ndci;
 CATEGORICAL = cat1 cat2;
 CLASSES = class ([[classes]]);
 
-ANALYSIS: 
+ANALYSIS:
 TYPE = MIXTURE;
 PROCESSORS = 16;
 [[classes = 1]]
-STITERATIONS = 16;
-STARTS = 160 16;
+STITERATIONS = 32;
+STARTS = 320 32;
 [[/classes = 1]]
 [[classes = 2]]
 STITERATIONS = 16;
