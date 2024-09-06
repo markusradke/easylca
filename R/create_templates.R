@@ -1,52 +1,12 @@
 #' CREATE MPLUS TEMPLATES ACCORDING TO THE SPECIFICATIONS MADE
 #'
-#' @param frame
-#' @param analysis_name
-#' @param nclasses
-#' @param starts
-#' @param cores
-#' @param categoricals
-#' @param censored
-#' @param inflated
-#' @param poisson
-#' @param negbin
-#' @param aux
-#' @param LMRLRT
-#'
-#' @return List of character vectors with model templates. Also saves them as .txt files in current workind directory.
-#' @export
+#' @param lcasettings
+#' @return List of character vectors with model templates. Also saves them as .txt files in current working directory.
 #'
 #' @examples
-create_templates <- function(frame,
-                            analysis_name,
-                            id,
-                            nclasses = 4,
-                            starts = 160,
-                            cores = 16,
-                            categorical = c(),
-                            censored = c(),
-                            inflated = c(),
-                            poisson = c(),
-                            negbin = c(),
-                            aux = c(),
-                            LMRLRT = FALSE){
+create_templates <- function(lca_settings){
 
-  lca <- rlang::env(frame = frame,
-                    analysis_name = analysis_name,
-                    id = id,
-                    nclasses = nclasses,
-                    starts = starts,
-                    cores = cores,
-                    categorical = categorical,
-                    censored = censored,
-                    inflated = inflated,
-                    poisson = poisson,
-                    negbin = negbin,
-                    aux = aux,
-                    LMRLRT = LMRLRT)
 
-  create_global_lca_environment(lca)
-  check_assertions()
   create_headers()
   create_variable_specs()
   # create_model1() # model specs for each type
@@ -62,32 +22,6 @@ create_templates <- function(frame,
   save_templates(templates)
   remove_global_lca_environment()
   return(templates)
-}
-
-create_global_lca_environment <- function(lca){
-  globalenv <- globalenv()
-  globalenv$lca <- lca
-
-  lca$names <- colnames(lca$frame)
-  lca$usevariables <- colnames(lca$frame)[! colnames(lca$frame) %in% lca$aux]
-  if(is.integer(lca$starts)){
-    create_starts_list()
-  }
-}
-
-create_starts_list <- function(){
-  starts <- list()
-  for (i in seq(6)){
-    starts <- c(starts, list(rep(lca$starts, lca$nclasses)))
-  }
-  lca$starts <- starts
-}
-
-check_assertions <- function(){
-  if(length(lca$starts) != 6){stop('Please supply start values for either all model types as a list with dimensions 6 x nclasses or a single integer vaule for all types and classes.')}
-  for (i in seq(6)){
-    if(length(lca$starts[[i]]) != lca$nclasses){stop('Please supply start values for either all model types as a list with dimensions 6 x nclasses or a single integer vaule for all types and classes.')}
-  }
 }
 
 remove_global_lca_environment <- function(){
@@ -180,12 +114,3 @@ save_templates <- function(templates){
   writeLines(templates[[5]], 'base_lca_model5_template.txt')
   writeLines(templates[[6]], 'base_lca_model6_template.txt')
 }
-
-# create_templates(frame = testdata,
-#                  'base_lca',
-#                  id = 'id',
-#                  nclasses = 4,
-#                  starts = 4,
-#                  cores = 16,
-#                  categorical = c('cat1', 'cat2'),
-#                  aux = c('p', 'pi'))
