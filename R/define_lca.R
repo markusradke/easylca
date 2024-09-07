@@ -1,21 +1,37 @@
-#' CREATE MPLUS TEMPLATES ACCORDING TO THE SPECIFICATIONS MADE
+#' Define LCA
+#'
+#' This command creates a settings environment for performing the easy LCA. It also performs basic checks to see if the information provided can be used to successfully perform an LCA.
 #'
 #' @param frame
+#' This dataframe contains the data you want to perform the LCA on.
 #' @param analysis_name
-#' @param nclasses
-#' @param starts
-#' @param cores
-#' @param categoricals
-#' @param censored
-#' @param inflated
-#' @param poisson
-#' @param negbin
-#' @param aux
-#' @param LMRLRT
+#' A name for the analysis. Please choose a meaningful short name that will also be used for constructing subfolders needed for the files. Date and time will be added to the name automatically.
+#' @param nclasses The maximum number of classes the LCA should be performed for.
+#' @param starts Number of random starts for each class and model type. It is advisable to use numbers of the form 2^X*10. Must be provided either as single integer or in the form of a List with six entries for the 6 model types, each entry comprising an integer vector of length nclasses.
+#' @param cores The number of core to use when performing the LCA.
+#' @param use Character vector with all variables in the data frame used for the LCA. All other variables will be saved as auxiliary variables in the LCA and not used for computing.
+#' @param categoricals Character vector with all categorical variables.
+#' @param censored Character vector with all censored variables.
+#' @param inflated Character vector with all zero-inflated variables.
+#' @param poisson Character vector with all poisson-distributed variables.
+#' @param negbin Character vector with all negative binomial distributed variables.
+#' @param LMRLRT Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.
 #'
-#' @return List of character vectors with model templates. Also saves them as .txt files in current working directory.
+#' @return Environment with settings for the LCA that can be passed to the perform_lca() command.
 #'
 #' @examples
+#' lca_settings <- define_lca(testdata,
+#'  'test_lca',
+#'  'id',
+#'  nclasses = 2,
+#'  starts = list(c(160, 320),
+#'                c(160, 320),
+#'                c(160, 320),
+#'                c(320, 640),
+#'                c(320, 640),
+#'                c(320, 640)),
+#'  use = c('nd', 'cat1'),
+#'  categorical = 'cat1')
 
 define_lca <- function(frame,
                        analysis_name,
@@ -35,12 +51,11 @@ define_lca <- function(frame,
     lca$names <- colnames(lca$frame)
     lca$auxvariables <- colnames(lca$frame)[! colnames(lca$frame) %in% lca$use]
     lca$auxvariables <- lca$auxvariables[! lca$auxvariables == lca$id]
-    if(is.integer(lca$starts)){
+    if(length(lca$starts) == 1){
       create_starts_list()
     }
     write_time_to_analysis_name()
     create_use_variables()
-    create_starts_list()
     create_free_variance()
     create_correlate()
   }
@@ -57,11 +72,11 @@ define_lca <- function(frame,
   }
 
   create_starts_list <- function(){
-    starts <- list()
+    new_starts <- list()
     for (i in seq(6)){
-      starts <- c(starts, list(rep(lca$starts, lca$nclasses)))
+      new_starts <- c(new_starts, list(rep(lca$starts, lca$nclasses)))
     }
-    lca$starts <- starts
+    lca$starts <- new_starts
   }
 
   create_free_variance <- function(){

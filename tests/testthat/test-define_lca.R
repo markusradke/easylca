@@ -120,3 +120,14 @@ test_that('If no use variables are provided, all variables become usevariables b
   lcasettings <- define_lca(testdata, 'test', 'id')
   expect_setequal(lcasettings$use, colnames(testdata)[colnames(testdata) != 'id'])
 })
+
+test_that('Providing an integer for start values and providing a list for start values both works and returns objects of class lca_settings',{   lca_settings_int <- define_lca(testdata, 'test_lca', 'id', starts = 320L)
+  lca_settings_list <- define_lca(testdata, 'test_lca', 'id', nclasses = 2, starts = list(c(160, 160),
+                                                                                          c(160, 160),
+                                                                                          c(160, 160),
+                                                                                          c(160, 160),
+                                                                                          c(160, 160),
+                                                                                          c(160, 160)))
+  actual_classes <- c(class(lca_settings_int), class(lca_settings_list))
+  expect_equal(actual_classes, c('lca_settings', 'lca_settings'))
+})
