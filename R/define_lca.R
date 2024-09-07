@@ -18,7 +18,7 @@
 #' @param LMRLRT Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.
 #'
 #' @return Environment with settings for the LCA that can be passed to the perform_lca() command.
-#'
+#' @export
 #' @examples
 #' lca_settings <- define_lca(testdata,
 #'  'test_lca',
