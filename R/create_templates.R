@@ -99,18 +99,17 @@ add_type_inflation_specification_to_variable_listing <- function(listing, variab
   listing
 }
 
-create_analysis <- function(settings){ # TODO
+create_analysis <- function(settings){
   analysis <- list()
   for (model in seq(6)){
-    model_analysis <- c('',
-                        'ANALYSIS:',
+    model_analysis <- c('ANALYSIS:',
                         'TYPE = MIXTURE;',
-                        paste0('PROCESSORS = ', settings$cores))
+                        paste0('PROCESSORS = ', settings$cores, ';'))
     for (class in seq(settings$nclasses)){
       modelclass_starts <- settings$starts[[model]][class]
-      class_starts <- c(paste0('[[classes =', class ,']]'),
-                        paste0('STITERATIONS = ', as.integer(modelclass_starts / 10)),
-                        paste0('STARTS = ', modelclass_starts, ' ', as.integer(modelclass_starts / 10)),
+      class_starts <- c(paste0('[[classes = ', class ,']]'),
+                        paste0('STITERATIONS = ', as.integer(modelclass_starts / 5), ';'),
+                        paste0('STARTS = ', modelclass_starts, ' ', as.integer(modelclass_starts / 5), ';'),
                         paste0('[[/classes = ', class, ']]'))
       model_analysis <- c(model_analysis, class_starts)
     }
@@ -123,7 +122,9 @@ create_plot_save <- function(settings){
   plot_save <- list()
   for(i in seq(6)){
     extended_name <- paste0(settings$analysis_name, '_model', i, '_lca')
-    model_plot_save <- c('PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
+    model_plot_save <- c('OUTPUT:',
+                         'SVALUES ENTROPY TECH1;',
+                         'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
                          'SAVEDATA:',
                          paste0('FILE IS ', extended_name, '_[[classes]].dat'),
                          'SAVE = cprobabilites bchweights;')

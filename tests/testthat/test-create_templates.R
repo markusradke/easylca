@@ -79,13 +79,16 @@ test_that('variables specs are created the right way from settings',{
   expect_equal(create_variable_specs(settings), variable_settings)
 })
 
+
 test_that('create plot save is working correctly', {
   settings <- define_lca(testdata, 'test', 'id')
 
   plot_save <- list()
   for(i in seq(6)){
     extended_name <- paste0('test_model', i, '_lca')
-    model_plot_save <- c('PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
+    model_plot_save <- c('OUTPUT:',
+                         'SVALUES ENTROPY TECH1;',
+                         'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
                          'SAVEDATA:',
                          paste0('FILE IS ', extended_name, '_[[classes]].dat'),
                          'SAVE = cprobabilites bchweights;')
@@ -94,4 +97,101 @@ test_that('create plot save is working correctly', {
 
   expect_equal(create_plot_save(settings), plot_save)
 
+})
+
+
+test_that('create analysis is working correctly', {
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, cores = 64, starts = 160L)
+  analysis_all_types <- c('ANALYSIS:',
+                          'TYPE = MIXTURE;',
+                          'PROCESSORS = 64;',
+                          '[[classes = 1]]',
+                          'STITERATIONS = 32;',
+                          'STARTS = 160 32;',
+                          '[[/classes = 1]]',
+                          '[[classes = 2]]',
+                          'STITERATIONS = 32;',
+                          'STARTS = 160 32;',
+                          '[[/classes = 2]]',
+                          '[[classes = 3]]',
+                          'STITERATIONS = 32;',
+                          'STARTS = 160 32;',
+                          '[[/classes = 3]]')
+  analysis <- list(analysis_all_types, analysis_all_types, analysis_all_types,
+                   analysis_all_types, analysis_all_types, analysis_all_types)
+  expect_equal(create_analysis(settings), analysis)
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 2, cores = 64, starts = list(c(160, 320),
+                                                                                         c(160, 320),
+                                                                                         c(160, 320),
+                                                                                         c(320, 640),
+                                                                                         c(320, 640),
+                                                                                         c(320, 640)))
+  analysis <- list(c('ANALYSIS:',
+                     'TYPE = MIXTURE;',
+                     'PROCESSORS = 64;',
+                     '[[classes = 1]]',
+                     'STITERATIONS = 32;',
+                     'STARTS = 160 32;',
+                     '[[/classes = 1]]',
+                     '[[classes = 2]]',
+                     'STITERATIONS = 64;',
+                     'STARTS = 320 64;',
+                     '[[/classes = 2]]'),
+                   c('ANALYSIS:',
+                     'TYPE = MIXTURE;',
+                     'PROCESSORS = 64;',
+                     '[[classes = 1]]',
+                     'STITERATIONS = 32;',
+                     'STARTS = 160 32;',
+                     '[[/classes = 1]]',
+                     '[[classes = 2]]',
+                     'STITERATIONS = 64;',
+                     'STARTS = 320 64;',
+                     '[[/classes = 2]]'),
+                   c('ANALYSIS:',
+                     'TYPE = MIXTURE;',
+                     'PROCESSORS = 64;',
+                     '[[classes = 1]]',
+                     'STITERATIONS = 32;',
+                     'STARTS = 160 32;',
+                     '[[/classes = 1]]',
+                     '[[classes = 2]]',
+                     'STITERATIONS = 64;',
+                     'STARTS = 320 64;',
+                     '[[/classes = 2]]'),
+                   c('ANALYSIS:',
+                     'TYPE = MIXTURE;',
+                     'PROCESSORS = 64;',
+                     '[[classes = 1]]',
+                     'STITERATIONS = 64;',
+                     'STARTS = 320 64;',
+                     '[[/classes = 1]]',
+                     '[[classes = 2]]',
+                     'STITERATIONS = 128;',
+                     'STARTS = 640 128;',
+                     '[[/classes = 2]]'),
+                   c('ANALYSIS:',
+                     'TYPE = MIXTURE;',
+                     'PROCESSORS = 64;',
+                     '[[classes = 1]]',
+                     'STITERATIONS = 64;',
+                     'STARTS = 320 64;',
+                     '[[/classes = 1]]',
+                     '[[classes = 2]]',
+                     'STITERATIONS = 128;',
+                     'STARTS = 640 128;',
+                     '[[/classes = 2]]'),
+                   c('ANALYSIS:',
+                     'TYPE = MIXTURE;',
+                     'PROCESSORS = 64;',
+                     '[[classes = 1]]',
+                     'STITERATIONS = 64;',
+                     'STARTS = 320 64;',
+                     '[[/classes = 1]]',
+                     '[[classes = 2]]',
+                     'STITERATIONS = 128;',
+                     'STARTS = 640 128;',
+                     '[[/classes = 2]]'))
+  expect_equal(create_analysis(settings), analysis)
 })
