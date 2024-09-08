@@ -113,10 +113,13 @@ define_lca <- function(frame,
        any(! lca$inflated %in% lca$use) ||
        any(! lca$poisson %in% lca$use) ||
        any(! lca$negbin %in% lca$use)) {stop('Please make sure all variables listed in categorical, censored, inflated, poisson, and negbin are also listed in use.')}
-    if(any(lca$categorical %in% lca$cnesored) ||
+    if(any(lca$categorical %in% lca$censored) ||
        any(lca$categorical %in% lca$inflated) ||
        any(lca$categorical %in% lca$poisson) ||
        any(lca$categorical %in% lca$negbin)) {stop('Please make sure none of the variables listed in categorical are listed in censored, inflated, poisson, or negbin.')}
+    if(! all(lca$inflated %in% c(lca$censored, lca$poisson, lca$negbin))) {
+      stop('Please make sure inflated variables are also either censored, poisson or negbin variables.')
+    }
   }
 
 

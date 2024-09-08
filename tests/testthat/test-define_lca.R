@@ -132,3 +132,8 @@ test_that('Providing an integer for start values and providing a list for start 
   actual_classes <- c(class(lca_settings_int), class(lca_settings_list))
   expect_equal(actual_classes, c('lca_settings', 'lca_settings'))
 })
+
+test_that('Assertion inflated can only be count or censored.', {
+  expect_error(define_lca(testdata, 'test', 'id', inflated = 'ndi'),
+               'Please make sure inflated variables are also either censored, poisson or negbin variables.')
+})
