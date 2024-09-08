@@ -44,18 +44,18 @@ test_that('variables specs are created the right way from settings',{
   expect_equal(create_variable_specs(settings), variable_settings)
 
   settings <- define_lca(testdata, 'test', 'id',
-                         use = c('cat1', 'nd', 'ndc', 'ndci', 'p', 'pi'),
+                         use = c('cat1', 'nd', 'ndi', 'ndc', 'ndci', 'p', 'pi'),
                          categorical = 'cat1',
                          poisson = c('p', 'pi'),
                          negbin = c('ndci'),
-                         censored = c('ndc', 'ndci'),
+                         censored = c('ndc', 'ndi', 'ndci'),
                          inflated = c('ndi', 'ndci', 'pi', 'ndci'))
   variable_settings <- c('VARIABLE:',
                          'NAMES = id cat1 cat2 nd ndc ndi ndci p pi;',
                          'IDVARIABLE = id;',
-                         'USEVARIABLES = cat1 cat2 nd ndc ndci p pi;',
-                         'CATEGORICAL: cat1 cat;',
-                         'CENSORED: ndc;',
+                         'USEVARIABLES = cat1 nd ndi ndc ndci p pi;',
+                         'CATEGORICAL: cat1;',
+                         'CENSORED: ndc ndi(i) ndci(i);',
                          'COUNT: p pi(i) ndci(nbi);',
                          'AUXILLIARY: ndi;',
                          'MISSING = .;',

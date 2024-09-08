@@ -5,8 +5,8 @@ test_that('definition returns object of class lca_settings', {
 
 test_that('variable names in settings environment are correct', {
   lcasettings <- define_lca(testdata, 'test', 'id')
-  varnames <- c('analysis_name','folder_name', 'use', 'categorical', 'censored', 'cores', 'correlate', 'frame', 'freevariance', 'id', 'inflated', 'lmrlrt',
-                'names', 'nclasses', 'negbin', 'poisson', 'starts', 'auxvariables')
+  varnames <- c('analysis_name','folder_name', 'use', 'categorical', 'censored_above', 'censored_below', 'cores', 'correlate', 'frame', 'freevariance', 'id',
+                'inflated', 'lmrlrt', 'names', 'nclasses', 'negbin', 'poisson', 'starts', 'auxvariables')
   expect_setequal(ls(lcasettings), varnames)
 })
 
@@ -15,7 +15,8 @@ test_that('variables classes in settings environment are correct',{
   expected_classes <- c('analysis_name' = 'character',
                         'auxvariables' = 'character',
                         'categorical' = 'character',
-                        'censored' = 'character',
+                        'censored_above' = 'character',
+                        'censored_below' = 'character',
                         'cores' = 'integer',
                         'correlate' = 'character',
                         'folder_name' = 'character',
@@ -47,28 +48,30 @@ test_that('folder_name contains current time in minutes', {
 })
 
 test_that('usevariables contains all variables of data frame that are not in aux and id', {
-  lcasettings <- define_lca(testdata, 'test', 'id', use = c('ndi', 'p'))
-  auxvariables <- c('cat1', 'cat2', 'nd', 'ndc', 'ndci', 'pi')
+  lcasettings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2'))
+  auxvariables <- c('var3', 'var4', 'var5', 'var6', 'var7', 'var8')
   expect_setequal(lcasettings$auxvariables, auxvariables)
 })
 
-test_that('correlate contains all variables of usevariables not count, censored, and categorical', {
+test_that('correlate contains all variables of usevariables not count, censored (above and  below), and categorical', {
   lcasettings <- define_lca(testdata, 'test', 'id',
-                            use = c('cat1', 'cat2', 'nd', 'ndc', 'ndci', 'p'),
-                            categorical = c('cat1', 'cat2'),
-                            poisson = 'p',
-                            censored = c('ndc', 'ndci'))
-  correlate <- c('nd')
+                            use = c('var1', 'var2', 'var3', 'var4', 'var5', 'var6'),
+                            categorical = c('var1', 'var2'),
+                            poisson = 'var6',
+                            censored_below = c('var4'),
+                            censored_above = c('var5'))
+  correlate <- c('var3')
   expect_setequal(lcasettings$correlate, correlate)
 })
 
 test_that('freevariance contains all variables of usevariables not count or categorical',{
   lcasettings <- define_lca(testdata, 'test', 'id',
-                            use = c('cat1', 'cat2', 'nd', 'ndc', 'ndci', 'p'),
-                            categorical = c('cat1', 'cat2'),
-                            poisson = 'p',
-                            censored = c('ndc', 'ndci'))
-  freevariance <- c('nd', 'ndc', 'ndci')
+                            use = c('var1', 'var2', 'var3', 'var4', 'var5', 'var6'),
+                            categorical = c('var1', 'var2'),
+                            poisson = 'var6',
+                            censored_below = 'var4',
+                            censored_above = 'var5')
+  freevariance <- c('var3', 'var4', 'var5')
   expect_setequal(lcasettings$freevariance, freevariance)
 })
 
@@ -92,9 +95,9 @@ test_that('Providing id not in frame throws an error. ', {
                'Please make sure the id variable is a variable in your data frame.')
 })
 
-test_that('Assertion ID not in use, categorical, negbin, poisson, censored or inflated.', {
-  expect_error(define_lca(testdata, 'test', 'id', categorical = 'id'),
-               'Please make sure the id variable is listed not in any of the following: use, categorical,censored, inflated, poisson, negbin.')
+test_that('Assertion ID not in use.', {
+  expect_error(define_lca(testdata, 'test', 'id', use = 'id'),
+               'Please make sure the id variable is not listed in use.')
 })
 
 test_that('Assertion all variables of use are in colnames of dataframe', {
@@ -108,12 +111,12 @@ test_that('Assertion all variables of use are in colnames of dataframe', {
 })
 
 test_that('Assertion all variables of categorical, negbin, poission, censored, inflated are in use.', {
-  expect_error(define_lca(testdata, 'test', 'id', categorical = 'cat1', use = 'cat2'),
+  expect_error(define_lca(testdata, 'test', 'id', categorical = 'var1', use = 'var2'),
                'Please make sure all variables listed in categorical, censored, inflated, poisson, and negbin are also listed in use.')
 })
 
 test_that('Assertion none of the categorical variables are listed in negbin, poisson, censored, or inflated.', {
-  expect_error(define_lca(testdata, 'test', 'id', categorical = 'cat1', inflated = 'cat1', use = 'cat1'),
+  expect_error(define_lca(testdata, 'test', 'id', categorical = 'var1', inflated = 'var1', use = 'var1'),
                'Please make sure none of the variables listed in categorical are listed in censored, inflated, poisson, or negbin.')
 })
 
@@ -134,6 +137,12 @@ test_that('Providing an integer for start values and providing a list for start 
 })
 
 test_that('Assertion inflated can only be count or censored.', {
-  expect_error(define_lca(testdata, 'test', 'id', inflated = 'ndi'),
+  expect_error(define_lca(testdata, 'test', 'id', inflated = 'var1'),
                'Please make sure inflated variables are also either censored, poisson or negbin variables.')
+})
+
+
+test_that('Assertion categorical variables must contain only 1 and 2', {
+  expect_error(define_lca(testdata, 'test', 'id', categorical = 'var3'),
+               'Please make sure categorical variables only contain integers 1 and 2.')
 })

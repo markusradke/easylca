@@ -11,8 +11,9 @@
 #' @param cores The number of core to use when performing the LCA.
 #' @param use Character vector with all variables in the data frame used for the LCA. All other variables will be saved as auxiliary variables in the LCA and not used for computing.
 #' @param categoricals Character vector with all categorical variables.
-#' @param censored Character vector with all censored variables.
-#' @param inflated Character vector with all zero-inflated variables.
+#' @param censored_above Character vector with all censored above variables.
+#' @param censored_below Character vector with all censored below variables.
+#' @param inflated Character vector with all zero-inflated variables (can only be censored or poisson, negbin).
 #' @param poisson Character vector with all poisson-distributed variables.
 #' @param negbin Character vector with all negative binomial distributed variables.
 #' @param LMRLRT Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.
@@ -41,7 +42,8 @@ define_lca <- function(frame,
                        cores = 16,
                        use = character(),
                        categorical = character(),
-                       censored = character(),
+                       censored_above = character(),
+                       censored_below = character(),
                        inflated = character(),
                        poisson = character(),
                        negbin = character(),
@@ -90,18 +92,17 @@ define_lca <- function(frame,
     correlate <- lca$use[! lca$use %in% lca$categorical]
     correlate <- correlate[! correlate %in% lca$poisson]
     correlate <- correlate[! correlate %in% lca$negbin]
-    correlate <- correlate[! correlate %in% lca$censored]
+    correlate <- correlate[! correlate %in% lca$censored_above]
+    correlate <- correlate[! correlate %in% lca$censored_below]
     lca$correlate <- correlate
   }
 
   check_assertions <- function(){
     if(! all(lca$use %in% lca$names)) {stop('Please make sure all variables listed in use are columns in the data frame provided for analysis.')}
     if(!lca$id %in% colnames(lca$frame)) {stop('Please make sure the id variable is a variable in your data frame.')}
-    if(lca$id %in% lca$categorical ||
-       lca$id %in% lca$censored ||
-       lca$id %in% lca$inflated ||
-       lca$id %in% lca$poisson ||
-       lca$id %in% lca$negbin) {stop('Please make sure the id variable is listed not in any of the following: use, categorical,censored, inflated, poisson, negbin.')}
+    if(lca$id %in% lca$use) {
+      stop('Please make sure the id variable is not listed in use.')
+      }
     if(lca$nclasses < 1) {stop('Please enter a positive integer value for the number of classes "nclasses".')}
     if(lca$cores < 1) {stop('Please enter a positive integer value for the number of cores "cores".')}
     if(length(lca$starts) != 6){stop('Please supply start values for either all model types as a list with dimensions 6 x nclasses or a single integer vaule for all types and classes.')}
@@ -109,19 +110,31 @@ define_lca <- function(frame,
       if(length(lca$starts[[i]]) != lca$nclasses){stop('Please supply start values for either all model types as a list with dimensions 6 x nclasses or a single integer vaule for all types and classes.')}
     }
     if(any(! lca$categorical %in% lca$use) ||
-       any(! lca$censored %in% lca$use) ||
+       any(! lca$censored_above %in% lca$use) ||
+       any(! lca$censored_below %in% lca$use) ||
        any(! lca$inflated %in% lca$use) ||
        any(! lca$poisson %in% lca$use) ||
        any(! lca$negbin %in% lca$use)) {stop('Please make sure all variables listed in categorical, censored, inflated, poisson, and negbin are also listed in use.')}
-    if(any(lca$categorical %in% lca$censored) ||
+    if(any(lca$categorical %in% lca$censored_above) ||
+       any(lca$categorical %in% lca$censored_below) ||
        any(lca$categorical %in% lca$inflated) ||
        any(lca$categorical %in% lca$poisson) ||
        any(lca$categorical %in% lca$negbin)) {stop('Please make sure none of the variables listed in categorical are listed in censored, inflated, poisson, or negbin.')}
-    if(! all(lca$inflated %in% c(lca$censored, lca$poisson, lca$negbin))) {
+    if(! all(lca$inflated %in% c(lca$censored_above, lca$censored_below, lca$poisson, lca$negbin))) {
       stop('Please make sure inflated variables are also either censored, poisson or negbin variables.')
     }
+    if(! check_categorical_values(lca$frame, lca$categorical)){
+      stop('Please make sure categorical variables only contain integers 1 and 2.')
+      }
   }
 
+  check_categorical_values <- function(frame, categorical) {
+    selected_columns <- frame[categorical]
+    result <- sapply(selected_columns, function(col) {
+      all(col %in% c(1, 2))
+    })
+    return(all(result))
+  }
 
   lca <- rlang::env(frame = frame,
                     analysis_name = analysis_name,
@@ -131,7 +144,8 @@ define_lca <- function(frame,
                     starts = starts,
                     cores = as.integer(cores),
                     categorical = categorical,
-                    censored = censored,
+                    censored_above = censored_above,
+                    censored_below = censored_below,
                     inflated = inflated,
                     poisson = poisson,
                     negbin = negbin,

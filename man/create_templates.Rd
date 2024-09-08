@@ -4,7 +4,7 @@
 \alias{create_templates}
 \title{CREATE MPLUS TEMPLATES ACCORDING TO THE SPECIFICATIONS MADE}
 \usage{
-create_templates(lca_settings)
+create_templates(settings)
 }
 \value{
 List of character vectors with model templates. Also saves them as .txt files in current working directory.

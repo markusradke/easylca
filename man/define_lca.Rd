@@ -13,7 +13,8 @@ define_lca(
   cores = 16,
   use = character(),
   categorical = character(),
-  censored = character(),
+  censored_above = character(),
+  censored_below = character(),
   inflated = character(),
   poisson = character(),
   negbin = character(),
@@ -33,9 +34,11 @@ define_lca(
 
 \item{use}{Character vector with all variables in the data frame used for the LCA. All other variables will be saved as auxiliary variables in the LCA and not used for computing.}
 
-\item{censored}{Character vector with all censored variables.}
+\item{censored_above}{Character vector with all censored above variables.}
 
-\item{inflated}{Character vector with all zero-inflated variables.}
+\item{censored_below}{Character vector with all censored below variables.}
+
+\item{inflated}{Character vector with all zero-inflated variables (can only be censored or poisson, negbin).}
 
 \item{poisson}{Character vector with all poisson-distributed variables.}
 
