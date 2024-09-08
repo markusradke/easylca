@@ -99,16 +99,6 @@ add_type_inflation_specification_to_variable_listing <- function(listing, variab
   listing
 }
 
-create_models <- function(settings){
-  # create_model1() # model specs for each type
-  # create_model2() # model specs for each type
-  # create_model3() # model specs for each type
-  # create_model4() # model specs for each type
-  # create_model5() # model specs for each type
-  # create_model6() # model specs for each type
-  list()
-}
-
 create_analysis <- function(settings){ # TODO
   analysis <- list()
   for (model in seq(6)){

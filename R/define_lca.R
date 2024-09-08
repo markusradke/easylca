@@ -87,7 +87,6 @@ define_lca <- function(frame,
   create_free_variance <- function(){
     freevariance <- lca$use[! lca$use %in% lca$categorical]
     freevariance <- freevariance[! freevariance %in% lca$poisson]
-    freevariance <- freevariance[! freevariance %in% lca$negbin]
     lca$freevariance <- freevariance
   }
 
@@ -127,14 +126,14 @@ define_lca <- function(frame,
       stop('Please make sure inflated variables are also either censored, poisson or negbin variables.')
     }
     if(! check_categorical_values(lca$frame, lca$categorical)){
-      stop('Please make sure categorical variables only contain integers 1 and 2.')
+      stop('Please make sure categorical variables only contain integers >= 1.')
       }
   }
 
   check_categorical_values <- function(frame, categorical) {
     selected_columns <- frame[categorical]
     result <- sapply(selected_columns, function(col) {
-      all(col %in% c(1, 2))
+      all(col >= 1 & col == floor(col))
     })
     return(all(result))
   }

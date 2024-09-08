@@ -64,14 +64,15 @@ test_that('correlate contains all variables of usevariables not count, censored 
   expect_setequal(lcasettings$correlate, correlate)
 })
 
-test_that('freevariance contains all variables of usevariables not count or categorical',{
+test_that('freevariance contains all variables of usevariables not poisson or categorical',{
   lcasettings <- define_lca(testdata, 'test', 'id',
-                            use = c('var1', 'var2', 'var3', 'var4', 'var5', 'var6'),
+                            use = c('var1', 'var2', 'var3', 'var4', 'var5', 'var6', 'var7'),
                             categorical = c('var1', 'var2'),
                             poisson = 'var6',
+                            negbin = 'var7',
                             censored_below = 'var4',
                             censored_above = 'var5')
-  freevariance <- c('var3', 'var4', 'var5')
+  freevariance <- c('var3', 'var4', 'var5', 'var7')
   expect_setequal(lcasettings$freevariance, freevariance)
 })
 
@@ -142,9 +143,9 @@ test_that('Assertion inflated can only be count or censored.', {
 })
 
 
-test_that('Assertion categorical variables must contain only 1 and 2', {
+test_that('Assertion categorical variables must contain only integers > 1', {
   expect_error(define_lca(testdata, 'test', 'id', categorical = 'var3'),
-               'Please make sure categorical variables only contain integers 1 and 2.')
+               'Please make sure categorical variables only contain integers >= 1.')
 })
 
 test_that('Aux variables are empty when no aux is specified', {
