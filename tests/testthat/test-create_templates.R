@@ -31,33 +31,31 @@ test_that('headers are created the right way from settings', {
 })
 
 test_that('variables specs are created the right way from settings',{
-  settings <- define_lca(testdata, 'test', 'id', use = c('cat1', 'cat2', 'nd', 'ndc'), categorical = c('cat1', 'cat2'))
+  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2', 'var3', 'var4'), categorical = c('var1', 'var2'))
   variable_settings <- c('VARIABLE:',
-                         'NAMES = id cat1 cat2 nd ndc ndi ndci p pi;',
+                         'NAMES = id var1 var2 var3 var4 var5 var6 var7 var8;',
                          'IDVARIABLE = id;',
-                         'USEVARIABLES = cat1 cat2 nd ndc;',
-                         'CATEGORICAL: cat1 cat;',
-                         'AUXILLIARY: ndi ndci p pi;',
+                         'USEVARIABLES = var1 var2 var3 var4;',
+                         'CATEGORICAL: var1 var2;',
+                         'AUXILLIARY: var5 var6 var7 var8;',
                          'MISSING = .;',
                          'CLASSES = class ([[classes]]);')
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()
   expect_equal(create_variable_specs(settings), variable_settings)
 
   settings <- define_lca(testdata, 'test', 'id',
-                         use = c('cat1', 'nd', 'ndi', 'ndc', 'ndci', 'p', 'pi'),
-                         categorical = 'cat1',
-                         poisson = c('p', 'pi'),
-                         negbin = c('ndci'),
-                         censored = c('ndc', 'ndi', 'ndci'),
-                         inflated = c('ndi', 'ndci', 'pi', 'ndci'))
+                         use = c('var1', 'var2', 'var3', 'var4', 'var5', 'var6', 'var7'),
+                         censored_above = c('var1', 'var2'),
+                         censored_below = c('var3', 'var4'),
+                         poisson = c('var5', 'var6'),
+                         negbin = c('var7', 'var8'),
+                         inflated = c('var2', 'var4', 'var6', 'var8'))
   variable_settings <- c('VARIABLE:',
-                         'NAMES = id cat1 cat2 nd ndc ndi ndci p pi;',
+                         'NAMES = id var1 var2 var3 var4 var5 var6 var7 var8;',
                          'IDVARIABLE = id;',
-                         'USEVARIABLES = cat1 nd ndi ndc ndci p pi;',
-                         'CATEGORICAL: cat1;',
-                         'CENSORED: ndc ndi(i) ndci(i);',
-                         'COUNT: p pi(i) ndci(nbi);',
-                         'AUXILLIARY: ndi;',
+                         'USEVARIABLES =  var1 var2 var3 var4 var5 var6 var7 var8;',
+                         'CENSORED: var1 (a) var2 (ai) var3 (b) var4 (bi);',
+                         'COUNT: var5 (p) var6 (pi) var7 (nb) var8 (nbi);',
                          'MISSING = .;',
                          'CLASSES = class ([[classes]]);')
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()
