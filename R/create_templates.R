@@ -55,15 +55,19 @@ create_headers <- function(settings){
 create_variable_specs <- function(settings){
   variable_specs <- c('VARIABLE:',
                       paste0('NAMES = ', paste(settings$names, collapse = ' '), ';'),
-                      'MISSING = .;',
                       paste0('IDVARIABLE = ', settings$id, ';'),
-                      paste0('AUXILIARY = ', paste(settings$aux, collapse = ' ')),
-                      paste0('USEVARIABLES = ', paste(settings$usevariables, collapse = ' '), ';'))
+                      paste0('USEVARIABLES = ', paste(settings$use, collapse = ' '), ';'))
   if(! is.null(settings$categorical)){
     variable_specs <- c(variable_specs,
-                        paste0('CATEGORICAL  = ', paste(settings$categorical, collapse = ' '), ';'))
+                        paste0('CATEGORICAL = ', paste(settings$categorical, collapse = ' '), ';'))
   }
-  variable_specs <- c(variable_specs, 'CLASSES = class ([[classes]])')
+  if(! is.null(settings$auxvariables)){
+    variable_specs <- c(variable_specs,
+                        paste0('AUXILIARY = ', paste(settings$auxvariables, collapse = ' '), ';'))
+  }
+  variable_specs <- c(variable_specs,
+                      'MISSING = .;',
+                      'CLASSES = class ([[classes]]);')
   variable_specs <- rep(list(variable_specs), times = 6)
   variable_specs
 }

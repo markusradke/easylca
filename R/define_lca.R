@@ -51,20 +51,23 @@ define_lca <- function(frame,
 
   create_lca_environment <- function(lca){
     lca$names <- colnames(lca$frame)
-    lca$auxvariables <- colnames(lca$frame)[! colnames(lca$frame) %in% lca$use]
-    lca$auxvariables <- lca$auxvariables[! lca$auxvariables == lca$id]
     if(length(lca$starts) == 1){
       create_starts_list()
     }
     write_time_to_analysis_name()
-    create_use_variables()
+    create_use_and_aux_variables()
     create_free_variance()
     create_correlate()
   }
 
-  create_use_variables <- function(){
+  create_use_and_aux_variables <- function(){
     if(length(use) == 0){
       lca$use <- colnames(frame)[colnames(frame) != lca$id]
+      lca$auxvariables <- character()
+    }
+    else {
+      lca$auxvariables <- colnames(lca$frame)[! colnames(lca$frame) %in% lca$use]
+      lca$auxvariables <- lca$auxvariables[! lca$auxvariables == lca$id]
     }
   }
 

@@ -36,15 +36,15 @@ test_that('variables specs are created the right way from settings',{
                          'NAMES = id var1 var2 var3 var4 var5 var6 var7 var8;',
                          'IDVARIABLE = id;',
                          'USEVARIABLES = var1 var2 var3 var4;',
-                         'CATEGORICAL: var1 var2;',
-                         'AUXILLIARY: var5 var6 var7 var8;',
+                         'CATEGORICAL = var1 var2;',
+                         'AUXILIARY = var5 var6 var7 var8;',
                          'MISSING = .;',
                          'CLASSES = class ([[classes]]);')
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()
   expect_equal(create_variable_specs(settings), variable_settings)
 
   settings <- define_lca(testdata, 'test', 'id',
-                         use = c('var1', 'var2', 'var3', 'var4', 'var5', 'var6', 'var7'),
+                         use = c('var1', 'var2', 'var3', 'var4', 'var5', 'var6', 'var7', 'var8'),
                          censored_above = c('var1', 'var2'),
                          censored_below = c('var3', 'var4'),
                          poisson = c('var5', 'var6'),
@@ -53,9 +53,9 @@ test_that('variables specs are created the right way from settings',{
   variable_settings <- c('VARIABLE:',
                          'NAMES = id var1 var2 var3 var4 var5 var6 var7 var8;',
                          'IDVARIABLE = id;',
-                         'USEVARIABLES =  var1 var2 var3 var4 var5 var6 var7 var8;',
-                         'CENSORED: var1 (a) var2 (ai) var3 (b) var4 (bi);',
-                         'COUNT: var5 (p) var6 (pi) var7 (nb) var8 (nbi);',
+                         'USEVARIABLES = var1 var2 var3 var4 var5 var6 var7 var8;',
+                         'CENSORED = var1 (a) var2 (ai) var3 (b) var4 (bi);',
+                         'COUNT = var5 (p) var6 (pi) var7 (nb) var8 (nbi);',
                          'MISSING = .;',
                          'CLASSES = class ([[classes]]);')
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()

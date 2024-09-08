@@ -146,3 +146,8 @@ test_that('Assertion categorical variables must contain only 1 and 2', {
   expect_error(define_lca(testdata, 'test', 'id', categorical = 'var3'),
                'Please make sure categorical variables only contain integers 1 and 2.')
 })
+
+test_that('Aux variables are empty when no aux is specified', {
+  settings <- define_lca(testdata, 'test', 'id')
+  expect_equal(settings$auxvariables, character())
+})
