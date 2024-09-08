@@ -78,3 +78,20 @@ test_that('variables specs are created the right way from settings',{
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()
   expect_equal(create_variable_specs(settings), variable_settings)
 })
+
+test_that('create plot save is working correctly', {
+  settings <- define_lca(testdata, 'test', 'id')
+
+  plot_save <- list()
+  for(i in seq(6)){
+    extended_name <- paste0('test_model', i, '_lca')
+    model_plot_save <- c('PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
+                         'SAVEDATA:',
+                         paste0('FILE IS ', extended_name, '_[[classes]].dat'),
+                         'SAVE = cprobabilites bchweights;')
+    plot_save <- c(plot_save, list(model_plot_save))
+  }
+
+  expect_equal(create_plot_save(settings), plot_save)
+
+})
