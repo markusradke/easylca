@@ -68,7 +68,7 @@ define_lca <- function(frame,
 
   write_time_to_analysis_name <- function(){
     currenttime <- format(Sys.time(), "%Y%m%d_%H-%M")
-    lca$analysis_name <- paste(lca$analysis_name, currenttime, sep = '_')
+    lca$folder_name <- paste(lca$analysis_name, currenttime, sep = '_')
   }
 
   create_starts_list <- function(){

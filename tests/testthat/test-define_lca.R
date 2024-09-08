@@ -5,7 +5,7 @@ test_that('definition returns object of class lca_settings', {
 
 test_that('variable names in settings environment are correct', {
   lcasettings <- define_lca(testdata, 'test', 'id')
-  varnames <- c('analysis_name', 'use', 'categorical', 'censored', 'cores', 'correlate', 'frame', 'freevariance', 'id', 'inflated', 'lmrlrt',
+  varnames <- c('analysis_name','folder_name', 'use', 'categorical', 'censored', 'cores', 'correlate', 'frame', 'freevariance', 'id', 'inflated', 'lmrlrt',
                 'names', 'nclasses', 'negbin', 'poisson', 'starts', 'auxvariables')
   expect_setequal(ls(lcasettings), varnames)
 })
@@ -18,6 +18,7 @@ test_that('variables classes in settings environment are correct',{
                         'censored' = 'character',
                         'cores' = 'integer',
                         'correlate' = 'character',
+                        'folder_name' = 'character',
                         'frame' = 'data.frame',
                         'freevariance' = 'character',
                         'id' = 'character',
@@ -39,10 +40,10 @@ test_that('names contains all colnames of the dataframe', {
   expect_setequal(lcasettings$names, colnames(testdata))
 })
 
-test_that('analysis_name contains current time in minutes', {
+test_that('folder_name contains current time in minutes', {
   lcasettings <- define_lca(testdata, 'test', 'id')
   currenttime <- format(Sys.time(), "%Y%m%d_%H-%M")
-  expect_match(lcasettings$analysis_name, currenttime)
+  expect_match(lcasettings$folder_name, currenttime)
 })
 
 test_that('usevariables contains all variables of data frame that are not in aux and id', {

@@ -1,19 +1,19 @@
 [[init]]
 iterators = classes;
 classes = 1:4
-filename = "[[classes]]_base_lca_model6_lca.inp";
-outputDirectory = "base_lca_model6_lca";
+filename = "[[classes]]_test_20240908_10-53_model6_lca.inp";
+outputDirectory = "test_20240908_10-53_model6_lca";
 [[/init]]
 
-TITLE: base_lca[[classes]] classes
-FILE IS base_lca_model6_lca_[[classes]].dat;
+TITLE: test_20240908_10-53[[classes]] classes
+FILE IS test_20240908_10-53_model6_lca_[[classes]].dat;
 VARIABLE:
 NAMES = id cat1 cat2 nd ndc ndi ndci p pi;
 MISSING = .;
 IDVARIABLE = id;
-AUXILIARY = p pi
-USEVARIABLES = id cat1 cat2 nd ndc ndi ndci;
-CATEGORICAL  = cat1 cat2;
+AUXILIARY = 
+USEVARIABLES = ;
+CATEGORICAL  = ;
 CLASSES = class ([[classes]])
 
 ANALYSIS:
@@ -21,22 +21,22 @@ TYPE = MIXTURE;
 PROCESSORS = 16
 [[classes =1]]
 STITERATIONS = 16
-STARTS = 16 160
+STARTS = 160 16
 [[/classes = 1]]
 [[classes =2]]
 STITERATIONS = 16
-STARTS = 16 160
+STARTS = 160 16
 [[/classes = 2]]
 [[classes =3]]
 STITERATIONS = 16
-STARTS = 16 160
+STARTS = 160 16
 [[/classes = 3]]
 [[classes =4]]
-STITERATIONS = 32
-STARTS = 32 320
+STITERATIONS = 16
+STARTS = 160 16
 [[/classes = 4]]
 
 PLOT: TYPE=PLOT1 PLOT2 PLOT3;
 SAVEDATA:
-FILE IS base_lca_model6_lca_[[classes]].dat
+FILE IS test_20240908_10-53_model6_lca_[[classes]].dat
 SAVE = cprobabilites bchweights;
