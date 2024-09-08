@@ -11,8 +11,13 @@ create_templates <- function(settings){
     templates <- vector("list", length = 6)
     for (i in seq(6)) {
       templates[[i]] <- c(headers[[i]],
+                          '',
                           variable_specs[[i]],
+                          '',
+                          models[[i]],
+                          '',
                           analysis[[i]],
+                          '',
                           plot_save[[i]])
     }
     templates
@@ -122,12 +127,14 @@ create_plot_save <- function(settings){
   plot_save <- list()
   for(i in seq(6)){
     extended_name <- paste0(settings$analysis_name, '_model', i, '_lca')
-    model_plot_save <- c('OUTPUT:',
-                         'SVALUES ENTROPY TECH1;',
-                         'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
-                         'SAVEDATA:',
-                         paste0('FILE IS ', extended_name, '_[[classes]].dat'),
-                         'SAVE = cprobabilites bchweights;')
+    model_plot_save <- c('OUTPUT:')
+    if(settings$lmrlrt) {model_plot_save <- c(model_plot_save, 'SVALUES ENTROPY TECH1 TECH4 TECH11;')}
+    else{model_plot_save <- c(model_plot_save, 'SVALUES ENTROPY TECH1 TECH4;')}
+    model_plot_save <- c(model_plot_save,
+                        'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
+                        'SAVEDATA:',
+                        paste0('FILE IS ', extended_name, '_[[classes]].dat'),
+                        'SAVE = cprobabilites bchweights;')
     plot_save <- c(plot_save, list(model_plot_save))
   }
   plot_save

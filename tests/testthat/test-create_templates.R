@@ -87,7 +87,7 @@ test_that('create plot save is working correctly', {
   for(i in seq(6)){
     extended_name <- paste0('test_model', i, '_lca')
     model_plot_save <- c('OUTPUT:',
-                         'SVALUES ENTROPY TECH1;',
+                         'SVALUES ENTROPY TECH1 TECH4;',
                          'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
                          'SAVEDATA:',
                          paste0('FILE IS ', extended_name, '_[[classes]].dat'),
@@ -194,4 +194,21 @@ test_that('create analysis is working correctly', {
                      'STARTS = 640 128;',
                      '[[/classes = 2]]'))
   expect_equal(create_analysis(settings), analysis)
+})
+
+test_that('LMRLRT is added on wish', {
+  settings <- define_lca(testdata, 'test', 'id', lmrlrt = TRUE)
+  plot_save <- list()
+  for(i in seq(6)){
+    extended_name <- paste0('test_model', i, '_lca')
+    model_plot_save <- c('OUTPUT:',
+                         'SVALUES ENTROPY TECH1 TECH4 TECH11;',
+                         'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
+                         'SAVEDATA:',
+                         paste0('FILE IS ', extended_name, '_[[classes]].dat'),
+                         'SAVE = cprobabilites bchweights;')
+    plot_save <- c(plot_save, list(model_plot_save))
+  }
+
+  expect_equal(create_plot_save(settings), plot_save)
 })
