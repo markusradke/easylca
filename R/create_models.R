@@ -3,15 +3,15 @@ create_models <- function(settings){
   settings$freevariance_block <- create_freevariance_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
 
-  # verzweigung einbauen die für leere 3 blöcke nur 1 modell schreibt
+  # TODO: What if all models are the same (e.g., only categorical variables?)
   model1 <- create_model1(settings)
+  model2 <- create_model2(settings)
+  model3 <- create_model3(settings)
+  model4 <- create_model4(settings)
+  model5 <- create_model5(settings)
+  model6 <- create_model6(settings)
 
-  # create_model2() # model specs for each type
-  # create_model3() # model specs for each type
-  # create_model4() # model specs for each type
-  # create_model5() # model specs for each type
-  # create_model6() # model specs for each type
-  list()
+  list(model1, model2, model3, model4, model5, model6)
 }
 
 create_model1 <- function(settings){
@@ -41,7 +41,7 @@ create_model2 <- function(settings){
 }
 
 create_model3 <- function(settings){
-  if (length(settings$inflation_block) == 0 && length(settings$correlate) == 0){
+  if (length(settings$inflation_block) == 0 && length(settings$correlation_block) == 0){
     return(character())
   }
   model3 <- c('MODEL:')
@@ -54,6 +54,55 @@ create_model3 <- function(settings){
     }
   }
   model3
+}
+
+create_model4 <- function(settings){
+  if (length(settings$inflation_block) == 0 && length(settings$correlation_block) == 0 && length(settings$freevariance_block) == 0){
+    return(character())
+  }
+  model4 <- c('MODEL:')
+  if (length(settings$correlation_block) != 0) {model4 <- c(model4, '%OVERALL%', settings$correlation_block)}
+  if (length(settings$inflation_block) != 0 || length(settings$freevariance_block != 0)){
+    for(i in seq(settings$nclasses)){
+      if(i != 1) {model4 <- c(model4, paste0('[[classes > ', i-1, ']]'))}
+      model4 <- c(model4, paste0('%CLASS', i, '%'))
+      if (length(settings$inflation_block) != 0) {model4 <- c(model4, settings$inflation_block)}
+      if (length(settings$freevariance_block) != 0) {model4 <- c(model4, settings$freevariance_block)}
+      if(i != 1) {model4 <- c(model4, paste0('[[/classes > ', i-1, ']]'))}
+    }
+  }
+  model4
+}
+
+create_model5 <- function(settings){
+  if (length(settings$inflation_block) == 0 && length(settings$correlation_block) == 0){
+    return(character())
+  }
+  model5 <- c('MODEL:')
+  for(i in seq(settings$nclasses)){
+    if(i != 1) {model5 <- c(model5, paste0('[[classes > ', i-1, ']]'))}
+    model5 <- c(model5, paste0('%CLASS', i, '%'))
+    if (length(settings$inflation_block) != 0) {model5 <- c(model5, settings$inflation_block)}
+    if (length(settings$correlation_block) != 0) {model5 <- c(model5, settings$correlation_block)}
+    if(i != 1) {model5 <- c(model5, paste0('[[/classes > ', i-1, ']]'))}
+  }
+  model5
+}
+
+create_model6 <- function(settings){
+  if (length(settings$inflation_block) == 0 && length(settings$correlation_block) == 0 && length(settings$freevariance_block) == 0){
+    return(character())
+  }
+  model6 <- c('MODEL:')
+  for(i in seq(settings$nclasses)){
+    if(i != 1) {model6 <- c(model6, paste0('[[classes > ', i-1, ']]'))}
+    model6 <- c(model6, paste0('%CLASS', i, '%'))
+    if (length(settings$inflation_block) != 0) {model6 <- c(model6, settings$inflation_block)}
+    if (length(settings$correlation_block) != 0) {model6 <- c(model6, settings$correlation_block)}
+    if (length(settings$freevariance_block) != 0) {model6 <- c(model6, settings$freevariance_block)}
+    if(i != 1) {model6 <- c(model6, paste0('[[/classes > ', i-1, ']]'))}
+  }
+  model6
 }
 
 create_inflation_block <- function(settings) {
@@ -79,7 +128,7 @@ create_freevariance_block <- function(settings) {
 }
 
 create_correlation_block <- function(settings) {
-  if(length(settings$correlate) == 0){
+  if(length(settings$correlate) < 2){
     return(character())
   }
   correlation_block <- as.character(combn(settings$correlate, 2, function(x) paste0(x[1], ' WITH ', x[2], ';')))

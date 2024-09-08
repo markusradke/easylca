@@ -172,6 +172,305 @@ test_that('model 3 is created correctly', {
   expect_equal(create_model3(settings), model3)
 })
 
+test_that('model 4 is created correctly', {
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  settings$freevariance_block <- create_freevariance_block(settings)
+  expect_equal(create_model4(settings), character())
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1'))
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  settings$freevariance_block <- create_freevariance_block(settings)
+  model4 <- c('MODEL:',
+              '%CLASS1%',
+              'var2;',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              'var2;',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              'var2;',
+              '[[/classes > 2]]')
+  expect_equal(create_model4(settings), model4)
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = 'var1',
+                         poisson = 'var2', inflated = 'var2')
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  settings$freevariance_block <- create_freevariance_block(settings)
+  model4 <- c('MODEL:',
+              '%CLASS1%',
+              '[ var2#1 ];',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              '[ var2#1 ];',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              '[ var2#1 ];',
+              '[[/classes > 2]]')
+  expect_equal(create_model4(settings), model4)
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  settings$freevariance_block <- create_freevariance_block(settings)
+  model4 <- c('MODEL:',
+              '%OVERALL%',
+              'var1 WITH var2;',
+              '%CLASS1%',
+              'var1;',
+              'var2;',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              'var1;',
+              'var2;',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              'var1;',
+              'var2;',
+              '[[/classes > 2]]')
+  expect_equal(create_model4(settings), model4)
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
+                         censored_below = 'var2', inflated = 'var2')
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  settings$freevariance_block <- create_freevariance_block(settings)
+  model4 <- c('MODEL:',
+              '%CLASS1%',
+              '[ var2#1 ];',
+              'var1;',
+              'var2;',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              '[ var2#1 ];',
+              'var1;',
+              'var2;',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              '[ var2#1 ];',
+              'var1;',
+              'var2;',
+              '[[/classes > 2]]')
+  expect_equal(create_model4(settings), model4)
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'),
+                         censored_below = 'var2', inflated = 'var2')
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  settings$freevariance_block <- create_freevariance_block(settings)
+  model4 <- c('MODEL:',
+              '%OVERALL%',
+              'var1 WITH var3;',
+              '%CLASS1%',
+              '[ var2#1 ];',
+              'var1;',
+              'var2;',
+              'var3;',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              '[ var2#1 ];',
+              'var1;',
+              'var2;',
+              'var3;',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              '[ var2#1 ];',
+              'var1;',
+              'var2;',
+              'var3;',
+              '[[/classes > 2]]')
+  expect_equal(create_model4(settings), model4)
+})
+
+test_that('model 5 is created correctly', {
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  expect_equal(create_model5(settings), character())
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  model5 <- c('MODEL:',
+              '%CLASS1%',
+              'var1 WITH var2;',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              'var1 WITH var2;',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              'var1 WITH var2;',
+              '[[/classes > 2]]')
+  expect_equal(create_model5(settings), model5)
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
+                         censored_above = c('var1', 'var2'), inflated = 'var2')
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  model5 <- c('MODEL:',
+              '%CLASS1%',
+              '[ var2#1 ];',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              '[ var2#1 ];',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              '[ var2#1 ];',
+              '[[/classes > 2]]')
+  expect_equal(create_model5(settings), model5)
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'),
+                         censored_above = 'var2', inflated = 'var2')
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  model5 <- c('MODEL:',
+              '%CLASS1%',
+              '[ var2#1 ];',
+              'var1 WITH var3;',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              '[ var2#1 ];',
+              'var1 WITH var3;',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              '[ var2#1 ];',
+              'var1 WITH var3;',
+              '[[/classes > 2]]')
+  expect_equal(create_model5(settings), model5)
+})
+
+test_that('model 6 is created correctly', {
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  settings$freevariance_block <- create_freevariance_block(settings)
+  expect_equal(create_model6(settings), character())
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1'))
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  settings$freevariance_block <- create_freevariance_block(settings)
+  model6 <- c('MODEL:',
+              '%CLASS1%',
+              'var2;',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              'var2;',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              'var2;',
+              '[[/classes > 2]]')
+  expect_equal(create_model6(settings), model6)
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = 'var1',
+                         poisson = 'var2', inflated = 'var2')
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  settings$freevariance_block <- create_freevariance_block(settings)
+  model6 <- c('MODEL:',
+              '%CLASS1%',
+              '[ var2#1 ];',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              '[ var2#1 ];',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              '[ var2#1 ];',
+              '[[/classes > 2]]')
+  expect_equal(create_model6(settings), model6)
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  settings$freevariance_block <- create_freevariance_block(settings)
+  model6 <- c('MODEL:',
+              '%CLASS1%',
+              'var1 WITH var2;',
+              'var1;',
+              'var2;',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              'var1 WITH var2;',
+              'var1;',
+              'var2;',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              'var1 WITH var2;',
+              'var1;',
+              'var2;',
+              '[[/classes > 2]]')
+  expect_equal(create_model6(settings), model6)
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
+                         censored_below = 'var2', inflated = 'var2')
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  settings$freevariance_block <- create_freevariance_block(settings)
+  model6 <- c('MODEL:',
+              '%CLASS1%',
+              '[ var2#1 ];',
+              'var1;',
+              'var2;',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              '[ var2#1 ];',
+              'var1;',
+              'var2;',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              '[ var2#1 ];',
+              'var1;',
+              'var2;',
+              '[[/classes > 2]]')
+  expect_equal(create_model6(settings), model6)
+
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'),
+                         censored_below = 'var2', inflated = 'var2')
+  settings$inflation_block <- create_inflation_block(settings)
+  settings$correlation_block <- create_correlation_block(settings)
+  settings$freevariance_block <- create_freevariance_block(settings)
+  model6 <- c('MODEL:',
+              '%CLASS1%',
+              '[ var2#1 ];',
+              'var1 WITH var3;',
+              'var1;',
+              'var2;',
+              'var3;',
+              '[[classes > 1]]',
+              '%CLASS2%',
+              '[ var2#1 ];',
+              'var1 WITH var3;',
+              'var1;',
+              'var2;',
+              'var3;',
+              '[[/classes > 1]]',
+              '[[classes > 2]]',
+              '%CLASS3%',
+              '[ var2#1 ];',
+              'var1 WITH var3;',
+              'var1;',
+              'var2;',
+              'var3;',
+              '[[/classes > 2]]')
+  expect_equal(create_model6(settings), model6)
+})
+
+
 # test_that('model specifications are created correctly or all model types',{
 #   settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'))
 #   model1 <- character()
