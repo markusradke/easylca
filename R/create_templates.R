@@ -1,7 +1,7 @@
 #' CREATE MPLUS TEMPLATES ACCORDING TO THE SPECIFICATIONS MADE
 #'
-#' @param lcasettings
-#' @return List of character vectors with model templates. Also saves them as .txt files in current working directory.
+#' @param lcasettings Settings for the lca, including data, variable specification, and additional technical specifications. Please use the define_lca() command to generate the settings and refer to its documentation for further details.
+#' @return List of character vectors with model templates. Also saves them as .txt files in a subfolder with timestamp in the current working directory.
 #'
 #' @export
 #' @examples
@@ -20,12 +20,7 @@ create_templates <- function(settings){
 
   headers <- create_headers(settings)
   variable_specs <- create_variable_specs(settings)
-  # create_model1() # model specs for each type
-  # create_model2() # model specs for each type
-  # create_model3() # model specs for each type
-  # create_model4() # model specs for each type
-  # create_model5() # model specs for each type
-  # create_model6() # model specs for each type
+  models <- create_models(settings)
   analysis <- create_analysis(settings)
   plot_save <- create_plot_save(settings)
 
@@ -57,11 +52,19 @@ create_variable_specs <- function(settings){
                       paste0('NAMES = ', paste(settings$names, collapse = ' '), ';'),
                       paste0('IDVARIABLE = ', settings$id, ';'),
                       paste0('USEVARIABLES = ', paste(settings$use, collapse = ' '), ';'))
-  if(! is.null(settings$categorical)){
+  if(length(settings$categorical) != 0){
     variable_specs <- c(variable_specs,
                         paste0('CATEGORICAL = ', paste(settings$categorical, collapse = ' '), ';'))
   }
-  if(! is.null(settings$auxvariables)){
+  if (length(settings$censored_above) != 0 || length(settings$censored_below) != 0){
+    censoring <- create_censoring(settings)
+    variable_specs <- c(variable_specs, censoring)
+  }
+  if (length(settings$poisson) != 0 || length(settings$negbin) != 0){
+    censoring <- create_count(settings)
+    variable_specs <- c(variable_specs, censoring)
+  }
+  if(length(settings$auxvariables) != 0){
     variable_specs <- c(variable_specs,
                         paste0('AUXILIARY = ', paste(settings$auxvariables, collapse = ' '), ';'))
   }
@@ -70,6 +73,40 @@ create_variable_specs <- function(settings){
                       'CLASSES = class ([[classes]]);')
   variable_specs <- rep(list(variable_specs), times = 6)
   variable_specs
+}
+
+create_censoring <- function(settings) {
+  censoring <- 'CENSORED ='
+  censoring <- add_type_inflation_specification_to_variable_listing(censoring, settings$censored_above, 'a', settings$inflated)
+  censoring <- add_type_inflation_specification_to_variable_listing(censoring, settings$censored_below, 'b', settings$inflated)
+  censoring <- paste0(censoring, ';')
+}
+
+create_count <- function(settings) {
+  count <- 'COUNT ='
+  count <- add_type_inflation_specification_to_variable_listing(count, settings$poisson, 'p', settings$inflated)
+  count <- add_type_inflation_specification_to_variable_listing(count, settings$negbin, 'nb', settings$inflated)
+  count <- paste0(count, ';')
+}
+
+add_type_inflation_specification_to_variable_listing <- function(listing, variables, type, inflated){
+  for (var in variables){
+    if (var %in% inflated){
+      listing <- paste0(listing, ' ', var, ' (', type, 'i)')
+    }
+    else {listing <- paste0(listing, ' ', var, ' (', type, ')')}
+  }
+  listing
+}
+
+create_models <- function(settings){
+  # create_model1() # model specs for each type
+  # create_model2() # model specs for each type
+  # create_model3() # model specs for each type
+  # create_model4() # model specs for each type
+  # create_model5() # model specs for each type
+  # create_model6() # model specs for each type
+  list()
 }
 
 create_analysis <- function(settings){ # TODO

@@ -6,8 +6,11 @@
 \usage{
 create_templates(settings)
 }
+\arguments{
+\item{lcasettings}{Settings for the lca, including data, variable specification, and additional technical specifications. Please use the define_lca() command to generate the settings and refer to its documentation for further details.}
+}
 \value{
-List of character vectors with model templates. Also saves them as .txt files in current working directory.
+List of character vectors with model templates. Also saves them as .txt files in a subfolder with timestamp in the current working directory.
 }
 \description{
 CREATE MPLUS TEMPLATES ACCORDING TO THE SPECIFICATIONS MADE

@@ -38,7 +38,7 @@ define_lca(
 
 \item{censored_below}{Character vector with all censored below variables.}
 
-\item{inflated}{Character vector with all zero-inflated variables (can only be censored or poisson, negbin).}
+\item{inflated}{Character vector with all zero-inflated variables (can only be censored or poisson, negbin). Inflation is always assumed to vary between classes.}
 
 \item{poisson}{Character vector with all poisson-distributed variables.}
 
@@ -65,6 +65,6 @@ lca_settings <- define_lca(testdata,
                c(320, 640),
                c(320, 640),
                c(320, 640)),
- use = c('nd', 'cat1'),
- categorical = 'cat1')
+ use = c('var1', 'var2'),
+ categorical = 'var2')
 }

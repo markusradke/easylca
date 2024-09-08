@@ -13,7 +13,7 @@
 #' @param categoricals Character vector with all categorical variables.
 #' @param censored_above Character vector with all censored above variables.
 #' @param censored_below Character vector with all censored below variables.
-#' @param inflated Character vector with all zero-inflated variables (can only be censored or poisson, negbin).
+#' @param inflated Character vector with all zero-inflated variables (can only be censored or poisson, negbin). Inflation is always assumed to vary between classes.
 #' @param poisson Character vector with all poisson-distributed variables.
 #' @param negbin Character vector with all negative binomial distributed variables.
 #' @param LMRLRT Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.
@@ -31,8 +31,8 @@
 #'                c(320, 640),
 #'                c(320, 640),
 #'                c(320, 640)),
-#'  use = c('nd', 'cat1'),
-#'  categorical = 'cat1')
+#'  use = c('var1', 'var2'),
+#'  categorical = 'var2')
 
 define_lca <- function(frame,
                        analysis_name,
