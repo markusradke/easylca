@@ -85,12 +85,13 @@ create_templates <- function(settings){
   }
 
   save_templates <- function(templates){
-    writeLines(templates[[1]], 'base_lca_model1_template.txt')
-    writeLines(templates[[2]], 'base_lca_model2_template.txt')
-    writeLines(templates[[3]], 'base_lca_model3_template.txt')
-    writeLines(templates[[4]], 'base_lca_model4_template.txt')
-    writeLines(templates[[5]], 'base_lca_model5_template.txt')
-    writeLines(templates[[6]], 'base_lca_model6_template.txt')
+    if(! dir.exists(settings$folder_name)){
+      dir.create(settings$folder_name)
+    }
+    for(i in seq(6)){
+      writeLines(templates[[i]],
+                 paste0(settings$folder_name, '/', settings$analysis_name, '_model', i, '_template.txt'))
+    }
   }
 
   headers <- create_headers()

@@ -1,15 +1,13 @@
 test_that('creates necessary files', {
   settings <- define_lca(testdata, 'test', 'id')
   create_templates(settings)
-  currenttime <- format(Sys.time(), "%Y%m%d_%H-%M")
-  analysis_name <- paste('test', currenttime, sep = '_')
 
   for(i in seq(6)){
-    model_path <- paste0(analysis_name, '/', analysis_name, '_model_', i, '_template.txt')
-    print(model_path)
+    model_path <- paste0(settings$folder_name, '/', settings$analysis_name, '_model', i, '_template.txt')
     expect_true(file.exists(model_path),
                 info = paste0('Did not write file for model ', i, '...'))
   }
+  unlink(settings$folder_name, recursive = T)
 })
 
 # test_that("creates basemodel templates the right way", {
