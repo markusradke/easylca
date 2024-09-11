@@ -1,6 +1,11 @@
 test_that('mplus analysis for all models creates necessary files and returns', {
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 2, starts = 20)
-  perform_lca(settings)
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 2, starts = 20,
+                         categorical = c('var1', 'var2'),
+                         censored_below = c('var6', 'var8'),
+                         poisson = 'var7',
+                         inflated = c('var7', 'var8'))
+
+  results <- perform_lca(settings)
 
   for(type in seq(6)){
     model_path <- paste0(settings$folder_name, '/test_model', type, '_lca/')
@@ -28,10 +33,19 @@ test_that('mplus analysis for all models creates necessary files and returns', {
     }
   }
 
+  expect_true(file.exists(paste0(settings$folder_name, '/test_lca_results.rds')),
+              info = 'Did not write general results file.')
+  expect_true(file.exists(paste0(settings$folder_name, '/test_summary_portrait.png')),
+              info = 'Did not write portrait summary plot file.')
+  expect_true(file.exists(paste0(settings$folder_name, '/test_summary_landscape.png')),
+              info = 'Did not write landscape summary plot file.')
 
+  expect_setequal(results$summary %>% colnames, c('classes', 'Title', 'Parameters', 'LL', 'AIC', 'AICC', 'BIC', 'saBIC',
+                                                  'Entropy', 'nmin', 'replicated', 'boundary_values', 'modeltype'))
 
   # unlink(settings$folder_name, recursive = T)
 })
+
 
 # test_that('returns an object of type easylca', {
 #   settings <- define_lca(testdata, 'test', 'id')
