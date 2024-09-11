@@ -18,13 +18,13 @@ test_that('headers are created the right way from settings', {
     extended_name <- paste0('test_model', i, '_lca')
     model_header <- c('[[init]]',
                       'iterators = classes;',
-                      'classes = 1:4',
+                      'classes = 1:4;',
                       paste0('filename = \"[[classes]]_', extended_name,'.inp\";'),
                       paste0('outputDirectory = \"', extended_name, '\";'),
                       paste0('[[/init]]'),
                       '',
                       paste0('TITLE: test[[classes]] classes'),
-                      paste0('FILE IS ', extended_name, '_[[classes]].dat;'))
+                      paste0('DATA: FILE IS ', extended_name, '.dat;'))
     headers <- c(headers, list(model_header))
   }
   expect_equal(create_headers(settings), headers)

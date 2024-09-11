@@ -21,7 +21,7 @@ create_model1 <- function(settings){
   model1 <- c('MODEL:')
   for(i in seq(settings$nclasses)){
     if(i != 1) {model1 <- c(model1, paste0('[[classes > ', i-1, ']]'))}
-    model1 <- c(model1, paste0('%CLASS', i, '%'), settings$inflation_block)
+    model1 <- c(model1, paste0('%CLASS#', i, '%'), settings$inflation_block)
     if(i != 1) {model1 <- c(model1, paste0('[[/classes > ', i-1, ']]'))}
   }
   model1
@@ -34,7 +34,7 @@ create_model2 <- function(settings){
   model2 <- c('MODEL:')
   for(i in seq(settings$nclasses)){
     if(i != 1) {model2 <- c(model2, paste0('[[classes > ', i-1, ']]'))}
-    model2 <- c(model2, paste0('%CLASS', i, '%'), settings$inflation_block, settings$freevariance_block)
+    model2 <- c(model2, paste0('%CLASS#', i, '%'), settings$inflation_block, settings$freevariance_block)
     if(i != 1) {model2 <- c(model2, paste0('[[/classes > ', i-1, ']]'))}
   }
   model2
@@ -49,7 +49,7 @@ create_model3 <- function(settings){
   if (length(settings$inflation_block) != 0){
     for(i in seq(settings$nclasses)){
       if(i != 1) {model3 <- c(model3, paste0('[[classes > ', i-1, ']]'))}
-      model3 <- c(model3, paste0('%CLASS', i, '%'), settings$inflation_block)
+      model3 <- c(model3, paste0('%CLASS#', i, '%'), settings$inflation_block)
       if(i != 1) {model3 <- c(model3, paste0('[[/classes > ', i-1, ']]'))}
     }
   }
@@ -65,7 +65,7 @@ create_model4 <- function(settings){
   if (length(settings$inflation_block) != 0 || length(settings$freevariance_block != 0)){
     for(i in seq(settings$nclasses)){
       if(i != 1) {model4 <- c(model4, paste0('[[classes > ', i-1, ']]'))}
-      model4 <- c(model4, paste0('%CLASS', i, '%'))
+      model4 <- c(model4, paste0('%CLASS#', i, '%'))
       if (length(settings$inflation_block) != 0) {model4 <- c(model4, settings$inflation_block)}
       if (length(settings$freevariance_block) != 0) {model4 <- c(model4, settings$freevariance_block)}
       if(i != 1) {model4 <- c(model4, paste0('[[/classes > ', i-1, ']]'))}
@@ -81,7 +81,7 @@ create_model5 <- function(settings){
   model5 <- c('MODEL:')
   for(i in seq(settings$nclasses)){
     if(i != 1) {model5 <- c(model5, paste0('[[classes > ', i-1, ']]'))}
-    model5 <- c(model5, paste0('%CLASS', i, '%'))
+    model5 <- c(model5, paste0('%CLASS#', i, '%'))
     if (length(settings$inflation_block) != 0) {model5 <- c(model5, settings$inflation_block)}
     if (length(settings$correlation_block) != 0) {model5 <- c(model5, settings$correlation_block)}
     if(i != 1) {model5 <- c(model5, paste0('[[/classes > ', i-1, ']]'))}
@@ -96,7 +96,7 @@ create_model6 <- function(settings){
   model6 <- c('MODEL:')
   for(i in seq(settings$nclasses)){
     if(i != 1) {model6 <- c(model6, paste0('[[classes > ', i-1, ']]'))}
-    model6 <- c(model6, paste0('%CLASS', i, '%'))
+    model6 <- c(model6, paste0('%CLASS#', i, '%'))
     if (length(settings$inflation_block) != 0) {model6 <- c(model6, settings$inflation_block)}
     if (length(settings$correlation_block) != 0) {model6 <- c(model6, settings$correlation_block)}
     if (length(settings$freevariance_block) != 0) {model6 <- c(model6, settings$freevariance_block)}

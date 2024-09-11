@@ -40,13 +40,13 @@ create_headers <- function(settings){
     extended_name <- paste0(settings$analysis_name, '_model', i, '_lca')
     model_header <- c('[[init]]',
                       'iterators = classes;',
-                      paste0('classes = 1:', settings$nclasses),
+                      paste0('classes = 1:', settings$nclasses, ';'),
                       paste0('filename = \"[[classes]]_', extended_name,'.inp\";'),
                       paste0('outputDirectory = \"', extended_name, '\";'),
                       paste0('[[/init]]'),
                       '',
                       paste0('TITLE: ', settings$analysis_name, '[[classes]] classes'),
-                      paste0('FILE IS ', extended_name, '_[[classes]].dat;'))
+                      paste0('DATA: FILE IS ', extended_name, '.dat;'))
     headers <- c(headers, list(model_header))
   }
   headers
