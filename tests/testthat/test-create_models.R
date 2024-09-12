@@ -10,7 +10,7 @@ test_that('inflation block is created correctly',{
 
 
 test_that('free variance block is created correctly', {
-  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2', 'var3'), poisson = 'var3')
+  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2', 'var7'), poisson = 'var7')
   freevariance_block <- c('var1;',
                           'var2;')
   expect_equal(create_freevariance_block(settings), freevariance_block)
@@ -26,8 +26,8 @@ test_that('correlation block is created correctly', {
                          'var2 WITH var3;')
   expect_equal(create_correlation_block(settings), correlation_block)
 
-  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2', 'var3', 'var4'),
-                         censored_above = 'var1', censored_below = 'var2', poisson = 'var3', negbin = 'var4')
+  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2', 'var7', 'var8'),
+                         censored_above = 'var1', censored_below = 'var2', poisson = 'var7', negbin = 'var8')
   expect_equal(create_correlation_block(settings), character())
 })
 
@@ -563,28 +563,28 @@ test_that('model specifications are created correctly or all model types',{
   models <- list(model1, model2, model3, model4, model5, model6)
   expect_equal(create_models(settings), models)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 2, use = c('var1', 'var2', 'var3', 'var4', 'var5'), categorical = 'var1',
-                         censored_above = 'var2', poisson = 'var3', inflated = c('var2', 'var3'))
+  settings <- define_lca(testdata, 'test', 'id', nclasses = 2, use = c('var1', 'var2', 'var7', 'var4', 'var5'), categorical = 'var1',
+                         censored_above = 'var2', poisson = 'var7', inflated = c('var2', 'var7'))
   model1 <- c('MODEL:',
               '%CLASS#1%',
               '[ var2#1 ];',
-              '[ var3#1 ];',
+              '[ var7#1 ];',
               '[[classes > 1]]',
               '%CLASS#2%',
               '[ var2#1 ];',
-              '[ var3#1 ];',
+              '[ var7#1 ];',
               '[[/classes > 1]]')
   model2 <- c('MODEL:',
               '%CLASS#1%',
               '[ var2#1 ];',
-              '[ var3#1 ];',
+              '[ var7#1 ];',
               'var2;',
               'var4;',
               'var5;',
               '[[classes > 1]]',
               '%CLASS#2%',
               '[ var2#1 ];',
-              '[ var3#1 ];',
+              '[ var7#1 ];',
               'var2;',
               'var4;',
               'var5;',
@@ -594,25 +594,25 @@ test_that('model specifications are created correctly or all model types',{
               'var4 WITH var5;',
               '%CLASS#1%',
               '[ var2#1 ];',
-              '[ var3#1 ];',
+              '[ var7#1 ];',
               '[[classes > 1]]',
               '%CLASS#2%',
               '[ var2#1 ];',
-              '[ var3#1 ];',
+              '[ var7#1 ];',
               '[[/classes > 1]]')
   model4 <- c('MODEL:',
               '%OVERALL%',
               'var4 WITH var5;',
               '%CLASS#1%',
               '[ var2#1 ];',
-              '[ var3#1 ];',
+              '[ var7#1 ];',
               'var2;',
               'var4;',
               'var5;',
               '[[classes > 1]]',
               '%CLASS#2%',
               '[ var2#1 ];',
-              '[ var3#1 ];',
+              '[ var7#1 ];',
               'var2;',
               'var4;',
               'var5;',
@@ -620,18 +620,18 @@ test_that('model specifications are created correctly or all model types',{
   model5 <- c('MODEL:',
               '%CLASS#1%',
               '[ var2#1 ];',
-              '[ var3#1 ];',
+              '[ var7#1 ];',
               'var4 WITH var5;',
               '[[classes > 1]]',
               '%CLASS#2%',
               '[ var2#1 ];',
-              '[ var3#1 ];',
+              '[ var7#1 ];',
               'var4 WITH var5;',
               '[[/classes > 1]]')
   model6 <- c('MODEL:',
               '%CLASS#1%',
               '[ var2#1 ];',
-              '[ var3#1 ];',
+              '[ var7#1 ];',
               'var4 WITH var5;',
               'var2;',
               'var4;',
@@ -639,7 +639,7 @@ test_that('model specifications are created correctly or all model types',{
               '[[classes > 1]]',
               '%CLASS#2%',
               '[ var2#1 ];',
-              '[ var3#1 ];',
+              '[ var7#1 ];',
               'var4 WITH var5;',
               'var2;',
               'var4;',

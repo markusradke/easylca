@@ -1,169 +1,128 @@
-extract_profile_for_plotting <- function(model, settings){
-  profiles <- extract_profile(model, settings)
-  means <- get_means_from_profiles(profiles)
-  errors <- get_errors_from_profiles(profiles, means)
-
-  means <- correct_negbin_poisson_means(means, settings)
-  errors <- correct_negbin_poisson_errors(means, errors, profiles, settings)
-  pzero <- get_pzero_from_profiles(profiles)
-  categorical <- get_categorical_from_profiles(profiles)
-
-  metric <- combine_metric_items(means, errors, pzero)
-  metric <- calculate_ypos_for_pzero(metric)
-  profile_ready <- rbind(metric, categorical)
-  profile_ready
-}
-
-
-extract_profile<- function(model, settings){
-  .make_empty_tibble <- function(){
-    tibble(param = character(),
-           item = character(),
-           est = numeric(),
-           se = numeric(),
-           est_se = numeric(),
-           pval = numeric(),
-           segment = character(),
-           level = numeric())
-  }
-
-  if(!is.null(model[["parameters"]][["probability.scale"]])){
-    profile_categorical<-model[["parameters"]][["probability.scale"]] %>% as.data.frame() %>%
-      dplyr::rename(item=param,level=category,segment=LatentClass) %>%
-      dplyr::mutate(param = 'Probabilities') %>%
-      dplyr::mutate(level=as.integer(level)-1)
-  }
-  else {profile_categorical  <- .make_empty_tibble()}
-
-  if(!is.null(model[["parameters"]][["unstandardized"]])){
-    profile_metric <- model[["parameters"]][["unstandardized"]] %>% as.data.frame() %>%
-      dplyr::rename(item=param,param=paramHeader, segment=LatentClass) %>%
-      dplyr::mutate(level = NA) %>%
-      dplyr::filter(param != 'Thresholds') %>%
-      dplyr::filter(!stringr::str_detect(item, 'CLASS#[0-9]+'))
-  }
-  else {profile_metric <- .make_empty_tibble()}
-
-
-  profile <- rbind(profile_metric, profile_categorical) %>%
-    dplyr::mutate(est_se = as.double(ifelse(stringr::str_detect(est_se, '\\*'), NA, est_se))) %>%
-    dplyr::mutate(item=tolower(item)) %>%
-    dplyr::mutate_at(c("segment","level","item"),as.factor)
-
-  prevalences <- round((model[["class_counts"]][["modelEstimated"]][["proportion"]]*100),2)
-  levels(profile$segment) <- paste0("class ",levels(profile$segment)," (",prevalences,"%)")
-
-  profile %>% dplyr::mutate(est = ifelse(pval > 0.05, 0, est))
-}
-
-
-get_means_from_profiles <- function(profiles){
-  profiles %>%
-    dplyr::filter(! stringr::str_detect(item, '#1')) %>%
-    dplyr::filter(stringr::str_detect(param, 'Means'))
-}
-
-get_errors_from_profiles <-function(profiles, means){
-  suppressMessages(profiles %>%
-    dplyr::filter(param == 'Variances' | param == 'Dispersion') %>%
-    dplyr::left_join(means %>% dplyr::select(item, segment, 'mean'= est)) %>%
-    dplyr::mutate(sd = sqrt(est),
-                  sd = ifelse(sd == 'Inf', 0, sd),
-                  upper = mean + sd,
-                  lower = mean - sd) %>%
-    dplyr::select(upper, lower, segment, item))
-}
-
-correct_negbin_poisson_means <- function(means, settings){
-  means %>%
-    dplyr::mutate(est = ifelse(item %in% settings$negbin, exp(est), est)) %>%
-    dplyr::mutate(est = ifelse(item %in% settings$poisson & est < 0, 0, est))
-}
-
-correct_negbin_poisson_errors <- function(means, errors, profiles, settings){
-  errors_dispersion <- suppressMessages(profiles %>%
-    dplyr::filter(param == 'Dispersion') %>%
-    dplyr::select(segment, item, 'disp' = est) %>%
-    dplyr::inner_join(means) %>% dplyr::inner_join(errors) %>%
-    dplyr::mutate(upper = est + sqrt(est + exp(disp) * est ** 2),
-                  lower = est - sqrt(est + exp(disp) * est ** 2)) %>%
-    dplyr::select(upper, lower, segment, item))
-
-  errors_dispersion_correct <- errors %>% dplyr::filter(! item %in% settings$negbin) %>%
-    rbind(errors_dispersion)
-
-  errors_poisson <- means %>%
-    dplyr::filter(item %in% settings$poisson) %>%
-    dplyr::mutate(est = ifelse(est < 0, 0, est),
-                  upper = est + sqrt(est),
-                  lower = est - sqrt(est)) %>%
-    dplyr::select(upper, lower, segment, item)
-
-  errors_dispersion_correct %>% dplyr::filter(! item %in% settings$poisson) %>%
-    rbind(errors_poisson)
-}
-
-get_pzero_from_profiles <- function(profiles){
-  profiles %>%
-    dplyr::filter(stringr::str_detect(item, '#1')) %>%
-    dplyr::mutate(pzero = exp(est) / (exp(est) +1),
-                  pzero = round(pzero,2),
-                  pzero = paste0('P(y ≤ 0)\n= ', pzero),
-                  item = stringr::str_remove_all(item, '#1')) %>%
-    dplyr::select(-dplyr::all_of(c('est', 'se', 'est_se', 'pval', 'level')))
-}
-
-
-get_categorical_from_profiles <- function(profiles) {
-  profiles %>%
-    dplyr::filter(param == 'Probabilities') %>%
-    dplyr::mutate(upper = NA,
-                  lower = NA,
-                  pzero = '',
-                  yposinflation = NA)
-}
-
-combine_metric_items <- function(means, errors, pzero){
-  combined <- suppressMessages(dplyr::left_join(means, errors) %>%
-    dplyr::left_join(pzero) %>%
-    dplyr::mutate(pzero = ifelse(is.na(pzero), '', pzero)))
-  combined
-}
-
-calculate_ypos_for_pzero <- function(allparameters){
-  upperclass <- suppressMessages(allparameters %>%
-    dplyr::group_by(.data[['item']]) %>% dplyr::slice_max(.data[['upper']], n = 1) %>% dplyr::ungroup() %>%
-    dplyr::select('item', 'uppermax' = 'upper') %>%
-    dplyr::right_join(allparameters))
-
-  lowerclass <- suppressMessages(allparameters %>%
-    dplyr::group_by(.data[['item']]) %>% dplyr::slice_min(.data[['lower']], n=1) %>% dplyr::ungroup() %>%
-    dplyr::select('item', 'lowermin' = 'lower') %>% dplyr::right_join(upperclass))
-
-  lowerclass %>%
-    dplyr::mutate(paramrange = uppermax - lowermin,
-           yposinflation = lowermin - 0.3 * paramrange) %>%
-    dplyr::select(-lowermin, -uppermax, -paramrange)
-}
-
 plot_metric_profiles <- function(profiles, ncol_plot=2){
   nclasses <- profiles$segment %>% levels() %>% length()
   profiles <- dplyr::filter(profiles, param != 'Probabilities') %>%
-    dplyr::mutate(pzero_alpha = ifelse(pzero == '', 0, 0.5)) %>% dplyr::glimpse()
+    dplyr::mutate(pzero_alpha = ifelse(pzero == '', 0, 0.5))
 
 
   ggplot2::ggplot(profiles, ggplot2::aes(x = as.factor(segment), y = est, color = segment))+
     ggplot2::facet_wrap(.~item,  scales = "free", ncol = ncol_plot)+
-    ggplot2::geom_errorbar(aes(ymin = lower, ymax = upper))+
+    ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper))+
     ggplot2::geom_point(size = 2)+
     ggplot2::geom_point(ggplot2::aes(alpha = pzero_alpha, y = yposinflation), size =20) +
     ggplot2::geom_text(ggplot2::aes(y = yposinflation, label = pzero), vjust = 0.2, size = 3, color = 'black')+
     ggplot2::scale_color_discrete('')+
+    ggplot2::scale_alpha_continuous(range = c(0, 1))+
     ggplot2::guides(alpha = 'none')+
-    ggplot2::theme(axis.text.x = element_blank(),
-                   axis.ticks.x = element_blank())+
-    ggplot2::guides(color = guide_legend(override.aes = list(size = 5)))+
+    ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                   axis.ticks.x = ggplot2::element_blank())+
+    ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size = 5)))+
     ggplot2::xlab('') +
     ggplot2::ylab('model estimate')
 }
 
+
+plot_binary_profiles <- function(profiles){
+  relative_share <- profiles %>%
+    dplyr::filter(param == 'Probabilities' & level==1) %>%
+    dplyr::rename(share_of_1 = est) %>%
+    dplyr::select(segment, item, share_of_1)
+
+  ggplot2::ggplot(relative_share, ggplot2::aes(x = segment, y = item)) +
+    ggplot2::geom_point(ggplot2::aes(color = segment, alpha = share_of_1), size = 10) +
+    ggplot2::geom_text(ggplot2::aes(label = round(share_of_1, 2)), color = "black") +
+    ggplot2::scale_alpha_continuous(range = c(0.2, 1)) +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(x = 'class', y = 'indicator') +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(size = 10),
+      axis.text.x = ggplot2::element_blank(),
+      axis.ticks.x = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(hjust = 0.5, vjust = 0.5),
+      legend.position = 'none'
+    )
+}
+
+plot_kruskal_profiles <- function(model){
+
+  .get_kruskal_chisquare_from_prediction_for_item <- function(item){
+    are_all_in_same_class <- predicted[['CLASS']] %>% unique() %>% length() == 1
+    if(are_all_in_same_class){ return(0) }
+    stats::kruskal.test(predicted[[toupper(item)]], predicted[['CLASS']])$statistic[[1]] %>%
+      round(2)
+  }
+
+  .get_kruskal_p_from_prediction_for_item <- function(item){
+    are_all_in_same_class <- predicted[['CLASS']] %>% unique() %>% length() == 1
+    if(are_all_in_same_class){ return('') }
+    pvalue <- stats::kruskal.test(predicted[[toupper(item)]], predicted[['CLASS']])$p.value
+    pvalue <- pvalue * nitems # Bonferroni
+    if(pvalue > 0.05){return('')}
+    if(pvalue > 0.05){return('*')}
+    if(pvalue > 0.01){return('**')}
+    return('***')
+  }
+
+  .get_kruskal_chisquares <- function(){
+    data.frame(item = items) %>%
+      dplyr::filter(!stringr::str_detect(item, '#1')) %>%
+      dplyr::mutate(item = as.character(item),
+             chisquare = purrr::map_dbl(item, .get_kruskal_chisquare_from_prediction_for_item),
+             p = purrr::map_chr(item, .get_kruskal_p_from_prediction_for_item),
+             chisquarep = paste0(chisquare, p)) %>%
+      dplyr::arrange(-chisquare)
+  }
+
+  predicted <- model$savedata
+  items <- model$input$variable$usevariables %>% stringr::str_split_1(' ')
+  nitems <- items %>% length
+  chisquares <- .get_kruskal_chisquares()
+  max_chi_square <- chisquares$chisquare %>% max
+
+  total_entropy <- model$summaries$Entropy
+  ggplot2::ggplot(chisquares, ggplot2::aes(y = stats::reorder(item, chisquare), x = chisquare)) +
+    ggplot2::geom_bar(stat = 'identity', fill = 'white', color = 'black') +
+    ggplot2::geom_text(ggplot2::aes(label = chisquarep), hjust = -0.25, size = 3) +
+    ggplot2::scale_x_continuous(limits = c(0, max_chi_square * 1.5)) +
+    ggplot2::labs(title = paste0('chi square for Kruskall Wallis test, total entropy: ', total_entropy),
+      x = 'Kruskal-Wallis χ²',
+      y = 'indicator',
+      caption = '* p < 0.05, **  p < 0.01, *** p < 0.001, Bonferroni corrected')
+}
+
+
+plot_modeltype_class_diagnostics <- function(results, type, class){
+  settings <- results$settings
+  model <- results$models[[type]][[class]]
+  profiles <- extract_profile_for_plotting(model, settings)
+  binary <- plot_binary_profiles(profiles)
+  kruskal <- plot_kruskal_profiles(model)
+
+  folder <- paste0(settings$folder_name, '/', settings$analysis_name, '_model', type,'_lca/plots')
+  if(! dir.exists(folder)){
+    dir.create(folder)
+  }
+
+
+  design_portrait <- 'AA
+                      BC'
+  metric <- plot_metric_profiles(profiles, ncol_plot = 2)
+  portrait <- patchwork::wrap_plots(A = metric, B = binary, C = kruskal,
+                        heights = c(3,1),
+                        design = design_portrait)
+  ggplot2::ggsave(paste0(folder, '/', class, '_', settings$analysis_name, '_model', type,'_diagnostic_portrait.png'),
+                  portrait,
+                  width = 9,
+                  height = 16)
+
+  metric <- plot_metric_profiles(profiles, ncol_plot = 4)
+  design_landscape <- 'AB
+                       AC'
+  landscape <- patchwork::wrap_plots(A = metric, B = binary, C = kruskal,
+                                    widths = c(3,1),
+                                    design = design_landscape)
+  ggplot2::ggsave(paste0(folder, '/', class, '_', settings$analysis_name, '_model', type,'_diagnostic_landscape.png'),
+                  landscape,
+                  width = 22,
+                  height = 9)
+  landscape
+}

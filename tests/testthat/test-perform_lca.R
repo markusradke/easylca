@@ -25,8 +25,8 @@ test_that('mplus analysis for all models creates necessary files and returns', {
     for(class in seq(settings$nclasses)){
       input <- paste0(model_path, class, '_test_model', type, '_lca.inp')
       output <- paste0(model_path, class, '_test_model', type, '_lca.out')
-      portrait <- paste0(model_path, class, '_test_model', type, '_diagnostic_portrait.png')
-      landscape <- paste0(model_path, class, '_test_model', type, '_diagnostic_landscape.png')
+      portrait <- paste0(model_path, 'plots/', class, '_test_model', type, '_diagnostic_portrait.png')
+      landscape <- paste0(model_path, 'plots/', class, '_test_model', type, '_diagnostic_landscape.png')
 
       expect_true(file.exists(input),
                   info = paste0('Model ', type, ': Did not write input file for model class ', class, ' ', input, '.'))

@@ -22,8 +22,17 @@ perform_lca <- function(settings){
   }
   results$models <- models
 
+  cat('Create figures...\n')
   results$summary <- create_modeloverview(results$models, settings)
-  results$plots <- list(create_sabicplots(results$summary, settings))
+  results$plots$summary <- create_sabicplots(results$summary, settings)
+  for(type in seq(6)){
+    plotlist <- list()
+    for(class in seq(settings$nclasses)){
+      plot <- plot_modeltype_class_diagnostics(results, type, class)
+      plotlist <- c(plotlist, list(plot))
+    }
+    results$plots[[paste0('model', type)]] <- plotlist
+  }
 
   class(results) <- 'easylca'
   saveRDS(results, paste0(settings$folder_name, '/', settings$analysis_name, '_lca_results.rds'))

@@ -43,7 +43,10 @@ test_that('variables specs are created the right way from settings',{
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()
   expect_equal(create_variable_specs(settings), variable_settings)
 
-  settings <- define_lca(testdata, 'test', 'id',
+  settings <- define_lca(testdata %>%
+                           dplyr::mutate(var5 = floor(var5),
+                                         var6 = floor(var6)),
+                         'test', 'id',
                          use = c('var1', 'var2', 'var3', 'var4', 'var5', 'var6', 'var7', 'var8'),
                          censored_above = c('var1', 'var2'),
                          censored_below = c('var3', 'var4'),
