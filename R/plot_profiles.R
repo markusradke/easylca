@@ -1,15 +1,18 @@
 extract_profile_for_plotting <- function(model, settings){
   profiles <- extract_profile(model, settings)
   means <- get_means_from_profiles(profiles)
-  variances <- get_variances_from_profiles(profiles)
-  pzero <- get_pzero_from_profiles(profiles)
-  # binary <- get_binary_from_profiles(profiles)
-  allparameters <- combine_all_profile_items(means, variances, pzero)
-  profile_ready <- calculate_ypos_for_pzero(allparameters)
+  errors <- get_errors_from_profiles(profiles)
 
+  means <- correct_negbin_means(means, settings)
+  errors <- correct_negbin_poisson_errors(means, errors, profiles, settings)
+  pzero <- get_pzero_from_profiles(profiles)
+  binary <- get_binary_from_profiles(profiles)
+
+  metric <- combine_metric_items(means, errors, pzero)
+  metric <- calculate_ypos_for_pzero(metric)
+  profile_ready <- rbind(metric, binary)
   # profile_ready <-make_class_lables(model, profile_ready)
-  # profile_ready
-  allparameters
+  profile_ready
 }
 
 
@@ -28,7 +31,7 @@ extract_profile<- function(model, settings){
   if(!is.null(model[["parameters"]][["probability.scale"]])){
     profile_binary<-model[["parameters"]][["probability.scale"]] %>% as.data.frame() %>%
       dplyr::rename(item=param,level=category,segment=LatentClass) %>%
-      dplyr::mutate(param = 'probability') %>%
+      dplyr::mutate(param = 'Probabilities') %>%
       dplyr::mutate(level=as.integer(level)-1)
   }
   else {profile_binary  <- .make_empty_tibble()}
@@ -61,13 +64,42 @@ get_means_from_profiles <- function(profiles){
     dplyr::filter(stringr::str_detect(param, 'Means'))
 }
 
-get_variances_from_profiles <-function(profiles){
+get_errors_from_profiles <-function(profiles){
   profiles %>%
     dplyr::filter(param == 'Variances' | param == 'Dispersion') %>%
     dplyr::mutate(est = ifelse(pval > 0.05, 0, est),
                   sd = sqrt(est),
-                  sd = ifelse(sd == 'Inf', 0, sd)) %>%
-    dplyr::select(sd, segment, item)
+                  sd = ifelse(sd == 'Inf', 0, sd),
+                  upper = est + sd,
+                  lower = est - sd) %>%
+    dplyr::select(upper, lower, segment, item)
+}
+
+correct_negbin_means <- function(means, settings){
+  means %>%
+    dplyr::mutate(est = ifelse(item %in% settings$negbin, exp(est), est))
+}
+
+correct_negbin_poisson_errors <- function(means, errors, profiles, settings){
+  errors_dispersion <- suppressMessages(profiles %>%
+    dplyr::filter(param == 'Dispersion') %>% dplyr::select(segment, item, 'disp' = est) %>%
+    dplyr::inner_join(means) %>% dplyr::inner_join(errors) %>%
+    dplyr::mutate(upper = est + sqrt(est + exp(disp) * est ** 2),
+                  lower = est - sqrt(est + exp(disp) * est ** 2)) %>%
+    dplyr::select(upper, lower, segment, item))
+
+  errors_dispersion_correct <- errors %>% dplyr::filter(! item %in% settings$negbin) %>%
+    rbind(errors_dispersion)
+
+  errors_poisson <- means %>%
+    dplyr::filter(item %in% settings$poisson) %>%
+    dplyr::mutate(est = ifelse(est < 0, 0, est),
+                  upper = est + sqrt(est),
+                  lower = est - sqrt(est)) %>%
+    dplyr::select(upper, lower, segment, item)
+
+  errors_dispersion_correct %>% dplyr::filter(! item %in% settings$poisson) %>%
+    rbind(errors_poisson)
 }
 
 get_pzero_from_profiles <- function(profiles){
@@ -80,27 +112,32 @@ get_pzero_from_profiles <- function(profiles){
     dplyr::select(-dplyr::all_of(c('est', 'se', 'est_se', 'pval', 'level')))
 }
 
-combine_all_profile_items <- function(means, variances, pzero){
-  suppressMessages(dplyr::left_join(means, variances)) %>%
-    dplyr::mutate(upper = est + sd,
-                  lower = est - sd,
-                  upper = ifelse(item == 'widsgnfc', exp(est) + sqrt(exp(est) + exp(sd**2) * exp(est)**2), upper),
-                  lower = ifelse(item == 'widsgnfc', exp(est) - sqrt(exp(est) + exp(sd**2) * exp(est)**2), lower),
-                  est = ifelse(item == 'widsgnfc', exp(est), est)) %>%
+
+get_binary_from_profiles <- function(profiles) {
+  profiles %>%
+    dplyr::filter(param == 'Probabilities') %>%
+    dplyr::mutate(upper = NA,
+                  lower = NA,
+                  pzero = '',
+                  yposinflation = NA)
+}
+
+combine_metric_items <- function(means, errors, pzero){
+  combined <- suppressMessages(dplyr::left_join(means, errors) %>%
     dplyr::left_join(pzero) %>%
-    dplyr::mutate(pzero = ifelse(is.na(pzero), '', pzero))
+    dplyr::mutate(pzero = ifelse(is.na(pzero), '', pzero)))
+  combined
 }
 
 calculate_ypos_for_pzero <- function(allparameters){
-  upperclass <- allparameters %>%
+  upperclass <- suppressMessages(allparameters %>%
     dplyr::group_by(.data[['item']]) %>% dplyr::slice_max(.data[['upper']], n = 1) %>% dplyr::ungroup() %>%
     dplyr::select('item', 'uppermax' = 'upper') %>%
-    dplyr::glimpse() %>%
-    dplyr::right_join(allparameters)
+    dplyr::right_join(allparameters))
 
-  lowerclass <- allparameters %>%
+  lowerclass <- suppressMessages(allparameters %>%
     dplyr::group_by(.data[['item']]) %>% dplyr::slice_min(.data[['lower']], n=1) %>% dplyr::ungroup() %>%
-    dplyr::select('item', 'lowermin' = 'lower') %>% dplyr::right_join(upperclass)
+    dplyr::select('item', 'lowermin' = 'lower') %>% dplyr::right_join(upperclass))
 
   lowerclass %>%
     dplyr::mutate(paramrange = uppermax - lowermin,
