@@ -22,14 +22,20 @@ test_that('mplus analysis for all models creates necessary files and returns', {
     expect_true(file.exists(log),
                 info = paste0('Model ', type, ': Did not write file for model log ', log, '.'))
 
-    for(class in seq(2)){
+    for(class in seq(settings$nclasses)){
       input <- paste0(model_path, class, '_test_model', type, '_lca.inp')
       output <- paste0(model_path, class, '_test_model', type, '_lca.out')
+      portrait <- paste0(model_path, class, '_test_model', type, '_diagnostic_portrait.png')
+      landscape <- paste0(model_path, class, '_test_model', type, '_diagnostic_landscape.png')
 
       expect_true(file.exists(input),
                   info = paste0('Model ', type, ': Did not write input file for model class ', class, ' ', input, '.'))
       expect_true(file.exists(output),
                   info = paste0('Model ', type, ': Did not write output file for model class ', class, ' ', output, '.'))
+      expect_true(file.exists(portrait),
+                  info = paste0('Model ', type, ': Did not write diagnostic plot portrait file for model class ', class, ' ', portrait, '.'))
+      expect_true(file.exists(landscape),
+                  info = paste0('Model ', type, ': Did not write diagnostic plot landscape file for model class ', class, ' ', landscape, '.'))
     }
   }
 
@@ -43,20 +49,9 @@ test_that('mplus analysis for all models creates necessary files and returns', {
   expect_setequal(results$summary %>% colnames, c('classes', 'Title', 'Parameters', 'LL', 'AIC', 'AICC', 'BIC', 'saBIC',
                                                   'Entropy', 'nmin', 'replicated', 'boundary_values', 'modeltype'))
 
+  expect_equal(results$settings %>% class, c('lca_settings'))
+  expect_equal(results$plots[[1]] %>% class, c('gg', 'ggplot'))
+  expect_equal(results %>% class, 'easylca')
+
   # unlink(settings$folder_name, recursive = T)
 })
-
-
-# test_that('returns an object of type easylca', {
-#   settings <- define_lca(testdata, 'test', 'id')
-#   expect_equal(perform_lca(settings) %>% class, 'easylca')
-# })
-
-# test_that('return contains settings, models, and plots', {
-#   settings <- define_lca(testdata, 'test', 'id')
-#   results <- perform_lca(settings)
-#
-#   expect_equal(results$settings %>% class, 'lca_settings')
-#   expect_equal(results$models %>% class, 'LCA MOdel')
-#   expect_equal(results$plots[[1]] %>% class, c('gg', 'ggplot'))
-# })

@@ -1,0 +1,12 @@
+------Begin Mplus Model Run: 12Sep2024 10:40:44------
+Run options:
+	Recursive (run models in subdirectories): FALSE
+	Show output on console: FALSE
+	Replace existing outfile: always
+------
+Currently running model: 1_test_model6_lca.inp
+Currently running model: 2_test_model6_lca.inp
+Currently running model: 3_test_model6_lca.inp
+Currently running model: 4_test_model6_lca.inp
+
+------End Mplus Model Run: 12Sep2024 10:40:48------

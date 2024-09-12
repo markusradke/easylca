@@ -127,7 +127,13 @@ define_lca <- function(frame,
     }
     if(! check_categorical_values(lca$frame, lca$categorical)){
       stop('Please make sure categorical variables only contain integers >= 1.')
-      }
+    }
+
+    poisson_value_check <- any(sapply(lca$frame[lca$poisson], function(x) any(x < 0 | x != floor(x))))
+    negbin_value_check <- any(sapply(lca$frame[lca$negbin], function(x) any(x < 0 | x != floor(x))))
+    if(poisson_value_check | negbin_value_check){
+      stop('Please make sure all negative binomial and poisson variables do not contain negative or non-integer values.')
+    }
   }
 
   check_categorical_values <- function(frame, categorical) {

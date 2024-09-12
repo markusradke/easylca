@@ -55,9 +55,9 @@ test_that('usevariables contains all variables of data frame that are not in aux
 
 test_that('correlate contains all variables of usevariables not count, censored (above and  below), and categorical', {
   lcasettings <- define_lca(testdata, 'test', 'id',
-                            use = c('var1', 'var2', 'var3', 'var4', 'var5', 'var6'),
+                            use = c('var1', 'var2', 'var3', 'var4', 'var5', 'var7'),
                             categorical = c('var1', 'var2'),
-                            poisson = 'var6',
+                            poisson = 'var7',
                             censored_below = c('var4'),
                             censored_above = c('var5'))
   correlate <- c('var3')
@@ -66,9 +66,9 @@ test_that('correlate contains all variables of usevariables not count, censored 
 
 test_that('freevariance contains all variables of usevariables not poisson or categorical',{
   lcasettings <- define_lca(testdata, 'test', 'id',
-                            use = c('var1', 'var2', 'var3', 'var4', 'var5', 'var6', 'var7'),
+                            use = c('var1', 'var2', 'var3', 'var4', 'var5', 'var7', 'var8'),
                             categorical = c('var1', 'var2'),
-                            poisson = 'var6',
+                            poisson = 'var8',
                             negbin = 'var7',
                             censored_below = 'var4',
                             censored_above = 'var5')
@@ -151,4 +151,11 @@ test_that('Assertion categorical variables must contain only integers > 1', {
 test_that('Aux variables are empty when no aux is specified', {
   settings <- define_lca(testdata, 'test', 'id')
   expect_equal(settings$auxvariables, character())
+})
+
+test_that('Assertion all negbin and poisson variables can only be positive integers',{
+          expect_error(define_lca(testdata, 'test', 'id', negbin = 'var3'),
+                       'Please make sure all negative binomial and poisson variables do not contain negative or non-integer values.')
+          expect_error(define_lca(testdata, 'test', 'id', poisson = 'var3'),
+                       'Please make sure all negative binomial and poisson variables do not contain negative or non-integer values.')
 })

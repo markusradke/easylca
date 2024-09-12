@@ -1,3 +1,14 @@
+#' Perform LCA
+#'
+#' Performs the LCA with the settings provided and saves diagnostic plots for all combinations of model types and classes as well as a summary of all models for model choice.
+#'
+#' @param Settings for the lca, including data, variable specification, and additional technical specifications. Please use the define_lca() command to generate the settings and refer to its documentation for further details.
+#'
+#' @return easylca object that contains settings, models, and plots
+#' @export
+#'
+#' @examples settings define_lca(testdata, 'test', 'id')
+#' perform_lca(settings)
 perform_lca <- function(settings){
   create_templates(settings)
 
@@ -12,7 +23,7 @@ perform_lca <- function(settings){
   results$models <- models
 
   results$summary <- create_modeloverview(results$models, settings)
-  results$plot <- list(create_sabicplots(results$summary, settings))
+  results$plots <- list(create_sabicplots(results$summary, settings))
 
   class(results) <- 'easylca'
   saveRDS(results, paste0(settings$folder_name, '/', settings$analysis_name, '_lca_results.rds'))
