@@ -3,20 +3,21 @@
 #' Performs the LCA with the settings provided and saves diagnostic plots for all combinations of model types and classes as well as a summary of all models for model choice.
 #'
 #' @param Settings for the lca, including data, variable specification, and additional technical specifications. Please use the define_lca() command to generate the settings and refer to its documentation for further details.
+#' @param modeltypes Modeltypes to perform the LCA for. Defaults to all 6 model types.
 #'
 #' @return easylca object that contains settings, models, and plots
 #' @export
 #'
 #' @examples settings define_lca(testdata, 'test', 'id')
 #' perform_lca(settings)
-perform_lca <- function(settings){
+perform_lca <- function(settings, modeltypes = seq(6)){
   create_templates(settings)
 
   results <- list()
   results$settings <- settings
 
   models <- list()
-  for(i in seq(6)){
+  for(i in modeltypes){
     modeltype <- mplus_lca(settings, model = i)
     models <- c(models, list(modeltype))
   }
@@ -25,11 +26,15 @@ perform_lca <- function(settings){
   cat('Create figures...\n')
   results$summary <- create_modeloverview(results$models, settings)
   results$plots$summary <- create_sabicplots(results$summary, settings)
-  for(type in seq(6)){
+  for(type in modeltypes){
     plotlist <- list()
     for(class in seq(settings$nclasses)){
-      plot <- plot_modeltype_class_diagnostics(results, type, class)
-      plotlist <- c(plotlist, list(plot))
+      isconverged <- ! is.na(results$summary %>% dplyr::filter(classes == class & modeltype == type) %>% dplyr::pull(Parameters))
+      if (isconverged){
+        plot <- plot_modeltype_class_diagnostics(results, type, class)
+        plotlist <- c(plotlist, list(plot))
+      }
+      else{ plot <- c(plotlist, list(NA))}
     }
     results$plots[[paste0('model', type)]] <- plotlist
   }
@@ -71,10 +76,10 @@ create_modeloverview <- function(models, settings){
       as.data.frame() %>%
       dplyr::mutate(classes = dplyr::row_number(), .before=1)
 
-    nmin <- models[[type]] %>%
+    nmin <- suppressWarnings(models[[type]] %>%
       sapply(function(model_per_class) {model_per_class[['class_counts']][['modelEstimated']][['count']]}) %>%
       lapply(min) %>%
-      unlist
+      unlist)
 
     replicated <- models[[type]] %>%
       sapply(function(model_per_class) {list(model_per_class[['warnings']])}) %>%
@@ -100,7 +105,8 @@ create_modeloverview <- function(models, settings){
 }
 
 create_sabicplots <- function(summary, settings){
-  summary_long <- tidyr::pivot_longer(summary,cols = c(BIC,saBIC), names_to = 'measure')
+  summary_long <- tidyr::pivot_longer(summary,cols = c(BIC,saBIC), names_to = 'measure') %>%
+    dplyr::filter(! is.na(value))
 
   summaryplot <- ggplot2::ggplot(summary_long, ggplot2::aes(x = classes, y = value, color = as.factor(modeltype)))+
     ggplot2::geom_line() +

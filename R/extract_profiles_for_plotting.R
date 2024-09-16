@@ -16,8 +16,8 @@ extract_profile_for_plotting <- function(model, settings){
 
 
 extract_profile<- function(model, settings){
-  .make_empty_tibble <- function(){
-    tibble(param = character(),
+  .make_empty_frame <- function(){
+    data.frame(param = character(),
            item = character(),
            est = numeric(),
            se = numeric(),
@@ -33,7 +33,7 @@ extract_profile<- function(model, settings){
       dplyr::mutate(param = 'Probabilities') %>%
       dplyr::mutate(level=as.integer(level)-1)
   }
-  else {profile_categorical  <- .make_empty_tibble()}
+  else {profile_categorical  <- .make_empty_frame()}
 
   if(!is.null(model[["parameters"]][["unstandardized"]])){
     profile_metric <- model[["parameters"]][["unstandardized"]] %>% as.data.frame() %>%
@@ -42,7 +42,7 @@ extract_profile<- function(model, settings){
       dplyr::filter(param != 'Thresholds') %>%
       dplyr::filter(!stringr::str_detect(item, 'CLASS#[0-9]+'))
   }
-  else {profile_metric <- .make_empty_tibble()}
+  else {profile_metric <- .make_empty_frame()}
 
 
   profile <- rbind(profile_metric, profile_categorical) %>%
