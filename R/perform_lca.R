@@ -11,15 +11,17 @@
 #' @examples settings define_lca(testdata, 'test', 'id')
 #' perform_lca(settings)
 perform_lca <- function(settings, modeltypes = seq(6)){
+  if(! class(settings) == 'lca_settings') {stop('Please provide a settings object of type "lca_settings". It can be generated using the define_lca command.')}
+
   create_templates(settings)
 
   results <- list()
   results$settings <- settings
 
   models <- list()
-  for(i in modeltypes){
-    modeltype <- mplus_lca(settings, model = i)
-    models <- c(models, list(modeltype))
+  for(type in modeltypes){
+    model_for_type <- mplus_lca(settings, model = type)
+    models[[paste0('model_', type)]] <- model_for_type
   }
   results$models <- models
 

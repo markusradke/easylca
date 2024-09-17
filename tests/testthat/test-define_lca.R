@@ -32,7 +32,7 @@ test_that('variables classes in settings environment are correct',{
                         'starts' = 'list',
                         'use' = 'character')
   actual_variables <- ls(lcasettings)
-  actual_classes <- sapply(actual_variables, function(var) class(get(var, envir = lcasettings)))
+  actual_classes <- sapply(actual_variables, function(var) class(lcasettings[[var]]))
   expect_equal(actual_classes %>% sort, expected_classes %>% sort)
 })
 

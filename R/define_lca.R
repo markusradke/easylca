@@ -52,15 +52,16 @@ define_lca <- function(frame,
   create_lca_environment <- function(lca){
     lca$names <- colnames(lca$frame)
     if(length(lca$starts) == 1){
-      create_starts_list()
+      lca <- create_starts_list(lca)
     }
-    write_time_to_analysis_name()
-    create_use_and_aux_variables()
-    create_free_variance()
-    create_correlate()
+    lca <- write_time_to_analysis_name(lca)
+    lca <- create_use_and_aux_variables(lca)
+    lca <- create_free_variance(lca)
+    lca <- create_correlate(lca)
+    lca
   }
 
-  create_use_and_aux_variables <- function(){
+  create_use_and_aux_variables <- function(lca){
     if(length(use) == 0){
       lca$use <- colnames(frame)[colnames(frame) != lca$id]
       lca$auxvariables <- character()
@@ -69,37 +70,42 @@ define_lca <- function(frame,
       lca$auxvariables <- colnames(lca$frame)[! colnames(lca$frame) %in% lca$use]
       lca$auxvariables <- lca$auxvariables[! lca$auxvariables == lca$id]
     }
+    lca
   }
 
-  write_time_to_analysis_name <- function(){
+  write_time_to_analysis_name <- function(lca){
     currenttime <- format(Sys.time(), "%Y%m%d_%H-%M")
     lca$folder_name <- paste(lca$analysis_name, currenttime, sep = '_')
+    lca
   }
 
-  create_starts_list <- function(){
+  create_starts_list <- function(lca){
     new_starts <- list()
     for (i in seq(6)){
       new_starts <- c(new_starts, list(rep(lca$starts, lca$nclasses)))
     }
     lca$starts <- new_starts
+    lca
   }
 
-  create_free_variance <- function(){
+  create_free_variance <- function(lca){
     freevariance <- lca$use[! lca$use %in% lca$categorical]
     freevariance <- freevariance[! freevariance %in% lca$poisson]
     lca$freevariance <- freevariance
+    lca
   }
 
-  create_correlate <- function(){
+  create_correlate <- function(lca){
     correlate <- lca$use[! lca$use %in% lca$categorical]
     correlate <- correlate[! correlate %in% lca$poisson]
     correlate <- correlate[! correlate %in% lca$negbin]
     correlate <- correlate[! correlate %in% lca$censored_above]
     correlate <- correlate[! correlate %in% lca$censored_below]
     lca$correlate <- correlate
+    lca
   }
 
-  check_assertions <- function(){
+  check_assertions <- function(lca){
     if(! all(lca$use %in% lca$names)) {stop('Please make sure all variables listed in use are columns in the data frame provided for analysis.')}
     if(!lca$id %in% colnames(lca$frame)) {stop('Please make sure the id variable is a variable in your data frame.')}
     if(lca$id %in% lca$use) {
@@ -144,24 +150,24 @@ define_lca <- function(frame,
     return(all(result))
   }
 
-  lca <- rlang::env(frame = frame,
-                    analysis_name = analysis_name,
-                    id = id_variable,
-                    use = use,
-                    nclasses = as.integer(nclasses),
-                    starts = starts,
-                    cores = as.integer(cores),
-                    categorical = categorical,
-                    censored_above = censored_above,
-                    censored_below = censored_below,
-                    inflated = inflated,
-                    poisson = poisson,
-                    negbin = negbin,
-                    lmrlrt = lmrlrt)
+  lca <- list(frame = frame,
+              analysis_name = analysis_name,
+              id = id_variable,
+              use = use,
+              nclasses = as.integer(nclasses),
+              starts = starts,
+              cores = as.integer(cores),
+              categorical = categorical,
+              censored_above = censored_above,
+              censored_below = censored_below,
+              inflated = inflated,
+              poisson = poisson,
+              negbin = negbin,
+              lmrlrt = lmrlrt)
 
 
-  create_lca_environment(lca)
-  check_assertions()
+  lca <- create_lca_environment(lca)
+  check_assertions(lca)
 
   structure(lca, class = 'lca_settings')
 }
