@@ -15,7 +15,3 @@ List of character vectors with model templates. Also saves them as .txt files in
 \description{
 CREATE MPLUS TEMPLATES ACCORDING TO THE SPECIFICATIONS MADE
 }
-\examples{
-settings <- define_lca(testdata, 'test', 'id')
-create_templates(settings)
-}

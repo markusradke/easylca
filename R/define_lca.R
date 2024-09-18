@@ -140,6 +140,9 @@ define_lca <- function(frame,
     if(poisson_value_check | negbin_value_check){
       stop('Please make sure all negative binomial and poisson variables do not contain negative or non-integer values.')
     }
+    if(any(colnames(lca$frame) %>% stringr::str_length() >8)){
+      stop('Please make sure no variable name is longer that 8 characters.')
+    }
   }
 
   check_categorical_values <- function(frame, categorical) {

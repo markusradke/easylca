@@ -159,3 +159,9 @@ test_that('Assertion all negbin and poisson variables can only be positive integ
           expect_error(define_lca(testdata, 'test', 'id', poisson = 'var3'),
                        'Please make sure all negative binomial and poisson variables do not contain negative or non-integer values.')
 })
+
+test_that('Assertion variable have <= 8 characters', {
+  data <- testdata %>% dplyr::rename('toolongname'='var1')
+  expect_error(define_lca(data, 'test', 'id'),
+               'Please make sure no variable name is longer that 8 characters.')
+})

@@ -2,7 +2,7 @@
 #'
 #' Performs the LCA with the settings provided and saves diagnostic plots for all combinations of model types and classes as well as a summary of all models for model choice.
 #'
-#' @param Settings for the lca, including data, variable specification, and additional technical specifications. Please use the define_lca() command to generate the settings and refer to its documentation for further details.
+#' @param settings for the lca, including data, variable specification, and additional technical specifications. Please use the define_lca() command to generate the settings and refer to its documentation for further details.
 #' @param modeltypes Modeltypes to perform the LCA for. Defaults to all 6 model types.
 #'
 #' @return easylca object that contains settings, models, and plots
@@ -12,6 +12,7 @@
 #' perform_lca(settings)
 perform_lca <- function(settings, modeltypes = seq(6)){
   if(! class(settings) == 'lca_settings') {stop('Please provide a settings object of type "lca_settings". It can be generated using the define_lca command.')}
+  invisible(MplusAutomation::detectMplus())
 
   create_templates(settings)
 
