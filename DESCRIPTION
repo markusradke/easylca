@@ -16,6 +16,7 @@ Imports:
     MplusAutomation,
     patchwork,
     purrr,
+    rhdf5,
     rlang,
     stringr,
     tidyr
