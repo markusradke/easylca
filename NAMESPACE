@@ -3,4 +3,5 @@
 export("%>%")
 export(define_lca)
 export(perform_lca)
+export(rerun_lca)
 importFrom(magrittr,"%>%")

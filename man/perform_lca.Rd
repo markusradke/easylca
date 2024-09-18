@@ -4,9 +4,11 @@
 \alias{perform_lca}
 \title{Perform LCA}
 \usage{
-perform_lca(settings)
+perform_lca(settings, modeltypes = seq(6))
 }
 \arguments{
+\item{modeltypes}{Modeltypes to perform the LCA for. Defaults to all 6 model types.}
+
 \item{Settings}{for the lca, including data, variable specification, and additional technical specifications. Please use the define_lca() command to generate the settings and refer to its documentation for further details.}
 }
 \value{

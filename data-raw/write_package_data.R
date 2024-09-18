@@ -12,7 +12,7 @@ testsettings <- define_lca(testdata, 'test','id', nclasses = 3, starts = 20L, co
                        poisson = 'var8',
                        negbin = 'var7',
                        inflated = c('var7', 'var4'))
-testresults <- perform_lca(settings)
+testresults <- perform_lca(testsettings)
 
 use_data(testdata,
          internal = F,
