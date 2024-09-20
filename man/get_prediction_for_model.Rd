@@ -22,3 +22,7 @@ Get Model Predictions
 \examples{
 get_prediction_for_model(testresults, 3, 3)
 }
+\seealso{
+\code{\link[=show_summary]{show_summary()}}
+\code{\link[=show_model]{show_model()}}
+}

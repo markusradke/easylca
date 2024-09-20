@@ -8,6 +8,7 @@ define_lca(
   frame,
   analysis_name,
   id_variable,
+  weight_variable = character(),
   nclasses = 4,
   starts = 160,
   cores = 16,
@@ -25,6 +26,10 @@ define_lca(
 \item{frame}{This dataframe contains the data you want to perform the LCA on.}
 
 \item{analysis_name}{A name for the analysis. Please choose a meaningful short name that will also be used for constructing subfolders needed for the files. Date and time will be added to the name automatically.}
+
+\item{id_variable}{Variable in data frame that contains the unique ids for samples. Will not be included in the analysis.}
+
+\item{weight_variable}{Variable that contains weightings for all samples in the data set (optional).}
 
 \item{nclasses}{The maximum number of classes the LCA should be performed for.}
 

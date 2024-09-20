@@ -7,6 +7,8 @@
 #' @return Specified model as a list
 #' @export
 #'
+#' @seealso [show_summary()]
+#' [get_prediction_for_model()]
 #' @examples
 #' show_model(testresults, 2, 3) # shows results for model type 2, 3 class solution
 show_model <- function(easylca, modeltype, classes){

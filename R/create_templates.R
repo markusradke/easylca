@@ -70,6 +70,10 @@ create_variable_specs <- function(settings){
     variable_specs <- c(variable_specs,
                         paste0('AUXILIARY = ', paste(settings$auxvariables, collapse = ' '), ';'))
   }
+  if(length(settings$weights) == 1){
+    variable_specs <- c(variable_specs,
+                        paste0('WEIGHT IS ', settings$weights, ';'))
+  }
   variable_specs <- c(variable_specs,
                       'MISSING = .;',
                       'CLASSES = class ([[classes]]);')

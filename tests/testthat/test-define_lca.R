@@ -5,7 +5,7 @@ test_that('definition returns object of class lca_settings', {
 
 test_that('variable names in settings environment are correct', {
   lcasettings <- define_lca(testdata, 'test', 'id')
-  varnames <- c('analysis_name','folder_name', 'use', 'categorical', 'censored_above', 'censored_below', 'cores', 'correlate', 'frame', 'freevariance', 'id',
+  varnames <- c('analysis_name','folder_name', 'use', 'categorical', 'censored_above', 'censored_below', 'cores', 'correlate', 'frame', 'freevariance', 'id', 'weights',
                 'inflated', 'lmrlrt', 'names', 'nclasses', 'negbin', 'poisson', 'starts', 'auxvariables')
   expect_setequal(ls(lcasettings), varnames)
 })
@@ -30,7 +30,8 @@ test_that('variables classes in settings environment are correct',{
                         'negbin' = 'character',
                         'poisson' = 'character',
                         'starts' = 'list',
-                        'use' = 'character')
+                        'use' = 'character',
+                        'weights' = 'character')
   actual_variables <- ls(lcasettings)
   actual_classes <- sapply(actual_variables, function(var) class(lcasettings[[var]]))
   expect_equal(actual_classes %>% sort, expected_classes %>% sort)
@@ -47,10 +48,14 @@ test_that('folder_name contains current time in minutes', {
   expect_match(lcasettings$folder_name, currenttime)
 })
 
-test_that('usevariables contains all variables of data frame that are not in aux and id', {
-  lcasettings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2'))
+test_that('auxvariables contains all variables of data frame that are not in use, id and weights', {
+  lcasettings <- define_lca(testdata_weights, 'test', 'id', use = c('var1', 'var2'), weight_variable = 'weights')
   auxvariables <- c('var3', 'var4', 'var5', 'var6', 'var7', 'var8')
   expect_setequal(lcasettings$auxvariables, auxvariables)
+
+  lcasettings <- define_lca(testdata_weights, 'test', 'id', weight_variable = 'weights')
+  usevariables <- c('var1', 'var2', 'var3', 'var4', 'var5', 'var6', 'var7', 'var8')
+  expect_setequal(lcasettings$use, usevariables)
 })
 
 test_that('correlate contains all variables of usevariables not count, censored (above and  below), and categorical', {
@@ -151,6 +156,15 @@ test_that('Assertion categorical variables must contain only integers > 1', {
 test_that('Aux variables are empty when no aux is specified', {
   settings <- define_lca(testdata, 'test', 'id')
   expect_equal(settings$auxvariables, character())
+})
+
+test_that('Aux variables contain variables not listed in use, id',{
+  settings <- define_lca(testdata, 'test', 'id',
+                         use = c('var1', 'var2', 'var3', 'var5', 'var7', 'var8'),
+                         censored_above = c('var1', 'var2'),
+                         negbin = c('var7', 'var8'),
+                         inflated = c('var2', 'var8'))
+  expect_setequal(settings$auxvariables, c('var4', 'var6'))
 })
 
 test_that('Assertion all negbin and poisson variables can only be positive integers',{

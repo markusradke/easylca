@@ -18,3 +18,7 @@ Show LCA summary
 \examples{
 show_summary(testresults)
 }
+\seealso{
+\code{\link[=show_model]{show_model()}}
+\code{\link[=get_prediction_for_model]{get_prediction_for_model()}}
+}

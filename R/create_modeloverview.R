@@ -1,9 +1,10 @@
-create_modeloverview <- function(models, settings){
+create_modeloverview <- function(models, settings, modeltypes){
   message('Creating model summary...')
   modeloverview <- data.frame()
 
-  for(type in seq(length(models))){
-    general_info <- models[[type]] %>%
+  for(type in modeltypes){
+    typename <- paste0('modeltype_', type)
+    general_info <- models[[typename]] %>%
       sapply(function(model_per_class) {model_per_class[['summaries']]}) %>%
       purrr::map_dfr(~ .x) %>%
       dplyr::select(Title,Parameters,LL,AIC,AICC,BIC,saBIC=aBIC, dplyr::any_of(c('Entropy', 'T11_VLMR_PValue','T11_LMR_PValue'))) %>%
@@ -14,17 +15,17 @@ create_modeloverview <- function(models, settings){
       general_info$Entropy <- NA
     }
 
-    nmin <- suppressWarnings(models[[type]] %>%
+    nmin <- suppressWarnings(models[[typename]] %>%
                                sapply(function(model_per_class) {model_per_class[['class_counts']][['modelEstimated']][['count']]}) %>%
                                lapply(min) %>%
                                unlist)
 
-    replicated <- models[[type]] %>%
+    replicated <- models[[typename]] %>%
       sapply(function(model_per_class) {list(model_per_class[['warnings']])}) %>%
       lapply(unlist) %>% as.character() %>%
       stringr::str_detect(pattern = 'NOT REPLICATED', negate = T)
 
-    boundary_values <- models[[type]] %>%
+    boundary_values <- models[[typename]] %>%
       sapply(function(model_per_class) {list(model_per_class[['output']])}) %>%
       lapply(unlist) %>% as.character() %>%
       stringr::str_detect(pattern = 'THRESHOLDS APPROACHED EXTREME VALUES')

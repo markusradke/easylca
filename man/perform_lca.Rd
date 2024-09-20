@@ -26,6 +26,9 @@ There are 6 modeltypes that can be estimated :
 \item Varying variances and varying covariances across classes
 }
 }
+\details{
+Inspect the results with \code{\link[=show_summary]{show_summary()}}, \code{\link[=show_model]{show_model()}}, and \code{\link[=get_prediction_for_model]{get_prediction_for_model()}}.
+}
 \examples{
 settings define_lca(testdata, 'test', 'id')
 perform_lca(settings)

@@ -9,6 +9,8 @@
 #' 5. Equal variances and varying covariances across classes
 #' 6. Varying variances and varying covariances across classes
 #'
+#' Inspect the results with [show_summary()], [show_model()], and [get_prediction_for_model()].
+#'
 #' @param settings Settings for the lca, including data, variable specification, and additional technical specifications. Please use the [define_lca()] command to generate the settings and refer to its documentation for further details.
 #' @param modeltypes Modeltypes to perform the LCA for. Defaults to all 6 model types.
 #'
@@ -36,7 +38,7 @@ perform_lca <- function(settings, modeltypes = seq(6)){
   }
   results$models <- models
 
-  results$summary <- create_modeloverview(results$models, settings)
+  results$summary <- create_modeloverview(results$models, settings, modeltypes)
   results <- create_all_figures(results, modeltypes)
 
   class(results) <- 'easylca'

@@ -5,7 +5,7 @@ create_all_figures <- function(results, modeltypes){
     plotlist <- list()
     for(class in seq(results$settings$nclasses)){
       isconverged <- ! is.na(results$summary %>% dplyr::filter(classes == class & modeltype == type) %>% dplyr::pull(Parameters))
-      if (isconverged){
+      if(isconverged){
         plot <- plot_modeltype_class_diagnostics(results, type, class)
         plotlist <- c(plotlist, list(plot))
       }
@@ -18,13 +18,18 @@ create_all_figures <- function(results, modeltypes){
 
 
 create_sabicplots <- function(summary, settings){
+  subtitle <- paste0(settings$analysis_name, ', n = ', settings$frame %>% nrow())
+  if(length(settings$weights) != 0){
+    subtitle <- paste0(subtitle, ' (weighted by ', settings$weights, ')')
+  }
+
   summary_long <- tidyr::pivot_longer(summary,cols = c(BIC,saBIC), names_to = 'measure') %>%
     dplyr::filter(! is.na(value))
 
   summaryplot <- ggplot2::ggplot(summary_long, ggplot2::aes(x = classes, y = value, color = as.factor(modeltype)))+
     ggplot2::geom_line() +
     ggplot2::labs(title = 'Latent Class Analysis with MPlus 8.4',
-                  subtitle = paste0(settings$analysis_name, ', n = ', settings$frame %>% nrow()),
+                  subtitle = subtitle,
                   color = 'model type') +
     ggplot2::facet_wrap(~measure,nrow=1) +
     ggplot2::scale_x_continuous(limits=c(1, max(summary$classes)), breaks = seq(1,  max(summary$classes), 1))

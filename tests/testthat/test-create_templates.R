@@ -80,6 +80,18 @@ test_that('variables specs are created the right way from settings',{
                          'CLASSES = class ([[classes]]);')
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()
   expect_equal(create_variable_specs(settings), variable_settings)
+
+  settings <- define_lca(testdata_weights, 'test', 'id',
+                         weight_variable = 'weights')
+  variable_settings <- c('VARIABLE:',
+                         'NAMES = id var1 var2 var3 var4 var5 var6 var7 var8 weights;',
+                         'IDVARIABLE = id;',
+                         'USEVARIABLES = var1 var2 var3 var4 var5 var6 var7 var8;',
+                         'WEIGHT IS weights;',
+                         'MISSING = .;',
+                         'CLASSES = class ([[classes]]);')
+  variable_settings <- rep(list(variable_settings), 6) %>% as.list()
+  expect_equal(create_variable_specs(settings), variable_settings)
 })
 
 

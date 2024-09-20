@@ -5,6 +5,9 @@
 #' @return Data frame with LCA summary.
 #' @export
 #'
+#'
+#' @seealso [show_model()]
+#' [get_prediction_for_model()]
 #' @examples
 #' show_summary(testresults)
 show_summary <- function(easylca){

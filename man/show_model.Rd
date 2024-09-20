@@ -22,3 +22,7 @@ Show diagnosis for a specific model
 \examples{
 show_model(testresults, 2, 3) # shows results for model type 2, 3 class solution
 }
+\seealso{
+\code{\link[=show_summary]{show_summary()}}
+\code{\link[=get_prediction_for_model]{get_prediction_for_model()}}
+}
