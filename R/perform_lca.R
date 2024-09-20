@@ -19,7 +19,7 @@
 #'
 #' @seealso For a more detailed explation on the different modeltypes we recommend to visit \url{https://data-edu.github.io/tidyLPA/articles/Introduction_to_tidyLPA.html}.
 #' @examples settings define_lca(testdata, 'test', 'id')
-#' perform_lca(settings)
+#' lca <- perform_lca(settings)
 perform_lca <- function(settings, modeltypes = seq(6)){
   if(! class(settings) == 'lca_settings') {stop('Please provide a settings object of type "lca_settings". It can be generated using the define_lca command.')}
   invisible(MplusAutomation::detectMplus())
@@ -47,6 +47,7 @@ perform_lca <- function(settings, modeltypes = seq(6)){
   end_time <- Sys.time()
   print_elapsed_time(start_time, end_time)
 
+  message('Done.')
   results
 }
 

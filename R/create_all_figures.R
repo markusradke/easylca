@@ -16,7 +16,6 @@ create_all_figures <- function(results, modeltypes){
   results
 }
 
-
 create_sabicplots <- function(summary, settings){
   subtitle <- paste0(settings$analysis_name, ', n = ', settings$frame %>% nrow())
   if(length(settings$weights) != 0){
