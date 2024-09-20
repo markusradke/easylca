@@ -4,12 +4,14 @@
 \alias{rerun_lca}
 \title{Rerun LCA}
 \usage{
-rerun_lca(easylca, models_and_starts = NULL)
+rerun_lca(easylca, models_and_starts = NULL, recursive = FALSE)
 }
 \arguments{
 \item{easylca}{easylca object obtained from the \code{\link[=perform_lca]{perform_lca()}} or \code{\link[=rerun_lca]{rerun_lca()}} command.}
 
 \item{models_and_starts}{models to rerun with new start values. Must be a data.frame with columns: classes, modeltype, starts. If NULL (default) will rerun all models that were not replicated with doubled number of starts.}
+
+\item{recursive}{If TRUE will repeat the rerun process while doubling the number of starts until all models are converged and replicated (maximum number of 10 repeats).}
 }
 \value{
 easylca object with updated values
@@ -26,4 +28,7 @@ rerun_lca(lca)
 
 # manual update of start values and choice of models
 rerun_lca(lca, data.frame(modeltype = c(1, 1), classes = c(2, 3), starts = c(30, 160)))
+
+# repeat until all converged and replicated (max. 10 times)
+rerun_lca(lca, recursive = TRUE)
 }

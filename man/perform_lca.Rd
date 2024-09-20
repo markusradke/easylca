@@ -31,7 +31,7 @@ Inspect the results with \code{\link[=show_summary]{show_summary()}}, \code{\lin
 }
 \examples{
 settings define_lca(testdata, 'test', 'id')
-perform_lca(settings)
+lca <- perform_lca(settings)
 }
 \seealso{
 For a more detailed explation on the different modeltypes we recommend to visit \url{https://data-edu.github.io/tidyLPA/articles/Introduction_to_tidyLPA.html}.

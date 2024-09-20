@@ -18,6 +18,9 @@
 #'
 #' # manual update of start values and choice of models
 #' rerun_lca(lca, data.frame(modeltype = c(1, 1), classes = c(2, 3), starts = c(30, 160)))
+#'
+#' # repeat until all converged and replicated (max. 10 times)
+#' rerun_lca(lca, recursive = TRUE)
 rerun_lca <- function(easylca, models_and_starts = NULL, recursive = FALSE){
   if(class(easylca) != 'easylca'){
     stop('Please make sure to supply an object of type "easylca" as input to the rerun_lca function. \n"easylca" objects can be obtained through the perform_lca command.')
