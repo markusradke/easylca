@@ -7,7 +7,7 @@
 rerun_lca(easylca, models_and_starts = NULL)
 }
 \arguments{
-\item{easylca}{easylca object obtained from the perform_lca() or rerun_lca() command.}
+\item{easylca}{easylca object obtained from the \code{\link[=perform_lca]{perform_lca()}} or \code{\link[=rerun_lca]{rerun_lca()}} command.}
 
 \item{models_and_starts}{models to rerun with new start values. Must be a data.frame with columns: classes, modeltype, starts. If NULL (default) will rerun all models that were not replicated with doubled number of starts.}
 }

@@ -1,6 +1,6 @@
 #' Show LCA summary
 #'
-#' @param easylca easylca object created with perform_lca() or rerun_lca().
+#' @param easylca easylca object created with [perform_lca()] or [rerun_lca()].
 #'
 #' @return Data frame with LCA summary.
 #' @export

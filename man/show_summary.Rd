@@ -7,7 +7,7 @@
 show_summary(easylca)
 }
 \arguments{
-\item{easylca}{easylca object created with perform_lca() or rerun_lca().}
+\item{easylca}{easylca object created with \code{\link[=perform_lca]{perform_lca()}} or \code{\link[=rerun_lca]{rerun_lca()}}.}
 }
 \value{
 Data frame with LCA summary.

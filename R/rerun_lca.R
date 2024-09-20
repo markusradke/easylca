@@ -1,6 +1,6 @@
 #' Rerun LCA
 #'
-#' @param easylca easylca object obtained from the perform_lca() or rerun_lca() command.
+#' @param easylca easylca object obtained from the [perform_lca()] or [rerun_lca()] command.
 #' @param models_and_starts models to rerun with new start values. Must be a data.frame with columns: classes, modeltype, starts. If NULL (default) will rerun all models that were not replicated with doubled number of starts.
 #'
 #' @return easylca object with updated values

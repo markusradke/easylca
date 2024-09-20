@@ -1,13 +1,21 @@
 #' Perform LCA
 #'
 #' Performs the LCA with the settings provided and saves diagnostic plots for all combinations of model types and classes as well as a summary of all models for model choice.
+#' There are 6 modeltypes that can be estimated :
+#' 1. Equal variances across classes, and covariances fixed to
+#' 2. Varying variances across classes and covariances fixed to 0
+#' 3. Equal variances and equal covariances accross classes
+#' 4. Varying variances and equal covariances across classes
+#' 5. Equal variances and varying covariances across classes
+#' 6. Varying variances and varying covariances across classes
 #'
-#' @param settings for the lca, including data, variable specification, and additional technical specifications. Please use the define_lca() command to generate the settings and refer to its documentation for further details.
+#' @param settings Settings for the lca, including data, variable specification, and additional technical specifications. Please use the [define_lca()] command to generate the settings and refer to its documentation for further details.
 #' @param modeltypes Modeltypes to perform the LCA for. Defaults to all 6 model types.
 #'
 #' @return easylca object that contains settings, models, and plots
 #' @export
 #'
+#' @seealso For a more detailed explation on the different modeltypes we recommend to visit \url{https://data-edu.github.io/tidyLPA/articles/Introduction_to_tidyLPA.html}.
 #' @examples settings define_lca(testdata, 'test', 'id')
 #' perform_lca(settings)
 perform_lca <- function(settings, modeltypes = seq(6)){

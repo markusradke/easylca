@@ -7,11 +7,11 @@
 show_model(easylca, modeltype, classes)
 }
 \arguments{
-\item{easylca}{easylca object as can be obtained with perform_lca() or rerun_lca()}
+\item{easylca}{easylca object as can be obtained with \code{\link[=perform_lca]{perform_lca()}} or \code{\link[=rerun_lca]{rerun_lca()}}.}
 
-\item{modeltype}{type of model. For an explanation on model types please refer to the documentation of perform_lca(). Must have been calculated for the settings specified in the easylca object.}
+\item{modeltype}{type of model. For an explanation on model types please refer to the documentation of \code{\link[=perform_lca]{perform_lca()}}. Must have been calculated for the settings specified in the easylca object.}
 
-\item{classes}{Which k-class solution for the modeltype to show. Must be <= nclasses parameter in the easylca setting.}
+\item{classes}{Which k-class solution for the modeltype to show. Must be less or equal to nclasses parameter in the easylca setting.}
 }
 \value{
 Specified model as a list

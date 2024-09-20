@@ -49,7 +49,7 @@ define_lca(
 \item{LMRLRT}{Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.}
 }
 \value{
-Environment with settings for the LCA that can be passed to the perform_lca() command.
+Environment with settings for the LCA that can be passed to the \code{\link[=perform_lca]{perform_lca()}} command.
 }
 \description{
 This command creates a settings environment for performing the easy LCA. It also performs basic checks to see if the information provided can be used to successfully perform an LCA.

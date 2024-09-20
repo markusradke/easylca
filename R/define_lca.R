@@ -18,7 +18,7 @@
 #' @param negbin Character vector with all negative-binomial-distributed variables. Negative-binomial-distributed variables must be positive integers.
 #' @param LMRLRT Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.
 #'
-#' @return Environment with settings for the LCA that can be passed to the perform_lca() command.
+#' @return Environment with settings for the LCA that can be passed to the [perform_lca()] command.
 #' @export
 #' @examples
 #' lca_settings <- define_lca(testdata,
