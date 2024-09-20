@@ -32,7 +32,8 @@ rerun_lca <- function(easylca, models_and_starts = NULL){
     rerun_modeltype <- rerun_mplus_lca_single_model(easylca$settings,
                                               models_and_starts$modeltype[row],
                                               models_and_starts$classes[row])
-    easylca$models[[models_and_starts$modeltype[row]]] <- rerun_modeltype
+    name_modeltype <- paste0('modeltype_', models_and_starts$modeltype[row])
+    easylca$models[[name_modeltype]] <- rerun_modeltype
   }
 
   easylca$summary <- create_modeloverview(easylca$models, settings)

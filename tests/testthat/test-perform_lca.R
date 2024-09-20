@@ -128,7 +128,7 @@ test_that('prints elpased time for perform_lca', {
                          use = c('var1', 'var2'), categorical = c('var1', 'var2'))
   expect_message(perform_lca(settings, modeltypes = 1),
                  regexp = 'The time needed for the analysis was: (\\d{1,2}|\\d{2,}):([0-5]?\\d):([0-5]?\\d).')
-  unlink(settings$folder_name, recursive = T)
+  # unlink(settings$folder_name, recursive = T)
 })
 
 # test_that('works also for only metric',{

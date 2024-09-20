@@ -1,6 +1,13 @@
 library(devtools)
 
 testdata <- readRDS('data-raw/testdata.rds')
+
+
+set.seed(123)
+random_weights <- runif(n = nrow(testdata), min = 0.5, max = 2)
+testdata_weights <- testdata
+testdata_weights$weights <- random_weights
+
 testresults <- readRDS('data-raw/testresults.rds')
 
 # generate testresults
@@ -18,5 +25,6 @@ use_data(testdata,
          internal = F,
          overwrite = T)
 use_data(testresults,
+         testdata_weights,
          internal = T,
          overwrite = T)

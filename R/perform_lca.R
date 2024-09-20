@@ -24,7 +24,7 @@ perform_lca <- function(settings, modeltypes = seq(6)){
   models <- list()
   for(type in modeltypes){
     model_for_type <- mplus_lca(settings, model = type)
-    models[[paste0('model_', type)]] <- model_for_type
+    models[[paste0('modeltype_', type)]] <- model_for_type
   }
   results$models <- models
 

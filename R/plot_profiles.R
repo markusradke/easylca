@@ -1,5 +1,6 @@
 plot_metric_profiles <- function(profiles, ncol_plot=2){
   nclasses <- profiles$segment %>% levels() %>% length()
+  profiles <- profiles %>% dplyr::filter(param == 'Means')
 
 
   ggplot2::ggplot(profiles, ggplot2::aes(x = as.factor(segment), y = est, color = segment))+
@@ -167,7 +168,7 @@ plot_modeltype_class_diagnostics <- function(results, type, class){
   }
 
   settings <- results$settings
-  model <- results$models[[type]][[class]]
+  model <- results$models[[paste0('modeltype_', type)]][[class]]
   profiles <- extract_profile_for_plotting(model, settings)
   prevalences <- plot_prevalences(profiles)
   kruskal <- plot_kruskal_profiles(model)

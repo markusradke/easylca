@@ -11,7 +11,7 @@ create_all_figures <- function(results, modeltypes){
       }
       else{ plot <- c(plotlist, list(NA))}
     }
-    results$plots[[paste0('model', type)]] <- plotlist
+    results$plots[[paste0('modeltype_', type)]] <- plotlist
   }
   results
 }
