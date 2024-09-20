@@ -4,10 +4,10 @@
 \alias{rerun_lca}
 \title{Rerun LCA}
 \usage{
-rerun_lca(lca, models_and_starts = NULL)
+rerun_lca(easylca, models_and_starts = NULL)
 }
 \arguments{
-\item{lca}{easylca object obtained from the perform_lca() or rerun_lca() command.}
+\item{easylca}{easylca object obtained from the perform_lca() or rerun_lca() command.}
 
 \item{models_and_starts}{models to rerun with new start values. Must be a data.frame with columns: classes, modeltype, starts. If NULL (default) will rerun all models that were not replicated with doubled number of starts.}
 }

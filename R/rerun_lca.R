@@ -1,6 +1,6 @@
 #' Rerun LCA
 #'
-#' @param lca easylca object obtained from the perform_lca() or rerun_lca() command.
+#' @param easylca easylca object obtained from the perform_lca() or rerun_lca() command.
 #' @param models_and_starts models to rerun with new start values. Must be a data.frame with columns: classes, modeltype, starts. If NULL (default) will rerun all models that were not replicated with doubled number of starts.
 #'
 #' @return easylca object with updated values
@@ -14,40 +14,44 @@
 #'
 #' # manual update of start values and choice of models
 #' rerun_lca(lca, data.frame(modeltype = c(1, 1), classes = c(2, 3), starts = c(30, 160)))
-rerun_lca <- function(lca, models_and_starts = NULL){
-  if(class(lca) != 'easylca'){
+rerun_lca <- function(easylca, models_and_starts = NULL){
+  if(class(easylca) != 'easylca'){
     stop('Please make sure to supply an object of type "easylca" as input to the rerun_lca function. \n"easylca" objects can be obtained through the perform_lca command.')
   }
   if (is.null(models_and_starts)) {
-    models_and_starts <- create_models_and_starts_for_rerun(lca)
+    models_and_starts <- create_models_and_starts_for_rerun(easylca)
   }
   print_rerun(models_and_starts)
 
-  check_assertions_models_and_starts(lca, models_and_starts)
-  lca$settings <- update_starts_in_settings(lca$settings, models_and_starts)
-  create_templates(lca$settings)
+  check_assertions_models_and_starts(easylca, models_and_starts)
+  easylca$settings <- update_starts_in_settings(easylca$settings, models_and_starts)
+  create_templates(easylca$settings)
 
+  start_time <- Sys.time()
   for(row in seq(nrow(models_and_starts))){
-    rerun_modeltype <- rerun_mplus_lca_single_model(lca$settings,
+    rerun_modeltype <- rerun_mplus_lca_single_model(easylca$settings,
                                               models_and_starts$modeltype[row],
                                               models_and_starts$classes[row])
-    lca$models[[models_and_starts$modeltype[row]]] <- rerun_modeltype
+    easylca$models[[models_and_starts$modeltype[row]]] <- rerun_modeltype
   }
 
-  lca$summary <- create_modeloverview(lca$models, settings)
-  lca <- create_all_figures(lca, models_and_starts$modeltype %>% unique())
-  return(lca)
+  easylca$summary <- create_modeloverview(easylca$models, settings)
+  easylca <- create_all_figures(easylca, models_and_starts$modeltype %>% unique())
+
+  end_time <- Sys.time()
+  print_elapsed_time(start_time, end_time)
+  return(easylca)
 }
 
-create_models_and_starts_for_rerun <- function(lca){
-  starts <- lca$settings$starts
-  lca$summary %>% dplyr::filter(! replicated) %>%
+create_models_and_starts_for_rerun <- function(easylca){
+  starts <- easylca$settings$starts
+  easylca$summary %>% dplyr::filter(! replicated) %>%
     dplyr::select(classes, modeltype) %>%
     dplyr::mutate(starts = purrr::map2_int(modeltype, classes,
                                            function(modeltype, classes){ starts[[modeltype]][[classes]] * 2}))
 }
 
-check_assertions_models_and_starts <- function(lca, models_and_starts){
+check_assertions_models_and_starts <- function(easylca, models_and_starts){
   if(! all(c('classes', 'modeltype', 'starts') %in% colnames(models_and_starts))){
     stop('models_and_frame parameter does not contain all neccessary columns for the operation. Please include "classes", "modeltype" and "start".')
   }

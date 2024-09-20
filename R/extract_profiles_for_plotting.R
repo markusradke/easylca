@@ -50,8 +50,12 @@ extract_profile<- function(model, settings){
     dplyr::mutate(item=tolower(item)) %>%
     dplyr::mutate_at(c("segment","level","item"),as.factor)
 
-  prevalences <- round((model[["class_counts"]][["modelEstimated"]][["proportion"]]*100),2)
-  levels(profile$segment) <- paste0("class ",levels(profile$segment)," (",prevalences,"%)")
+  relative_prevalences <- round((model[["class_counts"]][["modelEstimated"]][["proportion"]]*100),2)
+  levels(profile$segment) <- paste0("class ",levels(profile$segment)," (",relative_prevalences,"%)")
+
+  profile$count <- profile$segment
+  levels(profile$count) <- round(model[['class_counts']][['modelEstimated']][['count']])
+  profile$count <- as.numeric(levels(profile$count))[as.integer(profile$count)]
 
   profile %>% dplyr::mutate(est = ifelse(pval > 0.05, 0, est))
 }

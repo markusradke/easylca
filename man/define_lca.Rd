@@ -30,7 +30,7 @@ define_lca(
 
 \item{starts}{Number of random starts for each class and model type. It is advisable to use numbers of the form 2^X*10. Must be provided either as single integer or in the form of a List with six entries for the 6 model types, each entry comprising an integer vector of length nclasses.}
 
-\item{cores}{The number of core to use when performing the LCA.}
+\item{cores}{The number of cores to use when performing the LCA.}
 
 \item{use}{Character vector with all variables in the data frame used for the LCA. All other variables will be saved as auxiliary variables in the LCA and not used for computing.}
 
@@ -40,11 +40,11 @@ define_lca(
 
 \item{inflated}{Character vector with all zero-inflated variables (can only be censored or poisson, negbin). Inflation is always assumed to vary between classes.}
 
-\item{poisson}{Character vector with all poisson-distributed variables.}
+\item{poisson}{Character vector with all poisson-distributed variables. Poisson-distributed variables must be positive integers.}
 
-\item{negbin}{Character vector with all negative binomial distributed variables.}
+\item{negbin}{Character vector with all negative-binomial-distributed variables. Negative-binomial-distributed variables must be positive integers.}
 
-\item{categoricals}{Character vector with all categorical variables.}
+\item{categoricals}{Character vector with all categorical variables. Categorical variables must be stored as integers > 0.}
 
 \item{LMRLRT}{Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.}
 }

@@ -1,5 +1,5 @@
 create_all_figures <- function(results, modeltypes){
-  message('Creating figures...\n')
+  message('Creating plots...\n')
   results$plots$summary <- create_sabicplots(results$summary, results$settings)
   for(type in modeltypes){
     plotlist <- list()

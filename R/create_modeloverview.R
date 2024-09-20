@@ -1,13 +1,18 @@
 create_modeloverview <- function(models, settings){
+  message('Creating model summary...')
   modeloverview <- data.frame()
 
   for(type in seq(length(models))){
     general_info <- models[[type]] %>%
       sapply(function(model_per_class) {model_per_class[['summaries']]}) %>%
       purrr::map_dfr(~ .x) %>%
-      dplyr::select(Title,Parameters,LL,AIC,AICC,BIC,saBIC=aBIC,Entropy, dplyr::any_of(c("T11_VLMR_PValue","T11_LMR_PValue"))) %>%
+      dplyr::select(Title,Parameters,LL,AIC,AICC,BIC,saBIC=aBIC, dplyr::any_of(c('Entropy', 'T11_VLMR_PValue','T11_LMR_PValue'))) %>%
       as.data.frame() %>%
       dplyr::mutate(classes = dplyr::row_number(), .before=1)
+
+    if(! 'Entropy' %in% colnames(general_info)){
+      general_info$Entropy <- NA
+    }
 
     nmin <- suppressWarnings(models[[type]] %>%
                                sapply(function(model_per_class) {model_per_class[['class_counts']][['modelEstimated']][['count']]}) %>%

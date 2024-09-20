@@ -19,6 +19,8 @@ perform_lca <- function(settings, modeltypes = seq(6)){
   results <- list()
   results$settings <- settings
 
+  start_time <- Sys.time()
+
   models <- list()
   for(type in modeltypes){
     model_for_type <- mplus_lca(settings, model = type)
@@ -31,6 +33,10 @@ perform_lca <- function(settings, modeltypes = seq(6)){
 
   class(results) <- 'easylca'
   saveRDS(results, paste0(settings$folder_name, '/', settings$analysis_name, '_lca_results.rds'))
+
+  end_time <- Sys.time()
+  print_elapsed_time(start_time, end_time)
+
   results
 }
 
@@ -53,3 +59,5 @@ mplus_lca <- function(settings, modeltype){
   setwd('..')
   return(mplus_results)
 }
+
+

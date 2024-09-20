@@ -2,6 +2,7 @@
 
 export("%>%")
 export(define_lca)
+export(diagnose_data)
 export(perform_lca)
 export(rerun_lca)
 importFrom(magrittr,"%>%")
