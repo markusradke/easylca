@@ -43,7 +43,7 @@ test_that('error bars and means for count variabels are correct', {
 
 
 test_that('prevalences are extracted correctly', {
-  model <- testresults$models$model_1$test_model1_lca.3_test_model1_lca.out
+  model <- testresults$models$modeltype_1$test_model1_lca.3_test_model1_lca.out
   profiles <- extract_profile_for_plotting(model, testresults$settings)
   summed_counts <- model$class_counts$modelEstimated$count %>% round() %>% sum
   sum_var3 <- profiles %>% dplyr::filter(item == 'var3') %>%

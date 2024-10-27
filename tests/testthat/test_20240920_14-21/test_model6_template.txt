@@ -1,0 +1,73 @@
+[[init]]
+iterators = classes;
+classes = 1:3;
+filename = "[[classes]]_test_model6_lca.inp";
+outputDirectory = "test_model6_lca";
+[[/init]]
+
+TITLE: test[[classes]] classes
+DATA: FILE IS test_model6_lca.dat;
+
+VARIABLE:
+NAMES = id var1 var2 var3 var4 var5 var6 var7 var8;
+IDVARIABLE = id;
+USEVARIABLES = var1 var3 var4 var5 var6 var7 var8;
+CATEGORICAL = var1;
+CENSORED = var6 (a) var3 (b) var4 (bi);
+COUNT = var8 (p) var7 (nbi);
+AUXILIARY = var2;
+MISSING = .;
+CLASSES = class ([[classes]]);
+
+MODEL:
+%CLASS#1%
+[ var7#1 ];
+[ var4#1 ];
+var3;
+var4;
+var5;
+var6;
+var7;
+[[classes > 1]]
+%CLASS#2%
+[ var7#1 ];
+[ var4#1 ];
+var3;
+var4;
+var5;
+var6;
+var7;
+[[/classes > 1]]
+[[classes > 2]]
+%CLASS#3%
+[ var7#1 ];
+[ var4#1 ];
+var3;
+var4;
+var5;
+var6;
+var7;
+[[/classes > 2]]
+
+ANALYSIS:
+TYPE = MIXTURE;
+PROCESSORS = 16;
+[[classes = 1]]
+STITERATIONS = 4;
+STARTS = 20 4;
+[[/classes = 1]]
+[[classes = 2]]
+STITERATIONS = 4;
+STARTS = 20 4;
+[[/classes = 2]]
+[[classes = 3]]
+STITERATIONS = 4;
+STARTS = 20 4;
+[[/classes = 3]]
+
+OUTPUT:
+SVALUES ENTROPY TECH1 TECH4;
+PLOT: TYPE=PLOT1 PLOT2 PLOT3;
+SAVEDATA:
+FILE IS test_model6_lca_[[classes]].dat
+SAVE = cprobabilites bchweights;

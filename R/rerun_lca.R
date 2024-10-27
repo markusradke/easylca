@@ -96,7 +96,7 @@ rerun_specified_models <- function(easylca, models_and_starts){
     name_modeltype <- paste0('modeltype_', models_and_starts$modeltype[row])
     easylca$models[[name_modeltype]] <- rerun_modeltype
   }
-  modeltypes_in_lca <- as.integer(gsub("[^0-9]", "", names(lca$models)))
+  modeltypes_in_lca <- as.integer(gsub("[^0-9]", "", names(easylca$models)))
   easylca$summary <- create_modeloverview(easylca$models, settings, modeltypes_in_lca)
   end_time <- Sys.time()
   print_elapsed_time(start_time, end_time)

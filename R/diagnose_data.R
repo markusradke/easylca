@@ -12,7 +12,7 @@
 #' diagnose_data(testdata, 'id')
 diagnose_data <- function(frame, id){
   if(! 'data.frame' %in% class(frame)){stop('Please provide an object of class data.frame for analysis.')}
-  if(! all(frame %>% purrr::map(class) %>% unlist() %in% c('integer', 'numeric'))){
+  if(! all(frame %>% dplyr::select(-all_of(id)) %>%  purrr::map(class) %>% unlist() %in% c('integer', 'numeric'))){
     stop('Please provide only numeric and integer data columns. Make sure categorical variables are coded as integers > 0.')}
 
   res <- list()
