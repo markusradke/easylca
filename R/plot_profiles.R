@@ -86,6 +86,7 @@ plot_kruskal_profiles <- function(model){
 
   predicted <- model$savedata
   items <- model$input$variable$usevariables %>% stringr::str_split_1(' ')
+  items  <- items[items != '']
   nitems <- items %>% length
   chisquares <- .get_kruskal_chisquares()
   max_chi_square <- chisquares$chisquare %>% max
