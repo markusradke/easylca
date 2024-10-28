@@ -85,6 +85,12 @@ plot_kruskal_profiles <- function(model){
   }
 
   predicted <- model$savedata
+  if(is.null(predicted[['CLASS']])) {
+    warning(paste0('CLASS PREDICTIONS FOR ',
+                   model$summaries$Title
+                   ,' WERE NOT STORED BY MPLUS. Check Model outputs for any further hints.'))
+    predicted[['CLASS']] <- 1
+  }
   items <- model$input$variable$usevariables %>% stringr::str_split_1(' ')
   items  <- items[items != '']
   nitems <- items %>% length
