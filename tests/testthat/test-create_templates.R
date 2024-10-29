@@ -3,7 +3,7 @@ test_that('creates necessary files', {
   create_templates(settings)
 
   for(i in seq(6)){
-    model_path <- paste0(settings$folder_name, '/', settings$analysis_name, '_model', i, '_template.txt')
+    model_path <- paste0(settings$folder_name, '/', settings$analysis_name, '_model',  i, '_template.txt')
     expect_true(file.exists(model_path),
                 info = paste0('Did not write file for model ', i, '...'))
   }
@@ -19,7 +19,8 @@ test_that('headers are created the right way from settings', {
     model_header <- c('[[init]]',
                       'iterators = classes;',
                       'classes = 1:4;',
-                      paste0('filename = \"[[classes]]_', extended_name,'.inp\";'),
+                      'classname#classes = 01 02 03 04;',
+                      paste0('filename = \"[[classname#classes]]_', extended_name,'.inp\";'),
                       paste0('outputDirectory = \"', extended_name, '\";'),
                       paste0('[[/init]]'),
                       '',
@@ -109,9 +110,7 @@ test_that('create plot save is working correctly', {
                          'SAVE = cprobabilites bchweights;')
     plot_save <- c(plot_save, list(model_plot_save))
   }
-
   expect_equal(create_plot_save(settings), plot_save)
-
 })
 
 
@@ -215,7 +214,7 @@ test_that('LMRLRT is added on wish', {
   settings <- define_lca(testdata, 'test', 'id', lmrlrt = TRUE)
   plot_save <- list()
   for(i in seq(6)){
-    extended_name <- paste0('test_model', i, '_lca')
+    extended_name <- paste0('test_model',  i, '_lca')
     model_plot_save <- c('OUTPUT:',
                          'SVALUES ENTROPY TECH1 TECH4 TECH11;',
                          'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',

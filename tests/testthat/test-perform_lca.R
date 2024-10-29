@@ -87,8 +87,8 @@ test_that('mplus analysis for only first two models creates necessary files and 
                 info = paste0('Model ', type, ': Did not write file for model log ', log, '.'))
 
     for(class in seq(settings$nclasses)){
-      input <- paste0(model_path, class, '_test_model', type, '_lca.inp')
-      output <- paste0(model_path, class, '_test_model', type, '_lca.out')
+      input <- paste0(model_path, sprintf('%02d', class), '_test_model', type, '_lca.inp')
+      output <- paste0(model_path, sprintf('%02d', class), '_test_model', type, '_lca.out')
       portrait <- paste0(model_path, 'plots/', class, '_test_model', type, '_diagnostic_portrait.png')
       landscape <- paste0(model_path, 'plots/', class, '_test_model', type, '_diagnostic_landscape.png')
 
