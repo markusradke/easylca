@@ -118,7 +118,7 @@ rerun_mplus_lca_single_model <- function(settings, modeltype, class){
   }
   MplusAutomation::createModels(paste0(analysis,"_lca/",analysis,"_template.txt"))
 
-  MplusAutomation::runModels(paste0(type_folder, '/', class, '_', type_folder, '.inp'),
+  MplusAutomation::runModels(paste0(type_folder, '/', sprintf("%02d", class), '_', type_folder, '.inp'),
                              logFile=paste0(analysis,"_lca/", analysis,"_log.txt"),showOutput=F,quiet=F)
 
   mplus_results<- MplusAutomation::readModels(type_folder,recursive=T)

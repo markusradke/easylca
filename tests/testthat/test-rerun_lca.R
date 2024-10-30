@@ -59,9 +59,9 @@ test_that('creates templates and performs rerun', {
                 info = paste0('Did not write file for model ', i, '...'))
   }
 
-  out_path_13 <- paste0(get_path_from_type(1), '_lca/3_test_model1_lca.out')
-  out_path_22 <- paste0(get_path_from_type(2), '_lca/2_test_model2_lca.out')
-  out_path_23 <- paste0(get_path_from_type(2), '_lca/3_test_model2_lca.out')
+  out_path_13 <- paste0(get_path_from_type(1), '_lca/03_test_model1_lca.out')
+  out_path_22 <- paste0(get_path_from_type(2), '_lca/02_test_model2_lca.out')
+  out_path_23 <- paste0(get_path_from_type(2), '_lca/03_test_model2_lca.out')
   expect_true(file.exists(out_path_13))
   expect_true(file.exists(out_path_22))
   expect_true(file.exists(out_path_23))
