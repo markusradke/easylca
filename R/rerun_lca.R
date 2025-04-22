@@ -33,7 +33,7 @@ rerun_lca <- function(easylca, models_and_starts = NULL, recursive = FALSE){
 
   counter <- 1
   easylca <- rerun_specified_models(easylca, models_and_starts)
-  if(recursive & (! all(easylca$summary$replicated) | any(is.na(easylca$summary$Parameters)))){ #TODO check LOGIK
+  if(recursive & (! all(easylca$summary$replicated) | any(is.na(easylca$summary$Parameters)))){ #TODO check logic
     while(counter < 10 ){
       counter <- counter + 1
       message(paste0('Still not all replicated / converged. Rerunning again ', counter, '. time... (max. 10 times)'))

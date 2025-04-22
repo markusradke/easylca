@@ -12,7 +12,7 @@
 #' @param starts Number of random starts for each class and model type. It is advisable to use numbers of the form 2^X*10. Must be provided either as single integer or in the form of a List with six entries for the 6 model types, each entry comprising an integer vector of length nclasses.
 #' @param cores The number of cores to use when performing the LCA.
 #' @param use Character vector with all variables in the data frame used for the LCA. All other variables will be saved as auxiliary variables in the LCA and not used for computing.
-#' @param categoricals Character vector with all categorical variables. Categorical variables must be stored as integers > 0.
+#' @param categoricals Character vector with all ordinal variables. Categorical variables must be stored as integers > 0. (Nominal to be inplemented, categorical works for binary).
 #' @param censored_above Character vector with all censored above variables.
 #' @param censored_below Character vector with all censored below variables.
 #' @param inflated Character vector with all zero-inflated variables (can only be censored or poisson, negbin). Inflation is always assumed to vary between classes.
