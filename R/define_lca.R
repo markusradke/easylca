@@ -154,7 +154,7 @@ define_lca <- function(frame,
   check_categorical_values <- function(frame, categorical) {
     selected_columns <- frame[categorical]
     result <- sapply(selected_columns, function(col) {
-      all(col >= 1 & col == floor(col))
+      all(is.na(col) | (col >= 1 & col == floor(col)))
     })
     return(all(result))
   }

@@ -153,6 +153,13 @@ test_that('Assertion categorical variables must contain only integers > 1', {
                'Please make sure categorical variables only contain integers >= 1.')
 })
 
+test_that('Assertion categorical variables must contain only integers > 1 is also met with NA values', {
+  data <- testdata
+  data[1, 'var2'] <- NA
+  expect_no_condition(define_lca(data, 'test', 'id', categorical = 'var2'))
+})
+
+
 test_that('Aux variables are empty when no aux is specified', {
   settings <- define_lca(testdata, 'test', 'id')
   expect_equal(settings$auxvariables, character())
