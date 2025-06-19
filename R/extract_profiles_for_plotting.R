@@ -57,7 +57,9 @@ extract_profile<- function(model, settings){
   levels(profile$count) <- round(model[['class_counts']][['modelEstimated']][['count']])
   profile$count <- as.numeric(levels(profile$count))[as.integer(profile$count)]
 
-  profile %>% dplyr::mutate(est = ifelse(pval > 0.05, 0, est))
+  profile %>% dplyr::mutate(significance = ifelse(pval < 0.05, '*', ''),
+                            significance = ifelse(pval < 0.01, '**', significance),
+                            significance = ifelse(pval < 0.001, '***', significance))
 }
 
 

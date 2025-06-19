@@ -22,16 +22,17 @@ plot_binary_profiles <- function(profiles){
   relative_freqs <- profiles %>%
     dplyr::filter(param == 'Probabilities' & level==1) %>%
     dplyr::rename(share_of_1 = est) %>%
-    dplyr::select(segment, item, share_of_1)
+    dplyr::mutate(share_label = paste0(round(share_of_1, 2), significance)) %>%
+    dplyr::select(segment, item, share_of_1, share_label)
 
   ggplot2::ggplot(relative_freqs, ggplot2::aes(x = segment, y = item)) +
     ggplot2::geom_point(ggplot2::aes(color = segment, alpha = share_of_1), size = 10) +
-    ggplot2::geom_text(ggplot2::aes(label = round(share_of_1, 2)), color = "black") +
+    ggplot2::geom_text(ggplot2::aes(label = share_label), color = "black") +
     ggplot2::scale_alpha_continuous(range = c(0.2, 1)) +
     ggplot2::theme_minimal() +
     ggplot2::labs(x = 'class', y = 'indicator',
                   title = 'Class Conditional Item Probabilities',
-                  caption = 'redundant value set to 1') +
+                  caption = 'redundant value set to 1\n* p < 0.05, ** p < 0.01, *** p < 0.001') +
     ggplot2::theme(
       axis.text.y = ggplot2::element_text(size = 10),
       axis.text.x = ggplot2::element_blank(),
