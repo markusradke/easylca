@@ -2,7 +2,7 @@
 
 export("%>%")
 export(define_lca)
-export(diagnose_data)
+export(generate_data_diagnosis_report)
 export(get_prediction_for_model)
 export(perform_lca)
 export(read_models)

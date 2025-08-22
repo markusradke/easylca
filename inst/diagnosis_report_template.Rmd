@@ -1,0 +1,198 @@
+---
+title: "*easylca* data diagnosis report for `r params$title`"
+date: "*created `r format(Sys.time(), '%H:%M, %B %d, %Y')`*"
+output: 
+  html_document:
+    css: diagnosis_report_template.css
+params:
+  data: NULL
+  idcol: NULL
+  title: NULL
+---
+
+## Variable Types
+
+```{r types, echo=F}
+data <- params$data
+idcol <- params$idcol
+title <- params$title
+types <- sapply(dplyr::select(data, -all_of(idcol)), class)
+discrete <- types[types == 'integer'] %>% names()
+continuous <- types[types == 'numeric'] %>% names()
+is_discrete <- length(discrete) > 0
+is_continuous <- length(continuous) > 0
+is_correlations <- length(continuous) > 1
+```
+
+**N = `r nrow(data)`** observations, id variable is *`r idcol`*.\
+
+**`r length(continuous)` continuous indicators** (type `numeric`):\
+*`r continuous`*
+
+**`r length(discrete)` discrete indicators** (type `integer > 1`, max 10 levels):\
+*`r discrete`*
+
+## Missings
+
+```{r missings_calc, echo=F}
+missings <- sapply(data %>% dplyr::select(-dplyr::all_of(idcol)),
+       function(x) 1 - length(na.omit(x)) / length(x))
+missings <- data.frame(var = names(missings), 
+                       relfreq_na = missings) %>% 
+  dplyr::arrange(dplyr::desc(relfreq_na)) %>% 
+  dplyr::filter(relfreq_na != 0) %>% 
+  dplyr::mutate(label = sprintf('%.0f%%', relfreq_na * 100))
+is_missings <- nrow(missings) > 0
+```
+
+```{r missings_plot, echo=F, fig.height=nrow(missings)*0.4+0.75, warning=F}
+if(is_missings){
+  ggplot2::ggplot(missings, ggplot2::aes(y = forcats::fct_rev(forcats::fct_inorder(var)), x = relfreq_na)) + 
+    ggplot2::geom_col(ggplot2::aes(fill = relfreq_na), show.legend = F) + 
+    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0, 0.025)),
+                                limits = c(0,1), position = 'top')+ 
+    ggplot2::scale_fill_gradientn(colors = c("grey85", "#c40d20"),
+                                  values = scales::rescale(c(0, 0.4))) + 
+    ggplot2::xlab('relative frequency of NAs') + 
+    ggplot2::ylab('')+
+    ggplot2::geom_text(ggplot2::aes(label = label), hjust = 0, nudge_x = 0.01) + 
+    ggplot2::theme_minimal() + 
+    ggplot2::theme(legend.position = 'none', 
+          panel.grid = ggplot2::element_blank(), 
+          axis.title.x = ggplot2::element_text(color = 'grey45', size = 14, hjust = 0),
+          axis.text.x = ggplot2::element_blank(), 
+          axis.text.y = ggplot2::element_text(size = 14, face = 'italic'))
+}
+```
+
+```{r missings_no_indicators, echo=F, results='asis'}
+if(! is_missings){cat('There are no missing values.')}
+```
+
+All other indicators do not have missing values.
+
+## Spearman correlations between continuous indicators
+
+```{r correlations, echo=F, fig.height=length(continuous)*0.5+1.5, fig.width=length(continuous)*0.5+2, warning=F}
+if(is_correlations){
+  cor_matrix <- stats::cor(data %>% 
+                             dplyr::select(all_of(continuous)),
+                           use = 'pairwise.complete.obs',
+                           method = "spearman")
+  cor_df <- as.data.frame(cor_matrix)
+  cor_long <- cor_df %>%
+    tibble::rownames_to_column(var = "Var1") %>%
+    tidyr::pivot_longer(cols = -Var1, names_to = "Var2", values_to = "value") %>% 
+    dplyr::mutate(lower_triangular = match(Var1, unique(Var1)) > match(Var2, unique(Var2)), 
+                  label = sprintf('%.2f', value), 
+      Var1 = forcats::fct_inorder(Var1), 
+      Var2 = forcats::fct_inorder(Var2))
+  
+  ggplot2::ggplot(cor_long, ggplot2::aes(Var1, Var2, 
+                                         fill = ifelse(lower_triangular,
+                                                       NA, value))) +
+    ggplot2::geom_tile(color = "white") +
+    ggplot2::scale_x_discrete(position = 'top') +
+    ggplot2::scale_fill_gradient(low = "white", high = "#c40d20",na.value = "white") +
+    ggplot2::geom_text(ggplot2::aes(label = ifelse(lower_triangular, '', label)),
+                       color = 'grey25')+
+    ggplot2::theme_minimal() +
+    ggplot2::labs(x = "", y = "") +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(size = 14, 
+                                                       angle = 45, hjust = 0), 
+                   axis.text.y = ggplot2::element_text(size = 14), 
+                   legend.position = 'none')
+} 
+```
+
+```{r correlations_no_indicators, echo=F, results='asis'}
+if(!is_correlations){
+  cat('There are less than 2 continuous indicators. Thus, no Spearman correlations are computed.')
+}
+```
+
+## Indicator distributions
+
+#### [Continuous indicators]{style="color: #c40d20"}
+
+```{r continuous_histograms, echo=F, fig.height=length(continuous)*1.25+0.001,  warning=F}
+if(length(continuous)>1){
+  continuous_data <- data %>% dplyr::select(dplyr::all_of(continuous)) %>% 
+    tidyr::pivot_longer(cols = everything(),
+                        names_to = "variable", values_to = "value")
+  
+  n_bins <- 80
+  ggplot2::ggplot(continuous_data, 
+                  ggplot2::aes(x = value)) + 
+    ggplot2::geom_histogram(fill = 'grey45', bins = n_bins, na.rm = T) + 
+    ggplot2::facet_wrap(~ variable, ncol = 2, scales = 'free')+ 
+    ggplot2::theme_minimal() + 
+    ggplot2::ylab('frequency') +
+    ggplot2:::theme(strip.text = ggplot2::element_text(size = 14, face = 'bold', 
+                                              hjust = 0), 
+                    axis.title = ggplot2::element_text(color = 'grey45'),
+                    axis.text = element_text(color = 'grey45'), 
+                    panel.grid = element_blank())
+}
+```
+
+```{r continuous_histograms_no_indicators, echo=F, results='asis'}
+if(! is_continuous){cat('There are no continuous indicators.')}
+```
+
+#### [Robust distribution parameters of continuous indicators]{style="color: #c40d20"}
+
+```{r continuous_distribution_parameters, echo=F, fig.width=4, fig.height=4,warning=F}
+if(length(continuous)>1){
+  medians <- continuous_data %>% dplyr::group_by(variable) %>% 
+    dplyr::summarize(median = median(value, na.rm = T))
+  IQR <- continuous_data %>% dplyr::group_by(variable) %>% 
+    dplyr::summarize(iqr = IQR(value, na.rm = T) * 1.5) # equals variance for Gaussian
+  parameters <- suppressMessages(dplyr::inner_join(medians, IQR))
+  x_max <- max(parameters$iqr)
+  y_max <- max(parameters$median)
+  
+  ggplot2::ggplot(parameters, ggplot2::aes(x = iqr, y = median)) + 
+    ggplot2::geom_point() + 
+    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.05, 
+                                                                     0.3)))+
+    ggplot2::geom_text(ggplot2::aes(label = variable), 
+                       hjust = 0, 
+                       nudge_x = 0.01 * x_max, 
+                       nudge_y = 0.01 * y_max) + 
+    ggplot2::labs(x = 'Interquartile range x 1.5', y = 'Median') + 
+    ggplot2::theme_minimal() + 
+    ggplot2::theme(axis.text = element_text(color = 'grey45'))
+}
+```
+
+```{r continuous_distribution_parameters_no_indicators, echo=F, results='asis'}
+if(! is_continuous){cat('There are no continuous indicators.')}
+```
+
+#### [Discrete indicators]{style="color: #c40d20"}
+
+```{r discrete_histograms, echo=F, fig.height=length(discrete)*1+0.001,  warning=F}
+if(length(discrete)>1){
+  discrete_data <- data %>% dplyr::select(dplyr::all_of(discrete)) %>% 
+    tidyr::pivot_longer(cols = everything(),
+                        names_to = "variable", values_to = "value")
+  ggplot2::ggplot(discrete_data, 
+                  ggplot2::aes(y = as.factor(value))) + 
+    ggplot2::geom_bar(fill = 'grey45', stat = 'count',
+                            na.rm = T) + 
+    ggplot2::labs(x = 'frequency', y = '') + 
+    ggplot2::facet_wrap(~ variable, ncol = 3, scales = 'free_y')+ 
+    ggplot2::theme_minimal() + 
+    ggplot2:::theme(strip.text = ggplot2::element_text(size = 12, face = 'bold', 
+                                              hjust = 0), 
+                    axis.title = ggplot2::element_text(color = 'grey45'),
+                    axis.text.y = element_text(size =  12, color = 'black'), 
+                    axis.text.x = element_text(color = 'grey45'), 
+                    panel.grid = element_blank())
+} 
+```
+
+```{r discrete_histograms_no_indicators, echo=F, results='asis'}
+if(!is_discrete){cat('There are no discrete indicators.')}
+```
