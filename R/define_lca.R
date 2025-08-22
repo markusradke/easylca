@@ -12,7 +12,8 @@
 #' @param starts Number of random starts for each class and model type. It is advisable to use numbers of the form 2^X*10. Must be provided either as single integer or in the form of a List with six entries for the 6 model types, each entry comprising an integer vector of length nclasses.
 #' @param cores The number of cores to use when performing the LCA.
 #' @param use Character vector with all variables in the data frame used for the LCA. All other variables will be saved as auxiliary variables in the LCA and not used for computing.
-#' @param categoricals Character vector with all ordinal variables. Categorical variables must be stored as integers > 0. (Nominal to be inplemented, categorical works for binary).
+#' @param categorical Character vector with all ordinal variables. Categorical variables must be stored as integers > 0.
+#' @param nominal Character vector with all multinominal (unordered) variables. Multinominal variables must be stored as integers > 0.
 #' @param censored_above Character vector with all censored above variables.
 #' @param censored_below Character vector with all censored below variables.
 #' @param inflated Character vector with all zero-inflated variables (can only be censored or poisson, negbin). Inflation is always assumed to vary between classes.
@@ -44,6 +45,7 @@ define_lca <- function(frame,
                        starts = 160,
                        cores = 16,
                        use = character(),
+                       nominal = character(),
                        categorical = character(),
                        censored_above = character(),
                        censored_below = character(),
@@ -123,22 +125,31 @@ define_lca <- function(frame,
     for (i in seq(6)){
       if(length(lca$starts[[i]]) != lca$nclasses){stop('Please supply start values for either all model types as a list with dimensions 6 x nclasses or a single integer vaule for all types and classes.')}
     }
-    if(any(! lca$categorical %in% lca$use) ||
+    if(any(! lca$nominal %in% lca$use) ||
+       any(! lca$categorical %in% lca$use) ||
        any(! lca$censored_above %in% lca$use) ||
        any(! lca$censored_below %in% lca$use) ||
        any(! lca$inflated %in% lca$use) ||
        any(! lca$poisson %in% lca$use) ||
-       any(! lca$negbin %in% lca$use)) {stop('Please make sure all variables listed in categorical, censored, inflated, poisson, and negbin are also listed in use.')}
+       any(! lca$negbin %in% lca$use)) {stop('Please make sure all variables listed in nominal, categorical, censored, inflated, poisson, and negbin are also listed in use.')}
     if(any(lca$categorical %in% lca$censored_above) ||
        any(lca$categorical %in% lca$censored_below) ||
        any(lca$categorical %in% lca$inflated) ||
        any(lca$categorical %in% lca$poisson) ||
-       any(lca$categorical %in% lca$negbin)) {stop('Please make sure none of the variables listed in categorical are listed in censored, inflated, poisson, or negbin.')}
+       any(lca$categorical %in% lca$negbin) ||
+       any(lca$nominal %in% lca$censored_above) ||
+       any(lca$nominal %in% lca$censored_below) ||
+       any(lca$nominal %in% lca$inflated) ||
+       any(lca$nominal %in% lca$poisson) ||
+       any(lca$nominal %in% lca$negbin)) {stop('Please make sure none of the variables listed in nominal or categorical are listed in censored, inflated, poisson, or negbin.')}
     if(! all(lca$inflated %in% c(lca$censored_above, lca$censored_below, lca$poisson, lca$negbin))) {
       stop('Please make sure inflated variables are also either censored, poisson or negbin variables.')
     }
-    if(! check_categorical_values(lca$frame, lca$categorical)){
+    if(! check_discrete_values(lca$frame, lca$categorical)){
       stop('Please make sure categorical variables only contain integers >= 1.')
+    }
+    if(! check_discrete_values(lca$frame, lca$nominal)){
+      stop('Please make sure nominal variables only contain integers >= 1.')
     }
 
     poisson_value_check <- any(sapply(lca$frame[lca$poisson], function(x) any(x < 0 | x != floor(x))))
@@ -151,7 +162,7 @@ define_lca <- function(frame,
     }
   }
 
-  check_categorical_values <- function(frame, categorical) {
+  check_discrete_values <- function(frame, categorical) {
     selected_columns <- frame[categorical]
     result <- sapply(selected_columns, function(col) {
       all(is.na(col) | (col >= 1 & col == floor(col)))
@@ -167,6 +178,7 @@ define_lca <- function(frame,
               nclasses = as.integer(nclasses),
               starts = starts,
               cores = as.integer(cores),
+              nominal = nominal,
               categorical = categorical,
               censored_above = censored_above,
               censored_below = censored_below,

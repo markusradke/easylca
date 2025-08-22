@@ -5,7 +5,7 @@ test_that('definition returns object of class lca_settings', {
 
 test_that('variable names in settings environment are correct', {
   lcasettings <- define_lca(testdata, 'test', 'id')
-  varnames <- c('analysis_name','folder_name', 'use', 'categorical', 'censored_above', 'censored_below', 'cores', 'correlate', 'frame', 'freevariance', 'id', 'weights',
+  varnames <- c('analysis_name','folder_name', 'use', 'categorical', 'nominal', 'censored_above', 'censored_below', 'cores', 'correlate', 'frame', 'freevariance', 'id', 'weights',
                 'inflated', 'lmrlrt', 'names', 'nclasses', 'negbin', 'poisson', 'starts', 'auxvariables')
   expect_setequal(ls(lcasettings), varnames)
 })
@@ -28,6 +28,7 @@ test_that('variables classes in settings environment are correct',{
                         'names' = 'character',
                         'nclasses' = 'integer',
                         'negbin' = 'character',
+                        'nominal' = 'character',
                         'poisson' = 'character',
                         'starts' = 'list',
                         'use' = 'character',
@@ -116,14 +117,17 @@ test_that('Assertion all variables of use are in colnames of dataframe', {
                'Please make sure all variables listed in use are columns in the data frame provided for analysis.')
 })
 
-test_that('Assertion all variables of categorical, negbin, poission, censored, inflated are in use.', {
+test_that('Assertion all variables of nominal, categorical, negbin, poission, censored, inflated are in use.', {
   expect_error(define_lca(testdata, 'test', 'id', categorical = 'var1', use = 'var2'),
-               'Please make sure all variables listed in categorical, censored, inflated, poisson, and negbin are also listed in use.')
+               'Please make sure all variables listed in nominal, categorical, censored, inflated, poisson, and negbin are also listed in use.')
 })
 
-test_that('Assertion none of the categorical variables are listed in negbin, poisson, censored, or inflated.', {
+test_that('Assertion none of the nominal or categorical variables are listed in negbin, poisson, censored, or inflated.', {
   expect_error(define_lca(testdata, 'test', 'id', categorical = 'var1', inflated = 'var1', use = 'var1'),
-               'Please make sure none of the variables listed in categorical are listed in censored, inflated, poisson, or negbin.')
+               'Please make sure none of the variables listed in nominal or categorical are listed in censored, inflated, poisson, or negbin.')
+
+  expect_error(define_lca(testdata, 'test', 'id', nominal = 'var1', inflated = 'var1', use = 'var1'),
+               'Please make sure none of the variables listed in nominal or categorical are listed in censored, inflated, poisson, or negbin.')
 })
 
 test_that('If no use variables are provided, all variables become usevariables by default.', {
@@ -153,10 +157,16 @@ test_that('Assertion categorical variables must contain only integers > 1', {
                'Please make sure categorical variables only contain integers >= 1.')
 })
 
-test_that('Assertion categorical variables must contain only integers > 1 is also met with NA values', {
+test_that('Assertion nominal variables must contain only integers > 1', {
+  expect_error(define_lca(testdata, 'test', 'id', nominal = 'var3'),
+               'Please make sure nominal variables only contain integers >= 1.')
+})
+
+
+test_that('Assertion nominal variables must contain only integers > 1 is also met with NA values', {
   data <- testdata
   data[1, 'var2'] <- NA
-  expect_no_condition(define_lca(data, 'test', 'id', categorical = 'var2'))
+  expect_no_condition(define_lca(data, 'test', 'id', nominal = 'var2'))
 })
 
 
