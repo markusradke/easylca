@@ -116,7 +116,7 @@ if(!is_correlations){
 #### [Continuous indicators]{style="color: #c40d20"}
 
 ```{r continuous_histograms, echo=F, fig.height=length(continuous)*1.25+0.001,  warning=F}
-if(length(continuous)>1){
+if(length(continuous)>0){
   continuous_data <- data %>% dplyr::select(dplyr::all_of(continuous)) %>% 
     tidyr::pivot_longer(cols = everything(),
                         names_to = "variable", values_to = "value")
@@ -140,40 +140,38 @@ if(length(continuous)>1){
 if(! is_continuous){cat('There are no continuous indicators.')}
 ```
 
-#### [Robust distribution parameters of continuous indicators]{style="color: #c40d20"}
+#### [Robust variance (IQR) of continuous indicators]{style="color: #c40d20"}
 
-```{r continuous_distribution_parameters, echo=F, fig.width=4, fig.height=4,warning=F}
+```{r continuous_distribution_parameters, echo=F, fig.height=length(continuous)*0.4+0.75, warning=F}
 if(length(continuous)>1){
-  medians <- continuous_data %>% dplyr::group_by(variable) %>% 
-    dplyr::summarize(median = median(value, na.rm = T))
-  IQR <- continuous_data %>% dplyr::group_by(variable) %>% 
-    dplyr::summarize(iqr = IQR(value, na.rm = T) * 1.5) # equals variance for Gaussian
-  parameters <- suppressMessages(dplyr::inner_join(medians, IQR))
-  x_max <- max(parameters$iqr)
-  y_max <- max(parameters$median)
-  
-  ggplot2::ggplot(parameters, ggplot2::aes(x = iqr, y = median)) + 
-    ggplot2::geom_point() + 
-    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.05, 
-                                                                     0.3)))+
-    ggplot2::geom_text(ggplot2::aes(label = variable), 
-                       hjust = 0, 
-                       nudge_x = 0.01 * x_max, 
-                       nudge_y = 0.01 * y_max) + 
-    ggplot2::labs(x = 'Interquartile range x 1.5', y = 'Median') + 
+  iqrs <- continuous_data %>% dplyr::group_by(variable) %>% 
+    dplyr::summarize(iqr = IQR(value, na.rm = T) * 1.5) %>%  # equals variance for Gaussian
+    dplyr::arrange(-iqr)
+  ggplot2::ggplot(iqrs, ggplot2::aes(x = iqr, y = forcats::fct_rev(forcats::fct_inorder(variable)))) + 
+    ggplot2::geom_col(fill = 'grey45') +
+    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.0, 
+                                                                     0.05)), 
+                                position = 'top')+
+    ggplot2::xlab('Interquartile range (IQR) x 1.5') + 
+    ggplot2::ylab('')+
     ggplot2::theme_minimal() + 
-    ggplot2::theme(axis.text = element_text(color = 'grey45'))
+    ggplot2::theme(axis.text.x = ggplot2::element_text(color = 'grey45'), 
+                   panel.grid = ggplot2::element_blank(), 
+                   axis.title.x = ggplot2::element_text(color = 'grey45', 
+                                                        hjust = 0, 
+                                                        size = 14), 
+                   axis.text.y = ggplot2::element_text(size = 14, face = 'italic'))
 }
 ```
 
 ```{r continuous_distribution_parameters_no_indicators, echo=F, results='asis'}
-if(! is_continuous){cat('There are no continuous indicators.')}
+if(! is_continuous){cat('There are less than 2 continuous indicators. Thus, there is no potential need for scaling.')}
 ```
 
 #### [Discrete indicators]{style="color: #c40d20"}
 
 ```{r discrete_histograms, echo=F, fig.height=length(discrete)*1+0.001,  warning=F}
-if(length(discrete)>1){
+if(length(discrete)>0){
   discrete_data <- data %>% dplyr::select(dplyr::all_of(discrete)) %>% 
     tidyr::pivot_longer(cols = everything(),
                         names_to = "variable", values_to = "value")
@@ -187,9 +185,9 @@ if(length(discrete)>1){
     ggplot2:::theme(strip.text = ggplot2::element_text(size = 12, face = 'bold', 
                                               hjust = 0), 
                     axis.title = ggplot2::element_text(color = 'grey45'),
-                    axis.text.y = element_text(size =  12, color = 'black'), 
-                    axis.text.x = element_text(color = 'grey45'), 
-                    panel.grid = element_blank())
+                    axis.text.y = ggplot2::element_text(size =  12, color = 'black'), 
+                    axis.text.x = ggplot2::element_text(color = 'grey45'), 
+                    panel.grid = ggplot2::element_blank())
 } 
 ```
 

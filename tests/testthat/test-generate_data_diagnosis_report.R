@@ -29,9 +29,24 @@ test_that("is all indicators are either double or integer", {
 })
 
 test_that("report generation creates file in the current wd directory",{
-  testdata <- data.frame(var1 = seq(10) %>% as.integer(),
-                         id = 'id')
-  generate_data_diagnosis_report(testdata, 'id', 'testreport')
+  testdata_only_discrete <- data.frame(var1 = seq(10) %>% as.integer(),
+                                       id = 'id')
+  generate_data_diagnosis_report(testdata_only_discrete, 'id', 'testreport')
+  is_file <- file.exists('data_diagnosis_testreport.html')
+  expect_true(is_file)
+  if(is_file){file.remove('data_diagnosis_testreport.html')}
+
+  testdata_only_continuous <- data.frame(var1 = seq(10),
+                                        id = 'id')
+  generate_data_diagnosis_report(testdata_only_continuous, 'id', 'testreport')
+  is_file <- file.exists('data_diagnosis_testreport.html')
+  expect_true(is_file)
+  if(is_file){file.remove('data_diagnosis_testreport.html')}
+
+  testdata_both_types <- data.frame(var1 = seq(10) %>% as.integer(),
+                                    var2 = seq(10),
+                                    id = 'id')
+  generate_data_diagnosis_report(testdata_both_types, 'id', 'testreport')
   is_file <- file.exists('data_diagnosis_testreport.html')
   expect_true(is_file)
   if(is_file){file.remove('data_diagnosis_testreport.html')}
