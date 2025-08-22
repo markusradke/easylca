@@ -40,11 +40,15 @@ rerun_lca <- function(easylca, models_and_starts = NULL, recursive = FALSE){
       models_and_starts <- create_models_and_starts_for_rerun(easylca)
       print_rerun(models_and_starts)
       easylca <- rerun_specified_models(easylca, models_and_starts)
+
+      saveRDS(easylca, paste0(settings$folder_name, '/', settings$analysis_name, '_lca_results_rerun-no-',
+                          counter, '.rds'))
+
       if(all(easylca$summary$replicated) & ! any(is.na(easylca$summary$Parameters))){break}
     }
   }
 
-  easylca <- create_all_figures(easylca, models_and_starts$modeltype %>% unique())
+  # easylca <- create_all_figures(easylca, models_and_starts$modeltype %>% unique())
   message('Done.')
   return(easylca)
 }
@@ -98,6 +102,7 @@ rerun_specified_models <- function(easylca, models_and_starts){
   }
   modeltypes_in_lca <- as.integer(gsub("[^0-9]", "", names(easylca$models)))
   easylca$summary <- create_modeloverview(easylca$models, settings, modeltypes_in_lca)
+
   end_time <- Sys.time()
   print_elapsed_time(start_time, end_time)
   easylca
