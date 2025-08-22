@@ -98,6 +98,7 @@ define_lca <- function(frame,
 
   create_free_variance <- function(lca){
     freevariance <- lca$use[! lca$use %in% lca$categorical]
+    freevariance <- freevariance[! freevariance %in% lca$nominal]
     freevariance <- freevariance[! freevariance %in% lca$poisson]
     lca$freevariance <- freevariance
     lca
@@ -105,6 +106,7 @@ define_lca <- function(frame,
 
   create_correlate <- function(lca){
     correlate <- lca$use[! lca$use %in% lca$categorical]
+    correlate <- correlate[! correlate %in% lca$nominal]
     correlate <- correlate[! correlate %in% lca$poisson]
     correlate <- correlate[! correlate %in% lca$negbin]
     correlate <- correlate[! correlate %in% lca$censored_above]

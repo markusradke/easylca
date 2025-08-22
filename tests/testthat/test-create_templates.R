@@ -44,6 +44,21 @@ test_that('variables specs are created the right way from settings',{
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()
   expect_equal(create_variable_specs(settings), variable_settings)
 
+  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2', 'var3', 'var4'),
+                         nominal = 'var1',
+                         categorical = 'var2')
+  variable_settings <- c('VARIABLE:',
+                         'NAMES = id var1 var2 var3 var4 var5 var6 var7 var8;',
+                         'IDVARIABLE = id;',
+                         'USEVARIABLES = var1 var2 var3 var4;',
+                         'NOMINAL = var1;',
+                         'CATEGORICAL = var2;',
+                         'AUXILIARY = var5 var6 var7 var8;',
+                         'MISSING = .;',
+                         'CLASSES = class ([[classes]]);')
+  variable_settings <- rep(list(variable_settings), 6) %>% as.list()
+  expect_equal(create_variable_specs(settings), variable_settings)
+
   settings <- define_lca(testdata %>%
                            dplyr::mutate(var5 = floor(var5),
                                          var6 = floor(var6)),
@@ -103,7 +118,7 @@ test_that('create plot save is working correctly', {
   for(i in seq(6)){
     extended_name <- paste0('test_model', i, '_lca')
     model_plot_save <- c('OUTPUT:',
-                         'SVALUES ENTROPY TECH1 TECH4;',
+                         'SVALUES ENTROPY TECH1 TECH4 TECH10;',
                          'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
                          'SAVEDATA:',
                          paste0('FILE IS ', extended_name, '_[[classes]].dat'),
@@ -216,7 +231,7 @@ test_that('LMRLRT is added on wish', {
   for(i in seq(6)){
     extended_name <- paste0('test_model',  i, '_lca')
     model_plot_save <- c('OUTPUT:',
-                         'SVALUES ENTROPY TECH1 TECH4 TECH11;',
+                         'SVALUES ENTROPY TECH1 TECH4 TECH10 TECH11;',
                          'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
                          'SAVEDATA:',
                          paste0('FILE IS ', extended_name, '_[[classes]].dat'),
