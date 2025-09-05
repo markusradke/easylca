@@ -1,0 +1,150 @@
+---
+title: "*easylca* summary report for `r params$title`"
+date: "*created `r format(Sys.time(), '%H:%M, %B %d, %Y')`*"
+output: 
+  html_document:
+    css: summary_report_template.css
+params:
+  data: NULL
+  n_observations: NULL
+  title: NULL
+---
+
+```{r data_unpacking, echo=F}
+data <- params$data 
+title <- params$title
+n_observations <- params$n_observations
+
+if(! 'VLRMT' %in% colnames(data)){
+  data$VLRMT <- 'not calculated'
+}
+
+data <- data %>% 
+  dplyr::mutate(nmin = round(nmin)) %>% 
+  dplyr::select(Type = modeltype,
+                Classes = classes,
+                Parameters, 
+                Replicated = replicated, 
+                'Boundary Values' = boundary_values,
+                'n Min'= nmin,
+                Entropy, 
+                LL,
+                AIC,
+                AICC,
+                BIC,
+                saBIC,
+                VLRMT)
+
+
+not_replicated <- data %>% 
+  dplyr::filter(! Replicated)
+first_not_replicated <- not_replicated %>% 
+  dplyr::arrange(Classes) %>% dplyr::first() %>% 
+  dplyr::select(Classes, BIC, saBIC)
+```
+
+## Models overview
+
+N = `r n_observations` observations
+
+```{r echo = F}
+flextable::flextable(data) %>% 
+  flextable::bold(part='header') %>% 
+  flextable::align(align='center', part = 'all') %>% 
+  flextable::align(j = 1, align = 'left', part = 'all') %>% 
+  flextable::border_inner(part = 'body') %>% 
+  flextable::bg(bg = 'white', part = 'all') %>% 
+  flextable::bg(j = 'LL', 
+                bg = ifelse(data$LL == max(data$LL), '#adebad', 'white')) %>%
+  flextable::bg(j = 'AIC', 
+                bg = ifelse(data$AIC == min(data$AIC), '#adebad', 'white')) %>%
+  flextable::bg(j = 'AICC',
+                bg = ifelse(data$AICC == min(data$AICC), '#adebad', 'white')) %>%
+  flextable::bg(j = 'BIC', 
+                bg = ifelse(data$BIC == min(data$BIC), '#adebad', 'white')) %>%
+  flextable::bg(j = 'saBIC', 
+                bg = ifelse(data$saBIC == min(data$saBIC),
+                            '#adebad', 'white')) %>%
+  flextable::bg(j = 'VLRMT', 
+                bg = ifelse(data$VLRMT == 'not calculated', 'grey', 'white')) %>% 
+  flextable::bg(j = 'Entropy', 
+                bg = ifelse(is.na(data$Entropy), 'grey', 'white')) %>% 
+  flextable::bg(j = 'Replicated', 
+                bg = ifelse(data$Replicated, 'white', '#ff9999')) %>% 
+  flextable::bg(j = 'Boundary Values', 
+                bg = ifelse(data$`Boundary Values`, '#ff9999', 'white')) %>% 
+  flextable::bg(j = 'n Min', bg = ifelse(data$`n Min` < 100,
+                                         '#ff9999', 'white')) %>% 
+  flextable::merge_v() %>% 
+  flextable::autofit()
+```
+
+## Information criteria
+
+### BIC
+
+```{r bic_plot, echo=F}
+bic_plot <- ggplot2::ggplot(data, ggplot2::aes(x = Classes, 
+                                   y = BIC, 
+                                   color = as.factor(Type))) +
+  ggplot2::geom_line(linewidth = 1, alpha = 0.8) +  
+  ggplot2::geom_point(data = not_replicated, color = 'red', size = 2)+ 
+  ggplot2::theme_minimal() +
+  ggplot2::scale_color_discrete(name = 'type') + 
+  ggplot2::scale_y_continuous(labels = scales::comma_format(big.mark = ','))+
+  ggplot2::scale_x_continuous(breaks = seq(max(data$Classes))) + 
+  ggplot2::labs(x = '# of classes',
+                y = 'BIC') +
+  ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                 axis.title = ggplot2::element_text(color = 'grey45'), 
+                 axis.text.y = ggplot2::element_text(color = 'grey45'), 
+                 axis.text.x = ggplot2::element_text(face = 'bold'),
+                 legend.title = ggplot2::element_text(color = 'grey45'), 
+                 legend.text = ggplot2::element_text(color = 'grey45'), 
+                 legend.position = 'top', 
+                 legend.justification = 'left') 
+
+if(nrow(not_replicated) > 0){
+  bic_plot <- bic_plot + 
+    ggplot2::geom_text(data = first_not_replicated, 
+            ggplot2::aes(x = Classes, y = BIC, label = "not replicated"), 
+            color = "red", 
+            hjust = 0, 
+            vjust = -3) 
+}
+bic_plot
+```
+
+### saBIC
+
+```{r sabic_plot, echo=F}
+sabic_plot <- ggplot2::ggplot(data, ggplot2::aes(x = Classes, 
+                                   y = saBIC, 
+                                   color = as.factor(Type))) +
+  ggplot2::geom_line(linewidth = 1, alpha = 0.8) +  
+  ggplot2::geom_point(data = not_replicated, color = 'red', size = 2)+ 
+  ggplot2::theme_minimal() +
+  ggplot2::scale_color_discrete(name = 'type') + 
+  ggplot2::scale_y_continuous(labels = scales::comma_format(big.mark = ','))+
+  ggplot2::scale_x_continuous(breaks = seq(max(data$Classes))) + 
+  ggplot2::labs(x = '# of classes',
+                y = 'saBIC') +
+  ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                 axis.title = ggplot2::element_text(color = 'grey45'), 
+                 axis.text.y = ggplot2::element_text(color = 'grey45'), 
+                 axis.text.x = ggplot2::element_text(face = 'bold'),
+                 legend.title = ggplot2::element_text(color = 'grey45'), 
+                 legend.text = ggplot2::element_text(color = 'grey45'), 
+                 legend.position = 'top', 
+                 legend.justification = 'left') 
+
+  if(nrow(not_replicated) > 0){
+  sabic_plot <- sabic_plot + 
+    ggplot2::geom_text(data = first_not_replicated, 
+            ggplot2::aes(x = Classes, y = saBIC, label = "not replicated"), 
+            color = "red", 
+            hjust = 0, 
+            vjust = -3) 
+  }
+sabic_plot
+```

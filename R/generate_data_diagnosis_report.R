@@ -13,7 +13,7 @@
 #' @param idcol The id column of the data frame. It will be excluded from the diagnosis.
 #' @param title title of the data set / project for display in the HTML document.
 #'
-#' @return None. An html file with the diagnosis will be generated in the current working directory.
+#' @return NULL. An html file with the diagnosis will be generated in the current working directory.
 #' @export
 #'
 #' @examples

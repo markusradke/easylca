@@ -14,7 +14,7 @@ generate_data_diagnosis_report(frame, idcol, title)
 \item{title}{title of the data set / project for display in the HTML document.}
 }
 \value{
-None. An html file with the diagnosis will be generated in the current working directory.
+NULL. An html file with the diagnosis will be generated in the current working directory.
 }
 \description{
 Generates an HTML report that informs on:

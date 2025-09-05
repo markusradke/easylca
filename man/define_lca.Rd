@@ -13,6 +13,7 @@ define_lca(
   starts = 160,
   cores = 16,
   use = character(),
+  nominal = character(),
   categorical = character(),
   censored_above = character(),
   censored_below = character(),
@@ -39,6 +40,10 @@ define_lca(
 
 \item{use}{Character vector with all variables in the data frame used for the LCA. All other variables will be saved as auxiliary variables in the LCA and not used for computing.}
 
+\item{nominal}{Character vector with all multinominal (unordered) variables. Multinominal variables must be stored as integers > 0.}
+
+\item{categorical}{Character vector with all ordinal variables. Categorical variables must be stored as integers > 0.}
+
 \item{censored_above}{Character vector with all censored above variables.}
 
 \item{censored_below}{Character vector with all censored below variables.}
@@ -48,8 +53,6 @@ define_lca(
 \item{poisson}{Character vector with all poisson-distributed variables. Poisson-distributed variables must be positive integers.}
 
 \item{negbin}{Character vector with all negative-binomial-distributed variables. Negative-binomial-distributed variables must be positive integers.}
-
-\item{categoricals}{Character vector with all ordinal variables. Categorical variables must be stored as integers > 0. (Nominal to be inplemented, categorical works for binary).}
 
 \item{LMRLRT}{Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.}
 }
