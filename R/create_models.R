@@ -3,7 +3,7 @@ create_models <- function(settings){
   settings$freevariance_block <- create_freevariance_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
 
-  # TODO: What if all models are the same (e.g., only categorical variables?)
+  # TODO: What if all models are the same (e.g., only categorical and nominal variables?)
   model1 <- create_model1(settings)
   model2 <- create_model2(settings)
   model3 <- create_model3(settings)

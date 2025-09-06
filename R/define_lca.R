@@ -19,23 +19,22 @@
 #' @param inflated Character vector with all zero-inflated variables (can only be censored or poisson, negbin). Inflation is always assumed to vary between classes.
 #' @param poisson Character vector with all poisson-distributed variables. Poisson-distributed variables must be positive integers.
 #' @param negbin Character vector with all negative-binomial-distributed variables. Negative-binomial-distributed variables must be positive integers.
-#' @param LMRLRT Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.
+#' @param lmrlrt Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.
 #'
 #' @return Environment with settings for the LCA that can be passed to the [perform_lca()] command.
 #' @export
 #' @examples
-#' lca_settings <- define_lca(testdata,
-#'  'test_lca',
-#'  'id',
-#'  nclasses = 2,
-#'  starts = list(c(160, 320),
-#'                c(160, 320),
-#'                c(160, 320),
-#'                c(320, 640),
-#'                c(320, 640),
-#'                c(320, 640)),
-#'  use = c('var1', 'var2'),
-#'  categorical = 'var2')
+#' titanic_settings <- define_lca(
+#'  frame = titanic_passengers,
+#'  analysis_name = 'titanic',
+#'  id_variable = 'id',
+#'  nclasses = 10,
+#'  nominal = c('port', 'pasclass'),
+#'  categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
+#'  starts = 160,
+#'  cores = 16,
+#'  lmrlrt = FALSE
+#' )
 
 define_lca <- function(frame,
                        analysis_name,

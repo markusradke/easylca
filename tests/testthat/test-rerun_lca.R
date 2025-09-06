@@ -47,24 +47,23 @@ test_that('creates templates and performs rerun', {
     paste0(settings$folder_name, '/', settings$analysis_name, '_model', type)
   }
 
-  perform_lca(random_testresults$settings, modeltypes = c(1,2))
-  models_and_starts <- data.frame(modeltype = c(1,2,2),
-                                  classes = c(3,2,3),
-                                  starts = c(40,40,40))
-  rerun_lca(random_testresults, models_and_starts)
-  settings <- random_testresults$settings
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 2, starts = 5,
+                         use = c('var3', 'var4'))
+  lca <- perform_lca(settings, modeltypes = c(1,2))
+  models_and_starts <- data.frame(modeltype = c(1,2),
+                                  classes = c(2,1),
+                                  starts = c(5,5))
+  rerun_lca(lca, models_and_starts)
   for(i in seq(6)){
     model_path <- paste0(get_path_from_type(i), '_template.txt')
     expect_true(file.exists(model_path),
                 info = paste0('Did not write file for model ', i, '...'))
   }
 
-  out_path_13 <- paste0(get_path_from_type(1), '_lca/03_test_model1_lca.out')
-  out_path_22 <- paste0(get_path_from_type(2), '_lca/02_test_model2_lca.out')
-  out_path_23 <- paste0(get_path_from_type(2), '_lca/03_test_model2_lca.out')
-  expect_true(file.exists(out_path_13))
-  expect_true(file.exists(out_path_22))
-  expect_true(file.exists(out_path_23))
+  out_path_12 <- paste0(get_path_from_type(1), '_lca/02_test_model1_lca.out')
+  out_path_21 <- paste0(get_path_from_type(2), '_lca/01_test_model2_lca.out')
+  expect_true(file.exists(out_path_12))
+  expect_true(file.exists(out_path_21))
   unlink(settings$folder_name, recursive = T)
 })
 

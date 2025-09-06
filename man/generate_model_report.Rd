@@ -20,7 +20,8 @@ NULL. An html file with the model information will be generated in the current w
 Generates an HTML report with detailed information on the model specified.
 }
 \examples{
-generate_model_report(testresults, 2, 3) # generates a report for model a type-2 model with 3 classes
+# generate a report for model a type-2 model with 3 classes
+# generate_model_report(titanic_results, 2, 3)
 }
 \seealso{
 \code{\link[=generate_model_selection_report]{generate_model_selection_report()}}

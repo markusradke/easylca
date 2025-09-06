@@ -16,3 +16,6 @@ LCA object
 Reads currently existing models according to given settings and creates figures for them.
 #TODO: Read out start values and update them in the settings object.
 }
+\examples{
+# no example possible, cause no folder structure available
+}

@@ -54,7 +54,7 @@ define_lca(
 
 \item{negbin}{Character vector with all negative-binomial-distributed variables. Negative-binomial-distributed variables must be positive integers.}
 
-\item{LMRLRT}{Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.}
+\item{lmrlrt}{Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.}
 }
 \value{
 Environment with settings for the LCA that can be passed to the \code{\link[=perform_lca]{perform_lca()}} command.
@@ -63,16 +63,15 @@ Environment with settings for the LCA that can be passed to the \code{\link[=per
 This command creates a settings environment for performing the easy LCA. It also performs basic checks to see if the information provided can be used to successfully perform an LCA.
 }
 \examples{
-lca_settings <- define_lca(testdata,
- 'test_lca',
- 'id',
- nclasses = 2,
- starts = list(c(160, 320),
-               c(160, 320),
-               c(160, 320),
-               c(320, 640),
-               c(320, 640),
-               c(320, 640)),
- use = c('var1', 'var2'),
- categorical = 'var2')
+titanic_settings <- define_lca(
+ frame = titanic_passengers,
+ analysis_name = 'titanic',
+ id_variable = 'id',
+ nclasses = 10,
+ nominal = c('port', 'pasclass'),
+ categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
+ starts = 160,
+ cores = 16,
+ lmrlrt = FALSE
+)
 }

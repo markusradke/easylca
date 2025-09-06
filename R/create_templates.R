@@ -1,6 +1,6 @@
 #' CREATE MPLUS TEMPLATES ACCORDING TO THE SPECIFICATIONS MADE
 #'
-#' @param lcasettings Settings for the lca, including data, variable specification, and additional technical specifications. Please use the define_lca() command to generate the settings and refer to its documentation for further details.
+#' @param settings Settings for the lca, including data, variable specification, and additional technical specifications. Please use the define_lca() command to generate the settings and refer to its documentation for further details.
 #' @return List of character vectors with model templates. Also saves them as .txt files in a subfolder with timestamp in the current working directory.
 
 create_templates <- function(settings){

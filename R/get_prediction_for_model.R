@@ -7,11 +7,11 @@
 #' @return Data frame including all data as well as model predictions (hard classes, probabilites for classes).
 #' @export
 #'
-#' @seealso [show_summary()]
-#' [show_model()]
+#' @seealso [generate_model_selection_report()]
+#' [generate_model_report()]
 #'
 #' @examples
-#' get_prediction_for_model(testresults, 3, 3)
+#' # get_prediction_for_model(titanic_results, 3, 3)
 get_prediction_for_model <- function(easylca, modeltype, classes){
   if(! 'easylca' %in% class(easylca)){
     stop('Please provide an object of type "easylca".')

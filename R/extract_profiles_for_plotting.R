@@ -117,9 +117,9 @@ correct_negbin_poisson_errors <- function(means, errors, profiles, settings){
 get_pzero_from_profiles <- function(profiles){
   profiles %>%
     dplyr::filter(stringr::str_detect(item, '#1')) %>%
-    dplyr::mutate(pzero = exp(est) / (exp(est) +1), # check if TRUE
+    dplyr::mutate(pzero = exp(est) / (exp(est) +1),
                   pzero = round(pzero,2),
-                  pzero = paste0('P(y ≤ 0)\n= ', pzero, '\n', significance),
+                  pzero = paste0('P(y <= 0)\n= ', pzero, '\n', significance),
                   item = stringr::str_remove_all(item, '#1')) %>%
     dplyr::select(-dplyr::all_of(c('est', 'se', 'est_se', 'pval', 'level', 'count', 'significance')))
 }

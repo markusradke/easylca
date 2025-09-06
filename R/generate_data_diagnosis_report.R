@@ -17,7 +17,8 @@
 #' @export
 #'
 #' @examples
-#' diagnose_data(testdata, 'id')
+#' generate_data_diagnosis_report(titanic_passengers, 'id', 'titanic')
+#' file.remove('data_diagnosis_report.html')
 generate_data_diagnosis_report <- function(frame, idcol, title){
   assert_data_format(frame, idcol)
 

@@ -1,17 +1,11 @@
 Package: easylca
 Title: Conduct LCA the easy way with this user friendly interface to MPlus
-Version: 0.0.0.9000
+Version: 0.8.0
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    person("Markus", "Radke", , "markus.radke.1@campus.tu-berlin.de", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0001-1719-7060"))
 Description: 
-  The package is a wrapper around the MplusAutomation package that communicates with MPlus 8.4. It is designed to make conducting a mixed LCA more accessible. 
-  Please refer to the define_lca() function to get started.
-  The package depends on the "rhdf5" package. 
-  Depending on your environment you will need to install the "BiocManager" package first, so that you can install the "rhdf5" package.
-  This can be done via the following two commands:
-  install.packages("BiocManager");
-  BiocManager::install("rhdf5")
+  The package is a wrapper around the MplusAutomation package that communicates with MPlus 8.4. It is designed to make conducting a mixed LCA more accessible. Please refer to the define_lca() function to get started. The package depends on the "rhdf5" package.  Depending on your environment you will need to install the "BiocManager" package first, so that you can install the "rhdf5" package. This can be done with 'install.packages("BiocManager"); BiocManager::install("rhdf5")'.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

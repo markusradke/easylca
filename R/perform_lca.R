@@ -9,7 +9,7 @@
 #' 5. Equal variances and varying covariances across classes
 #' 6. Varying variances and varying covariances across classes
 #'
-#' Inspect the results with [show_summary()], [show_model()], and [get_prediction_for_model()].
+#' Inspect the results with [generate_model_selection_report()], [generate_model_report()], and [get_prediction_for_model()].
 #'
 #' @param settings Settings for the lca, including data, variable specification, and additional technical specifications. Please use the [define_lca()] command to generate the settings and refer to its documentation for further details.
 #' @param modeltypes Modeltypes to perform the LCA for. Defaults to all 6 model types.
@@ -18,8 +18,8 @@
 #' @export
 #'
 #' @seealso For a more detailed explation on the different modeltypes we recommend to visit \url{https://data-edu.github.io/tidyLPA/articles/Introduction_to_tidyLPA.html}.
-#' @examples settings define_lca(testdata, 'test', 'id')
-#' lca <- perform_lca(settings)
+#' @examples
+#' lca <- perform_lca(titanic_settings)
 perform_lca <- function(settings, modeltypes = seq(6)){
   if(! class(settings) == 'lca_settings') {stop('Please provide a settings object of type "lca_settings". It can be generated using the define_lca command.')}
   invisible(MplusAutomation::detectMplus())

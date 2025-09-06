@@ -1,7 +1,7 @@
 #' Rerun LCA
 #'
 #' Rerun LCA with other start values to get replicated results.
-#' Inspect the results with [show_summary()], [show_model()], and [get_prediction_for_model()].
+#' Inspect the results with [generate_model_selection_report()], [generate_model_report()], and [get_prediction_for_model()].
 #'
 #' @param easylca easylca object obtained from the [perform_lca()] or [rerun_lca()] command.
 #' @param models_and_starts models to rerun with new start values. Must be a data.frame with columns: classes, modeltype, starts. If NULL (default) will rerun all models that were not replicated with doubled number of starts.

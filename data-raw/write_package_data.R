@@ -1,13 +1,11 @@
 library(devtools)
 
-discrete_colors_for_classes <- Polychrome::dark.colors() # 24 distinct colors
-names(discrete_colors_for_classes) <- NULL
-
+# titanic passengers example data set ----
 ports_lookup <- c('S' = 1, 'C' = 2, 'Q' = 3) # Southhampton, Cherbourg, Queenstown
 # reocde SibSp and Parch:
 # # of siblings or spouses aboard (ordinal), levels: 0, 1, 2 or more
 # # of parents or children aboard (ordinal), levels: 0, 1, 2 or more
-titanic_testdata <- titanic::titanic_train %>%
+titanic_passengers <- titanic::titanic_train %>%
   dplyr::mutate(
     survived = (Survived + 1) %>% as.integer(),
     isfem = ifelse(Sex == 'female', 2, 1) %>% as.integer(),
@@ -19,25 +17,28 @@ titanic_testdata <- titanic::titanic_train %>%
                 isfem, port)
 
 
-titanic_settings <- define_lca(frame = titanic_testdata,
+titanic_settings <- define_lca(frame = titanic_passengers,
                                analysis_name = 'titanic',
                                id_variable = 'id',
                                nclasses = 10,
                                nominal = c('port', 'pasclass'),
                                categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
-                               lmrlrt = T)
+                               starts = 160,
+                               cores = 16,
+                               lmrlrt = F)
 
-# titanic_res <- perform_lca(titanic_settings, modeltypes = 1, )
+# titanic_res <- perform_lca(titanic_settings, modeltypes = 1, ) # is calucalting on Hendrix...
 
+# small random test data for testing ----
 random_testdata <- readRDS('data-raw/testdata.rds')
 # generate testdata
 set.seed(123)
-random_weights <- runif(n = nrow(testdata), min = 0.5, max = 2)
-random_testdata_weights <- testdata
+random_weights <- runif(n = nrow(random_testdata), min = 0.5, max = 2)
+random_testdata_weights <- random_testdata
 random_testdata_weights$weights <- random_weights
 
 random_testresults <- readRDS('data-raw/testresults.rds')
-# generate testresults
+# testresults were generated like this:
 # testsettings <- define_lca(testdata, 'test','id', nclasses = 3, starts = 20L, cores = 16,
 #                        use = c('var1', 'var3', 'var4', 'var5', 'var6', 'var7', 'var8'),
 #                        categorical = c('var1'),
@@ -48,13 +49,17 @@ random_testresults <- readRDS('data-raw/testresults.rds')
 #                        inflated = c('var7', 'var4'))
 # testresults <- perform_lca(testsettings)
 
-use_data(random_testdata,
-         titanic_testdata,
+# other utility data for functions ----
+discrete_colors_for_classes <- Polychrome::dark.colors() # 24 distinct colors
+names(discrete_colors_for_classes) <- NULL
+
+use_data(titanic_passengers,
          titanic_settings,
          internal = F,
          overwrite = T)
-use_data(random_testresults,
+use_data(random_testdata,
+         random_testdata_weights,
+         random_testresults,
          discrete_colors_for_classes,
-         testdata_weights,
          internal = T,
          overwrite = T)

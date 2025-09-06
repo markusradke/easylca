@@ -27,10 +27,10 @@ There are 6 modeltypes that can be estimated :
 }
 }
 \details{
-Inspect the results with \code{\link[=show_summary]{show_summary()}}, \code{\link[=show_model]{show_model()}}, and \code{\link[=get_prediction_for_model]{get_prediction_for_model()}}.
+Inspect the results with \code{\link[=generate_model_selection_report]{generate_model_selection_report()}}, \code{\link[=generate_model_report]{generate_model_report()}}, and \code{\link[=get_prediction_for_model]{get_prediction_for_model()}}.
 }
 \examples{
-settings define_lca(testdata, 'test', 'id')
+define_lca(testdata, 'test', 'id')
 lca <- perform_lca(settings)
 }
 \seealso{

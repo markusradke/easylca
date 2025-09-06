@@ -11,7 +11,7 @@
 #' @seealso [generate_model_report()]
 #' [get_prediction_for_model()]
 #' @examples
-#' generate_model_selection_report(testresults)
+#' # generate_model_selection_report(titanic_results)
 generate_model_selection_report <- function(easylca){
   if(! 'easylca' %in% class(easylca)){
     stop('Please provide an object of type "easylca".')

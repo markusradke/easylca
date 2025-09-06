@@ -8,7 +8,7 @@
 #' @return LCA object
 #' @export
 #'
-#' @examples
+#' @examples # no example possible, cause no folder structure available
 read_models <- function(settings){
   results <- list()
   results$settings <- settings

@@ -18,12 +18,12 @@ plot_metric_profiles <- function(profiles, ncol_plot=2){
     ggplot2::geom_point(size = 2)+
     ggplot2::geom_text(ggplot2::aes(y = yposinflation, label = pzero), vjust = 0.2, size = 3, color = 'black')+
     ggplot2::scale_color_manual(values = class_colors)+
-    ggplot2::geom_hline(ggplot2::aes(yintercept = average_mean), color = 'grey70', size = 0.6, linetype = 'twodash') +
+    ggplot2::geom_hline(ggplot2::aes(yintercept = average_mean), color = 'grey70', linewidth = 0.6, linetype = 'twodash') +
     ggplot2::geom_text(ggplot2::aes(y =  average_mean), label = 'mean', x = 0, hjust = -1,
                        vjust = 1.05, color = 'grey70') +
     ggplot2::scale_x_discrete(position = 'top') +
     ggplot2::labs(y = 'model estimate',
-                  subtitle = 'for P(y ≤ 0): * p < 0.05, ** p < 0.01, *** p < 0.001')+
+                  subtitle = 'for P(y <= 0): * p < 0.05, ** p < 0.01, *** p < 0.001')+
     ggplot2::theme_minimal() +
     suppressWarnings(
       ggplot2::theme(axis.text.x = ggplot2::element_text(size = 10, vjust = 1,
@@ -132,7 +132,7 @@ plot_kruskal_profiles <- function(model){
       ggplot2::geom_text(ggplot2::aes(label = p), hjust = -0.1, size = 6, color = 'black') +
       ggplot2::scale_x_continuous(limits = c(0, max_chi_square * 1.5), expand = c(0, 0.05),
                                   position = 'top') +
-      ggplot2::labs(subtitle = 'Kruskal-Wallis χ²', y = '',
+      ggplot2::labs(subtitle = 'Kruskal-Wallis Chi square', y = '',
         x = '* p < 0.05, **  p < 0.01, *** p < 0.001, Bonferroni corrected')) +
     ggplot2::theme_minimal() +
     ggplot2::theme(axis.title = ggplot2::element_text(color = 'grey45', size = 10, hjust = 0),

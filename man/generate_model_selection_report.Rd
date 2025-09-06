@@ -16,7 +16,7 @@ NULL. An html file with the model selection report will be generated in the curr
 Generates an HTML report that compares all models that were estimated for model selection.
 }
 \examples{
-generate_model_selection_report(testresults)
+# generate_model_selection_report(titanic_results)
 }
 \seealso{
 \code{\link[=generate_model_report]{generate_model_report()}}

@@ -18,7 +18,7 @@ easylca object with updated values
 }
 \description{
 Rerun LCA with other start values to get replicated results.
-Inspect the results with \code{\link[=show_summary]{show_summary()}}, \code{\link[=show_model]{show_model()}}, and \code{\link[=get_prediction_for_model]{get_prediction_for_model()}}.
+Inspect the results with \code{\link[=generate_model_selection_report]{generate_model_selection_report()}}, \code{\link[=generate_model_report]{generate_model_report()}}, and \code{\link[=get_prediction_for_model]{get_prediction_for_model()}}.
 }
 \examples{
 lca <- perform_lca(testresults$settings, modeltypes = c(1,2))

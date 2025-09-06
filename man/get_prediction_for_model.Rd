@@ -20,9 +20,9 @@ Data frame including all data as well as model predictions (hard classes, probab
 Get Model Predictions
 }
 \examples{
-get_prediction_for_model(testresults, 3, 3)
+# get_prediction_for_model(titanic_results, 3, 3)
 }
 \seealso{
-\code{\link[=show_summary]{show_summary()}}
-\code{\link[=show_model]{show_model()}}
+\code{\link[=generate_model_selection_report]{generate_model_selection_report()}}
+\code{\link[=generate_model_report]{generate_model_report()}}
 }
