@@ -39,7 +39,6 @@ perform_lca <- function(settings, modeltypes = seq(6)){
   results$models <- models
 
   results$summary <- create_modeloverview(results$models, settings, modeltypes)
-  # results <- create_all_figures(results, modeltypes)
 
   class(results) <- 'easylca'
   saveRDS(results, paste0(settings$folder_name, '/', settings$analysis_name, '_lca_results.rds'))

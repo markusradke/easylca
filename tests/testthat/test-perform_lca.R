@@ -4,7 +4,7 @@ test_that('check for lca_settings object works', {
 })
 
 test_that('mplus analysis for all models creates necessary files and returns', {
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 2, starts = 20,
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 2, starts = 5,
                          categorical = c('var1', 'var2'),
                          censored_below = c('var6', 'var8'),
                          poisson = 'var7',
@@ -51,7 +51,7 @@ test_that('mplus analysis for all models creates necessary files and returns', {
 })
 
 test_that('mplus analysis for only first two models with 3 classes creates necessary files and returns', {
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, starts = 20,
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, starts = 5,
                          use = c('var1', 'var6', 'var7', 'var8'),
                          nominal = c('var1'),
                          censored_below = c('var6', 'var8'),
@@ -99,7 +99,7 @@ test_that('mplus analysis for only first two models with 3 classes creates neces
 })
 
 test_that('prints elpased time for perform_lca', {
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 2, starts = 10,
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 2, starts = 5,
                          use = c('var1', 'var2'), categorical = c('var1', 'var2'))
   expect_message(perform_lca(settings, modeltypes = 1),
                  regexp = 'The time needed for the analysis was: (\\d{1,2}|\\d{2,}):([0-5]?\\d):([0-5]?\\d).')
@@ -107,7 +107,7 @@ test_that('prints elpased time for perform_lca', {
 })
 
 test_that('works also for only metric',{
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 2, starts = 40,
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 2, starts = 5,
                          use = c('var3', 'var4'))
   expect_error(perform_lca(settings, modeltypes = 1), NA)
   unlink(settings$folder_name, recursive = T)

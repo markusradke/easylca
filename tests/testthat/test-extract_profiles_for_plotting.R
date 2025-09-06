@@ -1,10 +1,10 @@
 test_that('extraction of profiles works', {
-  model <- testresults$models[[2]][[3]]
-  settings <- testresults$settings
+  model <- random_testresults$models[[2]][[3]]
+  settings <- random_testresults$settings
   profile_variables <- c('param', 'item', 'est', 'se', 'est_se', 'pval', 'segment', 'level', 'count', 'significance')
   expect_setequal(extract_profile(model, settings) %>% colnames(), profile_variables)
 
-  profile_plot_variables <- c(profile_variables, 'upper', 'lower', 'pzero', 'yposinflation')
+  profile_plot_variables <- c(profile_variables, 'upper', 'lower', 'pzero', 'yposinflation', 'plotgroup')
   expect_setequal(extract_profile_for_plotting(model, settings) %>% colnames(), profile_plot_variables)
 
 
@@ -13,9 +13,19 @@ test_that('extraction of profiles works', {
                   params)
 })
 
+test_that('get binary indicators returns correct indicators', {
+  temp_data <- random_testdata[3:5,]
+  settings <- define_lca(frame = temp_data,
+                         analysis_name = 'test', id_variable = 'id',
+                         categorical = 'var1',
+                         nominal = 'var2', 'var7')
+  res <- get_binary_indicators(settings)
+  expect_setequal(res, c('var1', 'var2'))
+})
+
 test_that('error bars and means for count variabels are correct', {
-  model <- testresults$models[[2]][[3]]
-  settings <- testresults$settings
+  model <- random_testresults$models[[2]][[3]]
+  settings <- random_testresults$settings
   profiles <- extract_profile(model, settings)
   means <- get_means_from_profiles(profiles)
   errors <- get_errors_from_profiles(profiles, means)
@@ -43,8 +53,8 @@ test_that('error bars and means for count variabels are correct', {
 
 
 test_that('prevalences are extracted correctly', {
-  model <- testresults$models$modeltype_1$test_model1_lca.3_test_model1_lca.out
-  profiles <- extract_profile_for_plotting(model, testresults$settings)
+  model <- random_testresults$models$modeltype_1$test_model1_lca.3_test_model1_lca.out
+  profiles <- extract_profile_for_plotting(model, random_testresults$settings)
   summed_counts <- model$class_counts$modelEstimated$count %>% round() %>% sum
   sum_var3 <- profiles %>% dplyr::filter(item == 'var3') %>%
     dplyr::mutate(count = as.integer(count)) %>%

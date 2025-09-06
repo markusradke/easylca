@@ -131,8 +131,8 @@ if(length(continuous)>0){
     ggplot2:::theme(strip.text = ggplot2::element_text(size = 14, face = 'bold', 
                                               hjust = 0), 
                     axis.title = ggplot2::element_text(color = 'grey45'),
-                    axis.text = element_text(color = 'grey45'), 
-                    panel.grid = element_blank())
+                    axis.text = ggplot2::element_text(color = 'grey45'), 
+                    panel.grid = ggplot2::element_blank())
 }
 ```
 

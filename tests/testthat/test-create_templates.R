@@ -1,5 +1,5 @@
 test_that('creates necessary files', {
-  settings <- define_lca(testdata, 'test', 'id')
+  settings <- define_lca(random_testdata, 'test', 'id')
   create_templates(settings)
 
   for(i in seq(6)){
@@ -12,7 +12,7 @@ test_that('creates necessary files', {
 
 
 test_that('headers are created the right way from settings', {
-  settings <- define_lca(testdata, 'test', 'id')
+  settings <- define_lca(random_testdata, 'test', 'id')
   headers <- list()
   for(i in seq(6)){
     extended_name <- paste0('test_model', i, '_lca')
@@ -32,7 +32,7 @@ test_that('headers are created the right way from settings', {
 })
 
 test_that('variables specs are created the right way from settings',{
-  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2', 'var3', 'var4'), categorical = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', use = c('var1', 'var2', 'var3', 'var4'), categorical = c('var1', 'var2'))
   variable_settings <- c('VARIABLE:',
                          'NAMES = id var1 var2 var3 var4 var5 var6 var7 var8;',
                          'IDVARIABLE = id;',
@@ -44,7 +44,7 @@ test_that('variables specs are created the right way from settings',{
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()
   expect_equal(create_variable_specs(settings), variable_settings)
 
-  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2', 'var3', 'var4'),
+  settings <- define_lca(random_testdata, 'test', 'id', use = c('var1', 'var2', 'var3', 'var4'),
                          nominal = 'var1',
                          categorical = 'var2')
   variable_settings <- c('VARIABLE:',
@@ -59,7 +59,7 @@ test_that('variables specs are created the right way from settings',{
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()
   expect_equal(create_variable_specs(settings), variable_settings)
 
-  settings <- define_lca(testdata %>%
+  settings <- define_lca(random_testdata %>%
                            dplyr::mutate(var5 = floor(var5),
                                          var6 = floor(var6)),
                          'test', 'id',
@@ -80,7 +80,7 @@ test_that('variables specs are created the right way from settings',{
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()
   expect_equal(create_variable_specs(settings), variable_settings)
 
-  settings <- define_lca(testdata, 'test', 'id',
+  settings <- define_lca(random_testdata, 'test', 'id',
                          use = c('var1', 'var2', 'var3', 'var5', 'var7', 'var8'),
                          censored_above = c('var1', 'var2'),
                          negbin = c('var7', 'var8'),
@@ -97,7 +97,7 @@ test_that('variables specs are created the right way from settings',{
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()
   expect_equal(create_variable_specs(settings), variable_settings)
 
-  settings <- define_lca(testdata_weights, 'test', 'id',
+  settings <- define_lca(random_testdata_weights, 'test', 'id',
                          weight_variable = 'weights')
   variable_settings <- c('VARIABLE:',
                          'NAMES = id var1 var2 var3 var4 var5 var6 var7 var8 weights;',
@@ -112,7 +112,7 @@ test_that('variables specs are created the right way from settings',{
 
 
 test_that('create plot save is working correctly', {
-  settings <- define_lca(testdata, 'test', 'id')
+  settings <- define_lca(random_testdata, 'test', 'id')
 
   plot_save <- list()
   for(i in seq(6)){
@@ -130,7 +130,7 @@ test_that('create plot save is working correctly', {
 
 
 test_that('create analysis is working correctly', {
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, cores = 64, starts = 160L)
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, cores = 64, starts = 160L)
   analysis_all_types <- c('ANALYSIS:',
                           'TYPE = MIXTURE;',
                           'PROCESSORS = 64;',
@@ -150,7 +150,7 @@ test_that('create analysis is working correctly', {
                    analysis_all_types, analysis_all_types, analysis_all_types)
   expect_equal(create_analysis(settings), analysis)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 2, cores = 64, starts = list(c(160, 320),
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 2, cores = 64, starts = list(c(160, 320),
                                                                                          c(160, 320),
                                                                                          c(160, 320),
                                                                                          c(320, 640),
@@ -226,7 +226,7 @@ test_that('create analysis is working correctly', {
 })
 
 test_that('LMRLRT is added on wish', {
-  settings <- define_lca(testdata, 'test', 'id', lmrlrt = TRUE)
+  settings <- define_lca(random_testdata, 'test', 'id', lmrlrt = TRUE)
   plot_save <- list()
   for(i in seq(6)){
     extended_name <- paste0('test_model',  i, '_lca')

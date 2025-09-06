@@ -6,7 +6,9 @@ extract_profile_for_plotting <- function(model, settings){
   means <- correct_negbin_poisson_means(means, settings)
   errors <- correct_negbin_poisson_errors(means, errors, profiles, settings)
   pzero <- get_pzero_from_profiles(profiles)
-  categorical <- get_categorical_from_profiles(profiles)
+
+  binary_indicators <- get_binary_indicators(settings)
+  categorical <- get_categorical_from_profiles(profiles, binary_indicators)
 
   metric <- combine_metric_items(means, errors, pzero)
   metric <- calculate_ypos_for_pzero(metric)
@@ -115,27 +117,38 @@ correct_negbin_poisson_errors <- function(means, errors, profiles, settings){
 get_pzero_from_profiles <- function(profiles){
   profiles %>%
     dplyr::filter(stringr::str_detect(item, '#1')) %>%
-    dplyr::mutate(pzero = exp(est) / (exp(est) +1),
+    dplyr::mutate(pzero = exp(est) / (exp(est) +1), # check if TRUE
                   pzero = round(pzero,2),
                   pzero = paste0('P(y ≤ 0)\n= ', pzero, '\n', significance),
                   item = stringr::str_remove_all(item, '#1')) %>%
     dplyr::select(-dplyr::all_of(c('est', 'se', 'est_se', 'pval', 'level', 'count', 'significance')))
 }
 
+get_binary_indicators <- function(settings){
+  potential_variables <- union(settings$categorical, settings$nominal)
+  dplyr::summarize_at(settings$frame, potential_variables,
+                      function(x) length(unique(x))) %>%
+    tidyr::pivot_longer(cols = dplyr::everything()) %>%
+    dplyr::filter(value == 2) %>%
+    dplyr::pull(name)
+}
 
-get_categorical_from_profiles <- function(profiles) {
+get_categorical_from_profiles <- function(profiles, binary_indicators) {
   profiles %>%
     dplyr::filter(param == 'Probabilities') %>%
     dplyr::mutate(upper = NA,
                   lower = NA,
                   pzero = '',
-                  yposinflation = NA)
+                  yposinflation = NA,
+                  plotgroup = ifelse(item %in% binary_indicators,
+                                     'binary', 'multi_discrete'))
 }
 
 combine_metric_items <- function(means, errors, pzero){
   combined <- suppressMessages(dplyr::left_join(means, errors) %>%
                                  dplyr::left_join(pzero) %>%
-                                 dplyr::mutate(pzero = ifelse(is.na(pzero), '', pzero)))
+                                 dplyr::mutate(pzero = ifelse(is.na(pzero), '', pzero),
+                                               plotgroup = 'continuous'))
   combined
 }
 

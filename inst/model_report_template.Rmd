@@ -18,9 +18,16 @@ classes <- params$classes
 
 model <- easylca$models[[paste0('modeltype_', modeltype)]][[classes]]
 model_parameters <- extract_profile_for_plotting(model, easylca$settings)
-n_indicators <- easylca$settings$use %>% length() # TODO
-n_indicators_cont <- easylca$settings$use %>% length() # TODO
-n_indicators_bin <- easylca$settings$categorical %>% length() # TODO
+n_indicators <- unique((model_parameters$item)) %>% length()
+n_continuous <- model_parameters %>% 
+  dplyr::distinct(item, .keep_all = T) %>% 
+  dplyr::filter(plotgroup == 'continuous') %>% nrow()
+n_binary <- model_parameters %>% 
+  dplyr::distinct(item, .keep_all = T) %>% 
+  dplyr::filter(plotgroup == 'binary') %>% nrow()
+n_discrete <- model_parameters %>% 
+  dplyr::distinct(item, .keep_all = T) %>% 
+  dplyr::filter(plotgroup == 'discrete') %>% nrow()
 ```
 
 ## Model summary
@@ -31,7 +38,8 @@ Classes: `r classes`
 N = `r model$summaries$Observations`\
 Number of Parameters: `r model$summaries$Parameters`
 
-\
+`r n_continuous` continuous indicators, `r n_binary + n_discrete` discrete indicators (`r n_binary` of these binary)
+
 **Model Entropy: `r model$summaries$Entropy`**
 
 ## Model implicated class sizes
@@ -69,21 +77,37 @@ ggplot2::ggplot(class_counts, ggplot2::aes(x = count,
 
 ## Indicator relevance
 
-```{r, indicator_relevance, echo=F, fig.height=n_indicators*0.65}
+```{r, indicator_relevance, echo=F, fig.height=n_continuous*0.65}
 plot_kruskal_profiles(model)
 ```
 
 ## Continuous indicators
 
-```{r, continuous_indicators, echo=F, fig.height=ceiling(n_indicators_cont /ifelse(classes > 6, 1, 2))*2.5}
-n_col_plot <- ifelse(classes > 6, 1, 2)
-plot_metric_profiles(model_parameters, ncol_plot = n_col_plot)
+```{r, continuous_indicators, echo=F, fig.height=ceiling(n_continuous /ifelse(classes > 6, 1, 2))*3}
+if(n_continuous > 0){
+  n_col_plot <- ifelse(classes > 6, 1, 2)
+  plot_metric_profiles(model_parameters, ncol_plot = n_col_plot)
+}
+```
+
+```{r no_continuous_indicators, echo=F, results='asis'}
+if(n_continuous == 0){cat('There are no continuous indicators.')}
 ```
 
 ## Binary indicators
 
-```{r, binary_indicators, echo=F, fig.width=classes * 1, fig.height=n_indicators_bin *1}
-plot_binary_profiles(model_parameters)
+```{r, binary_indicators, echo=F, fig.width=classes * 1, fig.height=n_binary *1}
+if(n_binary > 0){
+  plot_binary_profiles(model_parameters)
+}
+```
+
+```{r no_binary_indicators, echo=F, results='asis'}
+if(n_binary == 0){cat('There are no binary indicators.')}
 ```
 
 ## Discrete indicators (upcoming)
+
+```{r no_discrete_indicators, echo=F, results='asis'}
+if(n_discrete == 0){cat('There are no discrete indicators with more than 2 levels.')}
+```

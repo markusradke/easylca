@@ -1,38 +1,38 @@
 test_that('inflation block is created correctly',{
-  settings <- define_lca(testdata, 'test', 'id', censored_above = c('var1', 'var2'), inflated = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', censored_above = c('var1', 'var2'), inflated = c('var1', 'var2'))
   inflation_block <- c('[ var1#1 ];',
                        '[ var2#1 ];')
   expect_equal(create_inflation_block(settings), inflation_block)
 
-  settings <- define_lca(testdata, 'test', 'id')
+  settings <- define_lca(random_testdata, 'test', 'id')
   expect_equal(create_inflation_block(settings), character())
 })
 
 
 test_that('free variance block is created correctly', {
-  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2', 'var7'), poisson = 'var7')
+  settings <- define_lca(random_testdata, 'test', 'id', use = c('var1', 'var2', 'var7'), poisson = 'var7')
   freevariance_block <- c('var1;',
                           'var2;')
   expect_equal(create_freevariance_block(settings), freevariance_block)
 
-  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2'), categorical = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', use = c('var1', 'var2'), categorical = c('var1', 'var2'))
   expect_equal(create_freevariance_block(settings), character())
 })
 
 test_that('correlation block is created correctly', {
-  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2', 'var3'))
+  settings <- define_lca(random_testdata, 'test', 'id', use = c('var1', 'var2', 'var3'))
   correlation_block <- c('var1 WITH var2;',
                          'var1 WITH var3;',
                          'var2 WITH var3;')
   expect_equal(create_correlation_block(settings), correlation_block)
 
-  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2', 'var7', 'var8'),
+  settings <- define_lca(random_testdata, 'test', 'id', use = c('var1', 'var2', 'var7', 'var8'),
                          censored_above = 'var1', censored_below = 'var2', poisson = 'var7', negbin = 'var8')
   expect_equal(create_correlation_block(settings), character())
 })
 
 test_that('model 1 is created correctly', {
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
                          censored_above = c('var1', 'var2'), inflated = c('var1', 'var2'))
   settings$inflation_block <- create_inflation_block(settings)
   model1 <- c('MODEL:',
@@ -51,18 +51,18 @@ test_that('model 1 is created correctly', {
             '[[/classes > 2]]')
   expect_equal(create_model1(settings), model1)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1'))
   settings$inflation_block <- create_inflation_block(settings)
   expect_equal(create_model1(settings), character())
 })
 
 test_that('model 2 is created correctly', {
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
   settings$inflation_block <- create_inflation_block(settings)
   settings$freevariance_block <- create_freevariance_block(settings)
   expect_equal(create_model2(settings), character())
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = 'var1',
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = 'var1',
                          poisson = 'var2', inflated = 'var2')
   settings$inflation_block <- create_inflation_block(settings)
   settings$freevariance_block <- create_freevariance_block(settings)
@@ -79,7 +79,7 @@ test_that('model 2 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model2(settings), model2)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
   settings$inflation_block <- create_inflation_block(settings)
   settings$freevariance_block <- create_freevariance_block(settings)
   model2 <- c('MODEL:',
@@ -98,7 +98,7 @@ test_that('model 2 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model2(settings), model2)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), censored_below = 'var2', inflated = 'var2')
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), censored_below = 'var2', inflated = 'var2')
   settings$inflation_block <- create_inflation_block(settings)
   settings$freevariance_block <- create_freevariance_block(settings)
   model2 <- c('MODEL:',
@@ -122,12 +122,12 @@ test_that('model 2 is created correctly', {
 })
 
 test_that('model 3 is created correctly', {
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
   expect_equal(create_model3(settings), character())
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
   model3 <- c('MODEL:',
@@ -135,7 +135,7 @@ test_that('model 3 is created correctly', {
               'var1 WITH var2;')
   expect_equal(create_model3(settings), model3)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
                          censored_above = c('var1', 'var2'), inflated = 'var2')
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
@@ -152,7 +152,7 @@ test_that('model 3 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model3(settings), model3)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'),
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'),
                          censored_above = 'var2', inflated = 'var2')
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
@@ -173,13 +173,13 @@ test_that('model 3 is created correctly', {
 })
 
 test_that('model 4 is created correctly', {
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
   settings$freevariance_block <- create_freevariance_block(settings)
   expect_equal(create_model4(settings), character())
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1'))
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
   settings$freevariance_block <- create_freevariance_block(settings)
@@ -196,7 +196,7 @@ test_that('model 4 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model4(settings), model4)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = 'var1',
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = 'var1',
                          poisson = 'var2', inflated = 'var2')
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
@@ -214,7 +214,7 @@ test_that('model 4 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model4(settings), model4)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
   settings$freevariance_block <- create_freevariance_block(settings)
@@ -236,7 +236,7 @@ test_that('model 4 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model4(settings), model4)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
                          censored_below = 'var2', inflated = 'var2')
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
@@ -260,7 +260,7 @@ test_that('model 4 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model4(settings), model4)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'),
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'),
                          censored_below = 'var2', inflated = 'var2')
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
@@ -291,12 +291,12 @@ test_that('model 4 is created correctly', {
 })
 
 test_that('model 5 is created correctly', {
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
   expect_equal(create_model5(settings), character())
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
   model5 <- c('MODEL:',
@@ -312,7 +312,7 @@ test_that('model 5 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model5(settings), model5)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
                          censored_above = c('var1', 'var2'), inflated = 'var2')
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
@@ -329,7 +329,7 @@ test_that('model 5 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model5(settings), model5)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'),
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'),
                          censored_above = 'var2', inflated = 'var2')
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
@@ -351,13 +351,13 @@ test_that('model 5 is created correctly', {
 })
 
 test_that('model 6 is created correctly', {
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1', 'var2'))
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
   settings$freevariance_block <- create_freevariance_block(settings)
   expect_equal(create_model6(settings), character())
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = c('var1'))
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
   settings$freevariance_block <- create_freevariance_block(settings)
@@ -374,7 +374,7 @@ test_that('model 6 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model6(settings), model6)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = 'var1',
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'), categorical = 'var1',
                          poisson = 'var2', inflated = 'var2')
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
@@ -392,7 +392,7 @@ test_that('model 6 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model6(settings), model6)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'))
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
   settings$freevariance_block <- create_freevariance_block(settings)
@@ -415,7 +415,7 @@ test_that('model 6 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model6(settings), model6)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2'),
                          censored_below = 'var2', inflated = 'var2')
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
@@ -439,7 +439,7 @@ test_that('model 6 is created correctly', {
               '[[/classes > 2]]')
   expect_equal(create_model6(settings), model6)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'),
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'),
                          censored_below = 'var2', inflated = 'var2')
   settings$inflation_block <- create_inflation_block(settings)
   settings$correlation_block <- create_correlation_block(settings)
@@ -472,7 +472,7 @@ test_that('model 6 is created correctly', {
 
 
 test_that('model specifications are created correctly or all model types',{
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'))
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 3, use = c('var1', 'var2', 'var3'))
   model1 <- character()
   model2 <- c('MODEL:',
               '%CLASS#1%',
@@ -563,7 +563,7 @@ test_that('model specifications are created correctly or all model types',{
   models <- list(model1, model2, model3, model4, model5, model6)
   expect_equal(create_models(settings), models)
 
-  settings <- define_lca(testdata, 'test', 'id', nclasses = 2, use = c('var1', 'var2', 'var7', 'var4', 'var5'), categorical = 'var1',
+  settings <- define_lca(random_testdata, 'test', 'id', nclasses = 2, use = c('var1', 'var2', 'var7', 'var4', 'var5'), categorical = 'var1',
                          censored_above = 'var2', poisson = 'var7', inflated = c('var2', 'var7'))
   model1 <- c('MODEL:',
               '%CLASS#1%',
@@ -649,6 +649,6 @@ test_that('model specifications are created correctly or all model types',{
   expect_equal(create_models(settings), models)
 
 
-  settings <- define_lca(testdata, 'test', 'id', use = c('var1', 'var2'), categorical = c('var1', 'var2'))
+  settings <- define_lca(random_testdata, 'test', 'id', use = c('var1', 'var2'), categorical = c('var1', 'var2'))
   expect_equal(create_models(settings), list(character(), character(), character(), character(), character(), character()))
 })
