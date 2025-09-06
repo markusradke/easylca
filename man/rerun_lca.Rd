@@ -21,14 +21,15 @@ Rerun LCA with other start values to get replicated results.
 Inspect the results with \code{\link[=generate_model_selection_report]{generate_model_selection_report()}}, \code{\link[=generate_model_report]{generate_model_report()}}, and \code{\link[=get_prediction_for_model]{get_prediction_for_model()}}.
 }
 \examples{
-lca <- perform_lca(testresults$settings, modeltypes = c(1,2))
+# takes a while to compute
+#lca <- perform_lca(titanlic_settings, modeltypes = c(1,2))
 
 # automatic update of start values and choice of models
-rerun_lca(lca)
+# rerun_lca(lca)
 
 # manual update of start values and choice of models
-rerun_lca(lca, data.frame(modeltype = c(1, 1), classes = c(2, 3), starts = c(30, 160)))
+# rerun_lca(lca, data.frame(modeltype = c(1, 1), classes = c(2, 3), starts = c(30, 160)))
 
 # repeat until all converged and replicated (max. 10 times)
-rerun_lca(lca, recursive = TRUE)
+# rerun_lca(lca, recursive = TRUE)
 }

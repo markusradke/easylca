@@ -131,6 +131,6 @@ create_correlation_block <- function(settings) {
   if(length(settings$correlate) < 2){
     return(character())
   }
-  correlation_block <- as.character(combn(settings$correlate, 2, function(x) paste0(x[1], ' WITH ', x[2], ';')))
+  correlation_block <- as.character(utils::combn(settings$correlate, 2, function(x) paste0(x[1], ' WITH ', x[2], ';')))
   correlation_block
 }

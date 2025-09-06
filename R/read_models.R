@@ -15,13 +15,12 @@ read_models <- function(settings){
   models <- list()
   modeltypes <- seq(6) # TODO
   for(type in modeltypes){
-    model_for_type <- read_modeltype(settings, model = type)
+    model_for_type <- read_modeltype(settings, modeltype = type)
     models[[paste0('modeltype_', type)]] <- model_for_type
   }
   models <<- models
   results$models <- models
   results$summary <- create_modeloverview(results$models, settings, modeltypes)
-  results <- create_all_figures(results, modeltypes)
 
   class(results) <- 'easylca'
   saveRDS(results, paste0(settings$folder_name, '/', settings$analysis_name, '_lca_results.rds'))

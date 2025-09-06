@@ -30,8 +30,8 @@ There are 6 modeltypes that can be estimated :
 Inspect the results with \code{\link[=generate_model_selection_report]{generate_model_selection_report()}}, \code{\link[=generate_model_report]{generate_model_report()}}, and \code{\link[=get_prediction_for_model]{get_prediction_for_model()}}.
 }
 \examples{
-define_lca(testdata, 'test', 'id')
-lca <- perform_lca(settings)
+# for more model types, add them to the modeltype vector, take a while to compute
+# lca <- perform_lca(titanic_settings, modeltype = c(1, 2, 3))
 }
 \seealso{
 For a more detailed explation on the different modeltypes we recommend to visit \url{https://data-edu.github.io/tidyLPA/articles/Introduction_to_tidyLPA.html}.

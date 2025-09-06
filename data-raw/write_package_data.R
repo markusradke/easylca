@@ -20,10 +20,10 @@ titanic_passengers <- titanic::titanic_train %>%
 titanic_settings <- define_lca(frame = titanic_passengers,
                                analysis_name = 'titanic',
                                id_variable = 'id',
-                               nclasses = 10,
+                               nclasses = 3,
                                nominal = c('port', 'pasclass'),
                                categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
-                               starts = 160,
+                               starts = 80,
                                cores = 16,
                                lmrlrt = F)
 

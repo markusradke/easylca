@@ -11,18 +11,19 @@
 #' @export
 #'
 #' @examples
-#' lca <- perform_lca(testresults$settings, modeltypes = c(1,2))
+#' # takes a while to compute
+#' #lca <- perform_lca(titanlic_settings, modeltypes = c(1,2))
 #'
 #' # automatic update of start values and choice of models
-#' rerun_lca(lca)
+#' # rerun_lca(lca)
 #'
 #' # manual update of start values and choice of models
-#' rerun_lca(lca, data.frame(modeltype = c(1, 1), classes = c(2, 3), starts = c(30, 160)))
+#' # rerun_lca(lca, data.frame(modeltype = c(1, 1), classes = c(2, 3), starts = c(30, 160)))
 #'
 #' # repeat until all converged and replicated (max. 10 times)
-#' rerun_lca(lca, recursive = TRUE)
+#' # rerun_lca(lca, recursive = TRUE)
 rerun_lca <- function(easylca, models_and_starts = NULL, recursive = FALSE){
-  if(class(easylca) != 'easylca'){
+  if(! methods::is(easylca, 'easylca')){
     stop('Please make sure to supply an object of type "easylca" as input to the rerun_lca function. \n"easylca" objects can be obtained through the perform_lca command.')
   }
   if (is.null(models_and_starts)) {
@@ -36,28 +37,29 @@ rerun_lca <- function(easylca, models_and_starts = NULL, recursive = FALSE){
   if(recursive & (! all(easylca$summary$replicated) | any(is.na(easylca$summary$Parameters)))){ #TODO check logic
     while(counter < 10 ){
       counter <- counter + 1
-      message(paste0('Still not all replicated / converged. Rerunning again ', counter, '. time... (max. 10 times)'))
+      message(paste0('Still not all replicated / converged. Rerunning again ',
+                     counter, '. time... (max. 10 times)'))
       models_and_starts <- create_models_and_starts_for_rerun(easylca)
       print_rerun(models_and_starts)
       easylca <- rerun_specified_models(easylca, models_and_starts)
-
-      saveRDS(easylca, paste0(settings$folder_name, '/', settings$analysis_name, '_lca_results_rerun-no-',
-                          counter, '.rds'))
+      settings <- easylca$settings
+      saveRDS(easylca, paste0(settings$folder_name, '/',
+                              settings$analysis_name, '_lca_results_rerun-no-',
+                              counter, '.rds'))
 
       if(all(easylca$summary$replicated) & ! any(is.na(easylca$summary$Parameters))){break}
     }
   }
 
-  # easylca <- create_all_figures(easylca, models_and_starts$modeltype %>% unique())
   message('Done.')
   return(easylca)
 }
 
 create_models_and_starts_for_rerun <- function(easylca){
   starts <- easylca$settings$starts
-  easylca$summary %>% dplyr::filter(! replicated | is.na(Parameters)) %>%
-    dplyr::select(classes, modeltype) %>%
-    dplyr::mutate(starts = purrr::map2_int(modeltype, classes,
+  easylca$summary %>% dplyr::filter(! .data$replicated | is.na(.data$Parameters)) %>%
+    dplyr::select(.data$classes, .data$modeltype) %>%
+    dplyr::mutate(starts = purrr::map2_int(.data$modeltype, .data$classes,
                                            function(modeltype, classes){ starts[[modeltype]][[classes]] * 2}))
 }
 
@@ -75,7 +77,7 @@ check_assertions_models_and_starts <- function(easylca, models_and_starts){
 
 
 print_rerun <- function(models_and_starts){
-  frameprint <- capture.output(print(models_and_starts))
+  frameprint <- utils::capture.output(print(models_and_starts))
   message('Rerunning:\n', paste(frameprint, collapse = "\n"))
 }
 
@@ -101,7 +103,9 @@ rerun_specified_models <- function(easylca, models_and_starts){
     easylca$models[[name_modeltype]] <- rerun_modeltype
   }
   modeltypes_in_lca <- as.integer(gsub("[^0-9]", "", names(easylca$models)))
-  easylca$summary <- create_modeloverview(easylca$models, settings, modeltypes_in_lca)
+  easylca$summary <- create_modeloverview(easylca$models,
+                                          easylca$settings,
+                                          modeltypes_in_lca)
 
   end_time <- Sys.time()
   print_elapsed_time(start_time, end_time)

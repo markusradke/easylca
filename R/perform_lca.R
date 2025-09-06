@@ -19,9 +19,10 @@
 #'
 #' @seealso For a more detailed explation on the different modeltypes we recommend to visit \url{https://data-edu.github.io/tidyLPA/articles/Introduction_to_tidyLPA.html}.
 #' @examples
-#' lca <- perform_lca(titanic_settings)
+#' # for more model types, add them to the modeltype vector, take a while to compute
+#' # lca <- perform_lca(titanic_settings, modeltype = c(1, 2, 3))
 perform_lca <- function(settings, modeltypes = seq(6)){
-  if(! class(settings) == 'lca_settings') {stop('Please provide a settings object of type "lca_settings". It can be generated using the define_lca command.')}
+  if(! methods::is(settings, 'lca_settings')) {stop('Please provide a settings object of type "lca_settings". It can be generated using the define_lca command.')}
   invisible(MplusAutomation::detectMplus())
 
   create_templates(settings)
@@ -33,7 +34,7 @@ perform_lca <- function(settings, modeltypes = seq(6)){
 
   models <- list()
   for(type in modeltypes){
-    model_for_type <- mplus_lca(settings, model = type)
+    model_for_type <- mplus_lca(settings, modeltype = type)
     models[[paste0('modeltype_', type)]] <- model_for_type
   }
   results$models <- models

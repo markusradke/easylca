@@ -2,4 +2,5 @@
 ^\.Rproj\.user$
 data-raw
 ^LICENSE\.md$
-easylca_feature_requests.mm
+^easylca_feature-requests.mm$
+^data_diagnosis_titanic\.html$

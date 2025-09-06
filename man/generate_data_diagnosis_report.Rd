@@ -30,6 +30,6 @@ Discrete variables must be supplied as integers with values > 0 to be interprete
 \strong{Coutinuous variables must be explicitly be supplied as type double}, else they will be treated as discrete variables.
 }
 \examples{
-generate_data_diagnosis_report(titanic_passengers, 'id', 'titanic')
-file.remove('data_diagnosis_report.html')
+# generate report (will output a file)
+# generate_data_diagnosis_report(titanic_passengers, 'id', 'titanic')
 }
