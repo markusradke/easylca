@@ -1,16 +1,19 @@
 # easylca <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
-`easylca` is designed to render conducting latent class analyses with mixed indicators (LCAs) with *Mplus 8.4* more accessible. *Mplus* is a powerful commercial statistical software package developed by Muthen & Muthen ([check out their website here](https://www.statmodel.com)). With `easylca`, there is no need to worry about learning the *Mplus* syntax.
+`easylca` is an R package designed to make conducting latent class analyses with mixed indicators (LCAs) with *Mplus 8.4* more accessible. *Mplus* is a powerful commercial statistical software package developed by Muthen & Muthen ([check out their website here](https://www.statmodel.com)). It is based on text file input and output, and employs its own syntax for model formulation. With `easylca`, however, there is no need to worry about learning the *Mplus* syntax.
 
-The `easylca` package wraps itself around the `MplusAutomation` package which communicates with *Mplus* from within R. However, `easylca` in addition provides functions that ensure data compatibility and can automatically create and run even the most complex LCAs involving censored, zero-inflated, count or negative binomially distributed variables. Furthermore, `easylca` includes functions that generate HTML reports for data inspection, model selection and model profile inspection.
+The `easylca` package is an easy-to-use wrapper around the `MplusAutomation` package by Hallquist et al. ([check out their package here] (https://cran.r-project.org/package=MplusAutomation)) which communicates with *Mplus* from within R. However, `easylca` in addition provides functions that ensure data compatibility and can automatically create and run even the most complex LCAs involving censored, zero-inflated, count or negative binomially distributed variables. Furthermore, `easylca` includes functions that generate HTML reports for data inspection, model selection and model profile inspection.
 
-**Be aware: *MPlus 8.4* must to be installed on your computer in order to use ´easylca´ and is *not* installed together with this package.**
+## Installation 
+
+**Be aware: *MPlus 8.4* must to be installed on your computer in order to use `easylca` and is *not* installed together with this package.**
 
 `easylca` also depends on the `rhdf5` package. Depending on your environment you may need to install the `BiocManager` package manager first to install the `rhdf5` package.
 If required, please follow these two commands to complete installation:
     ``install.packages("BiocManager");
     BiocManager::install("rhdf5")``
-  
+
+## How to conduct an LCA with `easylca`
 Follow these steps to conduct an LCA using `easylca`: 
 1. Inspect your data using the `generate_data_diagnosis_report()` function (this generates an HTML report in the current working directory).
 2. Define your analysis with `define_lca()`.
