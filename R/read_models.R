@@ -1,6 +1,6 @@
 #' BETA VERSION: Read Already Existing Models that match the given settings
 #'
-#' Reads currently existing models according to given settings and creates figures for them.
+#' Reads currently existing models according to given settings.
 #' #TODO: Read out start values and update them in the settings object.
 #'
 #' @param settings LCA settings object
@@ -10,6 +10,7 @@
 #'
 #' @examples # no example possible, cause no folder structure available
 read_models <- function(settings){
+  assert_is_settings(settings)
   results <- list()
   results$settings <- settings
   models <- list()
@@ -28,6 +29,17 @@ read_models <- function(settings){
   results
 }
 
+assert_is_settings <- function(input){
+  is_settings <- methods::is(input, 'lca_settings')
+  if(! is_settings) {stop('Please provide an easylca_settings_object as input.')}
+}
+
+assert_is_folder <- function(settings){
+  is_folder <- file.exists(settings$folder_name)
+  if(! is_folder) {
+    stop('Could not find corresponding folder in current subdirectory for the settings you provided.')
+  }
+}
 
 read_modeltype <- function(settings, modeltype){
   setwd(settings$folder_name)
