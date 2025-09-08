@@ -42,18 +42,26 @@ test_that('update settings from starts works', {
                settings)
 })
 
-test_that('creates templates and performs rerun', {
+perform_test_lca <- function(settings, modeltypes){
+  message('Performing test lca...')
+  capture.output(perform_lca(settings, modeltypes = modeltypes))
+  results <- readRDS(paste0(settings$folder_name, '/', settings$analysis_name,
+                            '_lca_results.rds'))
+  results
+}
+
+test_that('creates templates and performs rerun with new classes', {
   get_path_from_type <- function(type){
     paste0(settings$folder_name, '/', settings$analysis_name, '_model', type)
   }
 
   settings <- define_lca(random_testdata, 'test', 'id', nclasses = 2, starts = 5,
                          use = c('var3', 'var4'))
-  lca <- perform_lca(settings, modeltypes = c(1,2))
+  results <- perform_test_lca(settings, modeltypes = c(1,2))
   models_and_starts <- data.frame(modeltype = c(1,2),
                                   classes = c(2,1),
                                   starts = c(5,5))
-  rerun_lca(lca, models_and_starts)
+  capture.output(rerun_lca(results, models_and_starts))
   for(i in seq(6)){
     model_path <- paste0(get_path_from_type(i), '_template.txt')
     expect_true(file.exists(model_path),

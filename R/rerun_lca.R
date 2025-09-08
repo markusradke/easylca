@@ -58,7 +58,7 @@ rerun_lca <- function(easylca, models_and_starts = NULL, recursive = FALSE){
 create_models_and_starts_for_rerun <- function(easylca){
   starts <- easylca$settings$starts
   easylca$summary %>% dplyr::filter(! .data$replicated | is.na(.data$Parameters)) %>%
-    dplyr::select(.data$classes, .data$modeltype) %>%
+    dplyr::select('classes', 'modeltype') %>%
     dplyr::mutate(starts = purrr::map2_int(.data$modeltype, .data$classes,
                                            function(modeltype, classes){ starts[[modeltype]][[classes]] * 2}))
 }
