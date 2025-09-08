@@ -61,3 +61,22 @@
 #'  \item run [generate_data_diagnosis_report()] to create an HTML-data report
 #' }
 "titanic_settings"
+
+#' Titanic passengers example easylca results
+#'
+#' An easylca object results for an LCA conducted using the [titanic_passengers] example data set.
+#'
+#' @format
+#' An \emph{easylca} settings object with the following parameters:
+#' \describe{
+#'   \item{settings}{settings used for the lca}
+#'   \item{models}{models for all 6 model types with up to 10 classes}
+#'   \item{summary}{results summary data frame (including VLMR test)}
+#' }
+#' @seealso
+#' \itemize{
+#'  \item [titanic_passengers] for the corresponding  data set
+#'  \item run [generate_model_selection_report()] to create a summary HTML-data report of the results
+#'  \item run [generate_model_report()] to create a report on a specific model solution
+#' }
+"titanic_lca_results"

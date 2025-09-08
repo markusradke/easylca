@@ -3,7 +3,7 @@
 \docType{data}
 \name{titanic_settings}
 \alias{titanic_settings}
-\title{Titanic passengers example data set}
+\title{Titanic passengers example easylca settings}
 \format{
 An \emph{easylca} settings object with the following parameters:
 \describe{
