@@ -11,22 +11,9 @@
 #' @examples # no example possible, cause no folder structure available
 read_models <- function(settings){
   assert_is_settings(settings)
-  results <- list()
-  results$settings <- settings
-  models <- list()
-  modeltypes <- seq(6) # TODO
-  for(type in modeltypes){
-    model_for_type <- read_modeltype(settings, modeltype = type)
-    models[[paste0('modeltype_', type)]] <- model_for_type
-  }
-  models <<- models
-  results$models <- models
-  results$summary <- create_modeloverview(results$models, settings, modeltypes)
-
-  class(results) <- 'easylca'
-  saveRDS(results, paste0(settings$folder_name, '/', settings$analysis_name, '_lca_results.rds'))
-  message('Done.')
-  results
+  assert_is_folder(settings)
+  modeltypes <- get_estimated_modeltypes(settings)
+  return(NULL)
 }
 
 assert_is_settings <- function(input){
@@ -41,7 +28,39 @@ assert_is_folder <- function(settings){
   }
 }
 
-read_modeltype <- function(settings, modeltype){
+get_estimated_modeltypes <- function(settings){
+  directories <- list.dirs(settings$folder_name, recursive = FALSE)
+  if(length(directories) == 0){
+    stop('No models were found inside the corresponding folder for given settings.')
+  }
+  pattern <-paste0('(?<=', settings$folder_name,'/',
+                   settings$analysis_name, '_model_)',
+                   '[1-6](?=_lca)')
+  types <- stringr::str_extract_all(directories, pattern) %>%
+    unlist() %>% as.integer()
+  return(types)
+}
+
+
+read_modeltypes <- function(settings, modeltypes){
+  results <- list()
+  results$settings <- settings
+  models <- list()
+  for(type in modeltypes){
+    model_for_type <- read_modeltype(settings, modeltype = type)
+    models[[paste0('modeltype_', type)]] <- model_for_type
+  }
+  models <<- models
+  results$models <- models
+  results$summary <- create_modeloverview(results$models, settings, modeltypes)
+
+  class(results) <- 'easylca'
+  saveRDS(results, paste0(settings$folder_name, '/', settings$analysis_name, '_lca_results.rds'))
+  message('Done.')
+  results
+}
+
+read_single_modeltype <- function(settings, modeltype){
   setwd(settings$folder_name)
   analysis <- paste0(settings$analysis_name, '_model', modeltype)
   type_folder <- paste0(analysis, '_lca')
