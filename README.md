@@ -2,7 +2,7 @@
 
 `easylca` is an R package designed to make conducting latent class analyses with mixed indicators (LCAs) with *Mplus 8.4* more accessible. *Mplus* is a powerful commercial statistical software package developed by Muthen & Muthen ([check out their website here](https://www.statmodel.com)). It is based on text file input and output, and employs its own syntax for model formulation. With `easylca`, however, there is no need to worry about learning the *Mplus* syntax.
 
-The `easylca` package is an easy-to-use wrapper around the `MplusAutomation` package by Hallquist et al. ([check out their package here] (https://cran.r-project.org/package=MplusAutomation)) which communicates with *Mplus* from within R. However, `easylca` in addition provides functions that ensure data compatibility and can automatically create and run even the most complex LCAs involving censored, zero-inflated, count or negative binomially distributed variables. Furthermore, `easylca` includes functions that generate HTML reports for data inspection, model selection and model profile inspection.
+The `easylca` package is an easy-to-use wrapper around the `MplusAutomation` package by Hallquist et al. ([check out their package here](https://cran.r-project.org/package=MplusAutomation)) which communicates with *Mplus* from within R. However, `easylca` in addition provides functions that ensure data compatibility and can automatically create and run even the most complex LCAs involving censored, zero-inflated, count or negative binomially distributed variables. Furthermore, `easylca` includes functions that generate HTML reports for data inspection, model selection and model profile inspection.
 
 ## Installation 
 
