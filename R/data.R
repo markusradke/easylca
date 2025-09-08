@@ -37,7 +37,7 @@
 #' @source <https://cran.r-project.org/web/packages/titanic/readme/README.html>
 "titanic_passengers"
 
-#' Titanic passengers example data set
+#' Titanic passengers example easylca settings
 #'
 #' A settings object with the correctly specified lca parameters for the [titanic_passengers] example data set.
 #'

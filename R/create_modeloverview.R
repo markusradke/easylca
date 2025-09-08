@@ -4,41 +4,12 @@ create_modeloverview <- function(models, settings, modeltypes){
 
   for(type in modeltypes){
     typename <- paste0('modeltype_', type)
-    general_info <- models[[typename]] %>%
-      lapply(function(model_per_class) {model_per_class[['summaries']]})
+    summary <- get_mplus_summary_for_modeltype(models, typename)
+    nmin <- get_nmin_for_modeltype(models, typename)
+    replicated <- get_is_replicated_for_modeltype(models, typename)
+    boundary_values <- get_are_boundary_values_for_modeltype(models, typename)
 
-    general_info <- general_info %>%
-      purrr::map_dfr(~ .x)
-
-    general_info <- general_info %>%
-      dplyr::select('Title', 'Parameters', 'LL', 'AIC',
-                    'AICC', 'BIC', saBIC = 'aBIC',
-                    dplyr::any_of(c('Entropy', 'T11_VLMR_PValue','T11_LMR_PValue'))) %>%
-      as.data.frame() %>%
-      dplyr::mutate(classes = dplyr::row_number(), .before=1)
-
-    if(! 'Entropy' %in% colnames(general_info)){
-      general_info$Entropy <- NA
-    }
-
-
-    nmin <- suppressWarnings(models[[typename]] %>%
-                                 sapply(function(model_per_class) {model_per_class[['class_counts']][['modelEstimated']][['count']]}) %>%
-                                 lapply(min) %>%
-                                 unlist)
-
-
-    replicated <- models[[typename]] %>%
-      sapply(function(model_per_class) {list(model_per_class[['warnings']])}) %>%
-      lapply(unlist) %>% as.character() %>%
-      stringr::str_detect(pattern = 'NOT REPLICATED', negate = T)
-
-    boundary_values <- models[[typename]] %>%
-      sapply(function(model_per_class) {list(model_per_class[['output']])}) %>%
-      lapply(unlist) %>% as.character() %>%
-      stringr::str_detect(pattern = 'THRESHOLDS APPROACHED EXTREME VALUES')
-
-    overview <- general_info %>%
+    overview <- summary %>%
       dplyr::mutate(nmin = nmin,
                     replicated = replicated,
                     boundary_values = boundary_values,
@@ -49,22 +20,46 @@ create_modeloverview <- function(models, settings, modeltypes){
   return(modeloverview)
 }
 
+get_mplus_summary_for_modeltype <- function(models, typename){
+  summary <- models[[typename]] %>%
+    lapply(function(model_per_class) {model_per_class[['summaries']]}) %>%
+    purrr::map_dfr(~ .x) %>%
+    dplyr::select('Title', 'Parameters', 'LL', 'AIC',
+                  'AICC', 'BIC', saBIC = 'aBIC',
+                  dplyr::any_of(c('Entropy', 'T11_VLMR_PValue','T11_LMR_PValue'))) %>%
+    as.data.frame() %>%
+    dplyr::mutate(classes = dplyr::row_number(), .before=1)
+  if(! 'Entropy' %in% colnames(summary)){
+    summary$Entropy <- NA
+  }
+  return(summary)
+}
+
+get_nmin_for_modeltype <- function(models, typename){
+  suppressWarnings(models[[typename]] %>%
+                     sapply(function(model_per_class){
+                       model_per_class[['class_counts']][['modelEstimated']][['count']]
+                     }) %>%
+                     lapply(min) %>%
+                     unlist)
+}
+
+get_is_replicated_for_modeltype <- function(models, typename){
+  models[[typename]] %>%
+    sapply(function(model_per_class) {list(model_per_class[['warnings']])}) %>%
+    lapply(unlist) %>% as.character() %>%
+    stringr::str_detect(pattern = 'NOT REPLICATED', negate = T)
+}
+
+get_are_boundary_values_for_modeltype <- function(models, typename){
+  models[[typename]] %>%
+    sapply(function(model_per_class) {list(model_per_class[['output']])}) %>%
+    lapply(unlist) %>% as.character() %>%
+    stringr::str_detect(pattern = 'THRESHOLDS APPROACHED EXTREME VALUES')
+}
+
 create_modeloverview_table <- function(overview){
-  overview_selection <- overview %>%
-    dplyr::mutate(nmin = round(.data$nmin)) %>%
-    dplyr::select(Type = 'modeltype',
-                  Classes = 'classes',
-                  .data$Parameters,
-                  Replicated = 'replicated',
-                  'Boundary Values' = 'boundary_values',
-                  'n Min'= 'nmin',
-                  'Entropy',
-                  'LL',
-                  'AIC',
-                  'AICC',
-                  'BIC',
-                  'saBIC',
-                  'VLRMT')
+  overview_selection <- select_overview_table_columns(overview)
 
   flextable::flextable(overview_selection) %>%
     flextable::bold(part='header') %>%
@@ -101,4 +96,22 @@ create_modeloverview_table <- function(overview){
                                            '#ff9999', 'white')) %>%
     flextable::merge_v() %>%
     flextable::autofit()
+}
+
+select_overview_table_columns <- function(overview){
+  overview %>%
+    dplyr::mutate(nmin = round(.data$nmin)) %>%
+    dplyr::select(Type = 'modeltype',
+                  Classes = 'classes',
+                  .data$Parameters,
+                  Replicated = 'replicated',
+                  'Boundary Values' = 'boundary_values',
+                  'n Min'= 'nmin',
+                  'Entropy',
+                  'LL',
+                  'AIC',
+                  'AICC',
+                  'BIC',
+                  'saBIC',
+                  'VLRMT')
 }
