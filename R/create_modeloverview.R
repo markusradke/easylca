@@ -5,10 +5,14 @@ create_modeloverview <- function(models, settings, modeltypes){
   for(type in modeltypes){
     typename <- paste0('modeltype_', type)
     general_info <- models[[typename]] %>%
-      sapply(function(model_per_class) {model_per_class[['summaries']]}) %>%
-      purrr::map_dfr(~ .x) %>%
-      dplyr::select(.data$Title, .data$Parameters, .data$LL, .data$AIC,
-                    .data$AICC, .data$BIC, saBIC = .data$aBIC,
+      lapply(function(model_per_class) {model_per_class[['summaries']]})
+
+    general_info <- general_info %>%
+      purrr::map_dfr(~ .x)
+
+    general_info <- general_info %>%
+      dplyr::select('Title', 'Parameters', 'LL', 'AIC',
+                    'AICC', 'BIC', saBIC = 'aBIC',
                     dplyr::any_of(c('Entropy', 'T11_VLMR_PValue','T11_LMR_PValue'))) %>%
       as.data.frame() %>%
       dplyr::mutate(classes = dplyr::row_number(), .before=1)
@@ -17,10 +21,12 @@ create_modeloverview <- function(models, settings, modeltypes){
       general_info$Entropy <- NA
     }
 
+
     nmin <- suppressWarnings(models[[typename]] %>%
-                               sapply(function(model_per_class) {model_per_class[['class_counts']][['modelEstimated']][['count']]}) %>%
-                               lapply(min) %>%
-                               unlist)
+                                 sapply(function(model_per_class) {model_per_class[['class_counts']][['modelEstimated']][['count']]}) %>%
+                                 lapply(min) %>%
+                                 unlist)
+
 
     replicated <- models[[typename]] %>%
       sapply(function(model_per_class) {list(model_per_class[['warnings']])}) %>%
@@ -40,27 +46,25 @@ create_modeloverview <- function(models, settings, modeltypes){
 
     modeloverview <- rbind(modeloverview, overview)
   }
-
-  print(modeloverview)
   return(modeloverview)
 }
 
 create_modeloverview_table <- function(overview){
   overview_selection <- overview %>%
     dplyr::mutate(nmin = round(.data$nmin)) %>%
-    dplyr::select(Type = .data$modeltype,
-                  Classes = .data$classes,
+    dplyr::select(Type = 'modeltype',
+                  Classes = 'classes',
                   .data$Parameters,
-                  Replicated = .data$replicated,
-                  'Boundary Values' = .data$boundary_values,
-                  'n Min'= .data$nmin,
-                  .data$Entropy,
-                  .data$LL,
-                  .data$AIC,
-                  .data$AICC,
-                  .data$BIC,
-                  .data$saBIC,
-                  .data$VLRMT)
+                  Replicated = 'replicated',
+                  'Boundary Values' = 'boundary_values',
+                  'n Min'= 'nmin',
+                  'Entropy',
+                  'LL',
+                  'AIC',
+                  'AICC',
+                  'BIC',
+                  'saBIC',
+                  'VLRMT')
 
   flextable::flextable(overview_selection) %>%
     flextable::bold(part='header') %>%

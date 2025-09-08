@@ -13,9 +13,13 @@ read_models(settings)
 LCA object
 }
 \description{
-Reads currently existing models according to given settings and creates figures for them.
+Reads currently existing models according to given settings. In case something went wrong during training and a results file could not be written.
+}
+\details{
 #TODO: Read out start values and update them in the settings object.
 }
 \examples{
-# no example possible, cause no folder structure available
+# settings <- random_testresults$settings
+# perform_lca(settings, modeltypes = c(1, 3)
+# lca <- read_models(settings)
 }

@@ -35,16 +35,11 @@ test_that('mplus analysis for all models creates necessary files and returns', {
 
   expect_true(file.exists(paste0(settings$folder_name, '/test_lca_results.rds')),
               info = 'Did not write general results file.')
-  # expect_true(file.exists(paste0(settings$folder_name, '/test_summary_portrait.png')),
-  #             info = 'Did not write portrait summary plot file.')
-  # expect_true(file.exists(paste0(settings$folder_name, '/test_summary_landscape.png')),
-  #             info = 'Did not write landscape summary plot file.')
 
   expect_setequal(results$summary %>% colnames, c('classes', 'Title', 'Parameters', 'LL', 'AIC', 'AICC', 'BIC', 'saBIC',
                                                   'Entropy', 'nmin', 'replicated', 'boundary_values', 'modeltype'))
 
   expect_equal(results$settings %>% class, c('lca_settings'))
-  # expect_equal(results$plots[[1]] %>% class, c('gg', 'ggplot'))
   expect_equal(results %>% class, 'easylca')
 
   unlink(settings$folder_name, recursive = T)
