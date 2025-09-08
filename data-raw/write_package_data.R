@@ -27,7 +27,8 @@ titanic_settings <- define_lca(frame = titanic_passengers,
                                cores = 16,
                                lmrlrt = F)
 
-# titanic_res <- perform_lca(titanic_settings, modeltypes = 1, ) # is calucalting on Hendrix...
+titanic_lca_results <- readRDS('data-raw/titanic_lca_results.rds')
+# titanic_res <- perform_lca(titanic_settings, modeltypes = 1)
 
 # small random test data for testing ----
 random_testdata <- readRDS('data-raw/testdata.rds')
@@ -55,6 +56,7 @@ names(discrete_colors_for_classes) <- NULL
 
 use_data(titanic_passengers,
          titanic_settings,
+         titanic_lca_results,
          internal = F,
          overwrite = T)
 use_data(random_testdata,
