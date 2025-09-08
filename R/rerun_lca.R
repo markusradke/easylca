@@ -23,6 +23,7 @@
 #' # repeat until all converged and replicated (max. 10 times)
 #' # rerun_lca(lca, recursive = TRUE)
 rerun_lca <- function(easylca, models_and_starts = NULL, recursive = FALSE){
+  if(! is_mplus_installed()){stop('Please make sure that Mplus is installed on this computer. It cannot be detected by the MplusAutomation package.')}
   if(! methods::is(easylca, 'easylca')){
     stop('Please make sure to supply an object of type "easylca" as input to the rerun_lca function. \n"easylca" objects can be obtained through the perform_lca command.')
   }

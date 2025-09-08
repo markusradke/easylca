@@ -22,8 +22,8 @@
 #' # for more model types, add them to the modeltype vector, take a while to compute
 #' # lca <- perform_lca(titanic_settings, modeltype = c(1, 2, 3))
 perform_lca <- function(settings, modeltypes = seq(6)){
+  if(! is_mplus_installed()){stop('Please make sure that Mplus is installed on this computer. It cannot be detected by the MplusAutomation package.')}
   if(! methods::is(settings, 'lca_settings')) {stop('Please provide a settings object of type "lca_settings". It can be generated using the define_lca command.')}
-  invisible(MplusAutomation::detectMplus())
 
   create_templates(settings)
 

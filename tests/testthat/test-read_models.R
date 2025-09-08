@@ -35,28 +35,27 @@ test_that('looks up which model types were estimated', {
   unlink(settings$folder_name, recursive = TRUE, force = TRUE)
 })
 
-test_that('successfully reads models for model types and creates easylca object', {
-  settings <- define_lca(random_testdata, 'read_models_test', id_variable = 'id', use = c('var1', 'var7'),
-                         categorical = 'var1', nclasses = 2, starts = 5, cores = 64)
-  message('Performing test LCA...')
-  capture.output(
-    suppressMessages(perform_lca(settings, modeltypes = c(1, 3)))
-  )
+if(is_mplus_installed()){
+  test_that('successfully reads models for model types and creates easylca object', {
+    settings <- define_lca(random_testdata, 'read_models_test', id_variable = 'id', use = c('var1', 'var7'),
+                           categorical = 'var1', nclasses = 2, starts = 5, cores = 64)
+    message('Performing test LCA...')
+    capture.output(perform_lca(settings, modeltypes = c(1, 3)))
 
-  message('Reading test LCA folder...')
-  lca <- suppressMessages(read_models(settings))
-  expect_true(methods::is(lca, 'easylca'))
-  expect_equal(names(lca), c('settings', 'models', 'summary'))
-  expect_equal(names(lca$models), c('modeltype_1', 'modeltype_3'))
+    message('Reading test LCA folder...')
+    lca <- suppressMessages(read_models(settings))
+    expect_true(methods::is(lca, 'easylca'))
+    expect_equal(names(lca), c('settings', 'models', 'summary'))
+    expect_equal(names(lca$models), c('modeltype_1', 'modeltype_3'))
 
-  file.remove(paste0(settings$folder_name,
-                     '/', settings$analysis_name,
-                     '_model3_lca/02_', settings$analysis_name,
-                     '_model3_lca.out'))
-  message('Read test LCA with one class solution deleted...')
-  lca <- suppressMessages(read_models(settings))
-  expect_equal(length(lca$models$modeltype_3), 1)
+    file.remove(paste0(settings$folder_name,
+                       '/', settings$analysis_name,
+                       '_model3_lca/02_', settings$analysis_name,
+                       '_model3_lca.out'))
+    message('Read test LCA with one class solution deleted...')
+    lca <- suppressMessages(read_models(settings))
+    expect_equal(length(lca$models$modeltype_3), 1)
 
-  unlink(settings$folder_name, recursive = TRUE, force = TRUE)
-})
-
+    unlink(settings$folder_name, recursive = TRUE, force = TRUE)
+  })
+}

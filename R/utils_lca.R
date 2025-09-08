@@ -8,3 +8,13 @@ print_elapsed_time <- function(start_time, end_time){
 
   message(sprintf("The time needed for the analysis was: %02d:%02d:%02d.\n", hours, minutes, seconds))
 }
+
+is_mplus_installed <- function() {
+  result <- tryCatch({
+    detection <- MplusAutomation::detectMplus()
+    is.character(detection) && length(detection) > 0
+  }, error = function(e) {
+    FALSE
+  })
+  return(result)
+}
