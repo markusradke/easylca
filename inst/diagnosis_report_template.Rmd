@@ -21,7 +21,7 @@ discrete <- types[types == 'integer'] %>% names()
 continuous <- types[types == 'numeric'] %>% names()
 is_discrete <- length(discrete) > 0
 is_continuous <- length(continuous) > 0
-is_correlations <- length(continuous) > 1
+continuous_greater_1 <- length(continuous) > 1
 ```
 
 **N = `r nrow(data)`** observations, id variable is *`r idcol`*.\
@@ -74,7 +74,7 @@ All other indicators do not have missing values.
 ## Spearman correlations between continuous indicators
 
 ```{r correlations, echo=F, fig.height=length(continuous)*0.5+1.5, fig.width=length(continuous)*0.5+2, warning=F}
-if(is_correlations){
+if(continuous_greater_1){
   cor_matrix <- stats::cor(data %>% 
                              dplyr::select(all_of(continuous)),
                            use = 'pairwise.complete.obs',
@@ -106,7 +106,7 @@ if(is_correlations){
 ```
 
 ```{r correlations_no_indicators, echo=F, results='asis'}
-if(!is_correlations){
+if(!continuous_greater_1){
   cat('There are less than 2 continuous indicators. Thus, no Spearman correlations are computed.')
 }
 ```
@@ -165,7 +165,7 @@ if(length(continuous)>1){
 ```
 
 ```{r continuous_distribution_parameters_no_indicators, echo=F, results='asis'}
-if(! is_continuous){cat('There are less than 2 continuous indicators. Thus, there is no potential need for scaling.')}
+if(! continuous_greater_1){cat('There are less than 2 continuous indicators. Thus, there is no potential need for scaling.')}
 ```
 
 #### [Discrete indicators]{style="color: #c40d20"}
