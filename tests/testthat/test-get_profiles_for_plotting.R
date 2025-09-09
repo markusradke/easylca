@@ -89,23 +89,23 @@ test_that('extraction of profiles for plotting retrieves correct variables', {
   test_for_columnnames_completeness(model, settings)
 })
 
-# test_that('prevalences are extracted correctly', {
-#   model <- random_testresults$models$modeltype_1$test_model1_lca.3_test_model1_lca.out
-#   profiles <- get_profiles_for_plotting(model, random_testresults$settings)
-#
-#   summed_counts <- model$class_counts$modelEstimated$count %>% round() %>% sum
-#   sum_var3 <- profiles %>% dplyr::filter(item == 'var3') %>%
-#     dplyr::mutate(count = as.integer(count)) %>%
-#     dplyr::summarize(sum(count)) %>% dplyr::pull()
-#   expect_equal(sum_var3, summed_counts)
-#
-#   n_unique_class1_counts <- profiles %>%
-#     dplyr::filter(class %>% stringr::str_detect('class 1')) %>%
-#     dplyr::pull(count) %>%
-#     unique() %>%
-#     length()
-#   expect_equal(n_unique_class1_counts, 1L)
-# })
+test_that('prevalences are extracted correctly', {
+  model <- random_testresults$models[[1]][[3]]
+  profiles <- get_profiles_for_plotting(model, random_testresults$settings)
+
+  summed_counts <- model$class_counts$modelEstimated$count %>% round() %>% sum
+  sum_var3 <- profiles %>% dplyr::filter(item == 'var3') %>%
+    dplyr::mutate(count = as.integer(count)) %>%
+    dplyr::summarize(sum(count)) %>% dplyr::pull()
+  expect_equal(sum_var3, summed_counts)
+
+  n_unique_class1_counts <- profiles %>%
+    dplyr::filter(class %>% stringr::str_detect('class 1')) %>%
+    dplyr::pull(count) %>%
+    unique() %>%
+    length()
+  expect_equal(n_unique_class1_counts, 1L)
+})
 
 
 # TODO: write a test for parameter retrieval without continuos data

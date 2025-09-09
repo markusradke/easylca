@@ -1,5 +1,8 @@
 get_profiles_for_plotting <- function(model, settings){
   profile_types <- get_profile_types(settings)
+  if(length(profile_types$continuous) > 0){
+    continuous <- get_continuous_profiles(model, profile_types)
+  }
   if(length(profile_types$categorical) > 0){
     categoricals <- get_categorical_profiles(model,
                                              profile_types$categorical,
@@ -11,8 +14,8 @@ get_profiles_for_plotting <- function(model, settings){
 
   init <- data.frame('se' = double(), 'est_se' = double(), 'level' = integer(),
                      'count' = double(), 'upper' = double(), 'lower' = double(),
-                     'pzero' = double(), 'yposinflation' = double())
-  dplyr::bind_rows(init, categoricals, nominals)
+                     'pzero' = character(), 'yposinflation' = double())
+  dplyr::bind_rows(init, continuous, categoricals, nominals)
 }
 
 get_profile_types <- function(settings){
