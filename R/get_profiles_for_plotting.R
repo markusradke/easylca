@@ -1,9 +1,18 @@
 get_profiles_for_plotting <- function(model, settings){
   profile_types <- get_profile_types(settings)
-  categoricals <- get_categorical_profiles(model,
-                                           profile_types$categorical,
-                                           profile_types$binary)
+  if(length(profile_types$categorical) > 0){
+    categoricals <- get_categorical_profiles(model,
+                                             profile_types$categorical,
+                                             profile_types$binary)
+  } else{categoricals <- c()}
+  if(length(profile_types$nominal) > 0){
+    nominals <- get_nominal_profiles(model, profile_types$nominal)
+  } else{nominals <- c()}
 
+  init <- data.frame('se' = double(), 'est_se' = double(), 'level' = integer(),
+                     'count' = double(), 'upper' = double(), 'lower' = double(),
+                     'pzero' = double(), 'yposinflation' = double())
+  dplyr::bind_rows(init, categoricals, nominals)
 }
 
 get_profile_types <- function(settings){
@@ -33,10 +42,11 @@ get_categorical_profiles <- function(model, categorical, binary){
                   param = 'probability',
                   significance = get_significance_level(pval),
                   plotgroup = ifelse(.data$item %in% binary,
-                                     'binary', 'discrete')) %>%
+                                     'binary', 'discrete'),
+                  level = as.integer(.data$category)) %>%
     dplyr::filter(.data$item %in% categorical) %>%
-    dplyr::rename(level = 'category',
-                  class = 'LatentClass')
+    dplyr::rename(class = 'LatentClass') %>%
+    dplyr::select(-'category')
   categoricals
 }
 
@@ -79,6 +89,11 @@ calculate_probabilities_from_logits <- function(logit){
     ) %>%
     dplyr::ungroup()
   dplyr::bind_rows(probabilites, reference_levels)
+}
+
+get_continuous_profiles <- function(model, continuous){
+  continuous <- model$parameters$unstandaradized
+  continuous
 }
 
 get_significance_level <- function(pval){

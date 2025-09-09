@@ -56,34 +56,36 @@ test_that('profile retrieval for nominal variables works', {
   expect_setequal(dplyr::distinct(res, plotgroup) %>% dplyr::pull(plotgroup), c('discrete'))
 })
 
+test_that('profile retrieval for continuous variables works', {
+  res <- get_continuous_profiles(random_testresults$models[[4]][[2]],
+                                 c('var3', 'var4', 'var5', 'var6', 'var7', 'var8'))
+  expect_equal(nrow(res), 12)
+  expect_setequal(colnames(res), c('item', 'param', 'est', 'se', 'est_se', 'pval',
+                                   'significance', 'class', 'plotgroup', 'upper', 'lower',
+                                   'pzero', 'yposinflation'))
+  expect_setequal(dplyr::distinct(res, class) %>% dplyr::pull(class), c(1,2))
+  expect_setequal(dplyr::distinct(res, plotgroup) %>% dplyr::pull(plotgroup), c('continuous'))
+  expect_setequal(dplyr::distinct(res, significance) %>% dplyr::pull(significance), c('', '***'))
+  expect_true(all(is.na(pezero | (res$perzo <= 1 & res$pzero >= 0))))
+})
 
-# test_that('nominal indicators are in plot group "discrete"', {
-#   profiles <- get_profiles_for_plotting(
-#     model = titanic_lca_results$models$modeltype_2$titanic_model2_lca.06_titanic_model2_lca.out,
-#     settings = titanic_settings)
-#   plot_group_nominals <- profiles %>%
-#     dplyr::filter(.data$item %in% c('port', 'pasclass')) %>%
-#     dplyr::distinct(.data$plotgroup)
-#   expect_setequal(plot_group_nominals, 'discrete')
-# })
-#
-# test_that('extraction of profiles for plotting retrieves correct variables', {
-#   test_for_columnnames_completeness <- function(model, settings){
-#     profile_variables <- c('param', 'item', 'est', 'se', 'est_se', 'pval', 'class', 'level', 'count',
-#                            'significance', 'upper', 'lower', 'pzero', 'yposinflation', 'plotgroup')
-#     res <- get_profiles_for_plotting(model, settings)
-#     expect_setequal(res %>% colnames(), profile_variables)
-#   }
-#
-#   model <- titanic_lca_results$models[[2]][[5]]
-#   settings <- titanic_lca_results$settings
-#   test_for_columnnames_completeness(model, settings)
-#
-#   model <- random_testresults$models[[1]][[2]]
-#   settings <- random_testresults$settings
-#   test_for_columnnames_completeness(model, settings)
-# })
-#
+test_that('extraction of profiles for plotting retrieves correct variables', {
+  test_for_columnnames_completeness <- function(model, settings){
+    profile_variables <- c('param', 'item', 'est', 'se', 'est_se', 'pval', 'class', 'level', 'count',
+                           'significance', 'upper', 'lower', 'pzero', 'yposinflation', 'plotgroup')
+    res <- get_profiles_for_plotting(model, settings)
+    expect_setequal(res %>% colnames(), profile_variables)
+  }
+
+  model <- titanic_lca_results$models[[2]][[5]]
+  settings <- titanic_lca_results$settings
+  test_for_columnnames_completeness(model, settings)
+
+  model <- random_testresults$models[[1]][[2]]
+  settings <- random_testresults$settings
+  test_for_columnnames_completeness(model, settings)
+})
+
 # test_that('prevalences are extracted correctly', {
 #   model <- random_testresults$models$modeltype_1$test_model1_lca.3_test_model1_lca.out
 #   profiles <- get_profiles_for_plotting(model, random_testresults$settings)
@@ -130,3 +132,6 @@ test_that('profile retrieval for nominal variables works', {
 #   expect_equal(dplyr::filter(counterorrs, item == 'var7') %>% dplyr::pull(lower),
 #                meanvar7 - sqrt(meanvar7 + exp(divvar7) * meanvar7**2))
 # })
+
+
+# TODO: write a test for parameter retrieval without continuos data
