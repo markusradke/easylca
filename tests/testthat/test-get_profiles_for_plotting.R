@@ -97,6 +97,10 @@ test_that('prevalences are extracted correctly', {
   model <- random_testresults$models[[1]][[3]]
   profiles <- get_profiles_for_plotting(model, random_testresults$settings)
 
+  expect_setequal(unique(profiles$item),
+                  c('var1', 'var3', 'var4', 'var5', 'var6',
+                    'var7\n(negbin)', 'var8\n(poisson)'))
+
   summed_counts <- model$class_counts$modelEstimated$count %>% round() %>% sum
   sum_var3 <- profiles %>% dplyr::filter(item == 'var3') %>%
     dplyr::summarize(sum(count)) %>% dplyr::pull()

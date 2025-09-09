@@ -18,7 +18,8 @@ get_profiles_for_plotting <- function(model, settings){
   combined_profiles <- dplyr::bind_rows(init, continuous, categoricals, nominals)
   class_prevalences <- get_model_estimated_class_prevalences(model)
   suppressMessages(dplyr::inner_join(combined_profiles, class_prevalences)) %>%
-    dplyr::mutate(class = paste('class', class))
+    dplyr::mutate(class = paste('class', class)) %>%
+    rename_items(profile_types)
 }
 
 get_profile_types <- function(settings){
@@ -116,9 +117,14 @@ get_continuous_profiles <- function(model, profile_types){
   means <- get_means_from_profiles(continuous)
   means <- correct_negbin_poisson_means(means, profile_types$negbin, profile_types$possion)
   errors <- get_errors_from_profiles(continuous, means)
-  errors <- correct_negbin_errors(means, errors, continuous, profile_types$negbin)
-  errors <- correct_poisson_errors(means, errors, continuous, profile_types$possion)
-
+  errors <- correct_negbin_errors(means,
+                                                       errors,
+                                                       continuous,
+                                                       profile_types$negbin)
+  errors <- correct_poisson_errors(means,
+                                                        errors,
+                                                        continuous,
+                                                        profile_types$possion)
   pzero <- get_pzero_from_profiles(continuous)
   continuous <- combine_continuous_items(means, errors, pzero)
   continuous <- calculate_ypos_for_pzero(continuous)
@@ -249,4 +255,12 @@ get_model_estimated_class_prevalences <- function(model){
   model$class_counts$modelEstimated %>%
     dplyr::select(-'proportion') %>%
     dplyr::mutate(class = as.character(.data$class))
+}
+
+rename_items <- function(profiles, profile_types){
+  profiles %>%
+    dplyr::mutate(item = ifelse(.data$item %in% profile_types$negbin,
+                                paste0(item, '\n(negbin)'), item),
+                  item = ifelse(.data$item %in% profile_types$poisson,
+                                paste0(item, '\n(poisson)'), item))
 }
