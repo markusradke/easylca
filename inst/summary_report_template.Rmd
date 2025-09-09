@@ -15,8 +15,11 @@ data <- params$data
 title <- params$title
 n_observations <- params$n_observations
 
-if(! 'VLRMT' %in% colnames(data)){
-  data$VLRMT <- 'not calculated'
+if(! 'T11_VLMR_PValue' %in% colnames(data)){
+  data$T11_VLMR_PValue <- 'not calculated'
+}
+if(! 'T11_LMR_PValue' %in% colnames(data)){
+  data$T11_LMR_PValue <- 'not calculated'
 }
 
 not_replicated <- data %>% 

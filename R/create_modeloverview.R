@@ -82,9 +82,14 @@ create_modeloverview_table <- function(overview){
     flextable::bg(j = 'saBIC',
                   bg = ifelse(overview_selection$saBIC == min(overview_selection$saBIC),
                               '#adebad', 'white')) %>%
-    flextable::bg(j = 'VLRMT',
-                  bg = ifelse(overview_selection$VLRMT == 'not calculated',
-                              'grey', 'white')) %>%
+    flextable::bg(j = 'p VLMRT',
+                  bg = ifelse(overview_selection$`p VLMRT` == 'not calculated',
+                              'grey',
+                              ifelse(overview_selection$`p VLMRT` > 0.05, '#adebad', 'white'))) %>%
+    flextable::bg(j = 'p adj. VLMRT',
+                  bg = ifelse(overview_selection$`p adj. VLMRT` == 'not calculated',
+                              'grey',
+                              ifelse(overview_selection$`p adj. VLMRT` > 0.05, '#adebad', 'white'))) %>%
     flextable::bg(j = 'Entropy',
                   bg = ifelse(is.na(overview_selection$Entropy),
                               'grey', 'white')) %>%
@@ -113,5 +118,6 @@ select_overview_table_columns <- function(overview){
                   'AICC',
                   'BIC',
                   'saBIC',
-                  'VLRMT')
+                  'p VLMRT' = 'T11_VLMR_PValue',
+                  'p adj. VLMRT' = 'T11_LMR_PValue')
 }
