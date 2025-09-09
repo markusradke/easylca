@@ -12,7 +12,7 @@ params:
 
 ## Variable Types
 
-```{r types, echo=F}
+```{r types and plot settings, echo=F}
 data <- params$data
 idcol <- params$idcol
 title <- params$title
@@ -22,6 +22,11 @@ continuous <- types[types == 'numeric'] %>% names()
 is_discrete <- length(discrete) > 0
 is_continuous <- length(continuous) > 0
 continuous_greater_1 <- length(continuous) > 1
+
+n_col_cont_histo <- 2
+n_col_dis_histo <- 3
+n_row_cont_histo <- ceiling(length(continuous)/n_col_cont_histo)
+n_row_dis_histo <- ceiling(length(discrete)/n_col_dis_histo)
 ```
 
 **N = `r nrow(data)`** observations, id variable is *`r idcol`*.\
@@ -115,7 +120,7 @@ if(!continuous_greater_1){
 
 #### [Continuous indicators]{style="color: #c40d20"}
 
-```{r continuous_histograms, echo=F, fig.height=length(continuous)*1.25+0.001,  warning=F}
+```{r continuous_histograms, echo=F, fig.height=n_row_cont_histo*2.5+0.001,  warning=F}
 if(length(continuous)>0){
   continuous_data <- data %>% dplyr::select(dplyr::all_of(continuous)) %>% 
     tidyr::pivot_longer(cols = everything(),
@@ -125,7 +130,9 @@ if(length(continuous)>0){
   ggplot2::ggplot(continuous_data, 
                   ggplot2::aes(x = value)) + 
     ggplot2::geom_histogram(fill = 'grey45', bins = n_bins, na.rm = T) + 
-    ggplot2::facet_wrap(~ variable, ncol = 2, scales = 'free')+ 
+    ggplot2::facet_wrap(~ variable, 
+                        ncol = n_col_cont_histo,
+                        scales = 'free')+ 
     ggplot2::theme_minimal() + 
     ggplot2::ylab('frequency') +
     ggplot2:::theme(strip.text = ggplot2::element_text(size = 14, face = 'bold', 
@@ -170,7 +177,7 @@ if(! continuous_greater_1){cat('There are less than 2 continuous indicators. Thu
 
 #### [Discrete indicators]{style="color: #c40d20"}
 
-```{r discrete_histograms, echo=F, fig.height=length(discrete)*1+0.001,  warning=F}
+```{r discrete_histograms, echo=F, fig.height=n_row_dis_histo * 2.5+0.001,  warning=F}
 if(length(discrete)>0){
   discrete_data <- data %>% dplyr::select(dplyr::all_of(discrete)) %>% 
     tidyr::pivot_longer(cols = everything(),
@@ -180,7 +187,9 @@ if(length(discrete)>0){
     ggplot2::geom_bar(fill = 'grey45', stat = 'count',
                             na.rm = T) + 
     ggplot2::labs(x = 'frequency', y = '') + 
-    ggplot2::facet_wrap(~ variable, ncol = 3, scales = 'free_y')+ 
+    ggplot2::facet_wrap(~ variable, 
+                        ncol = n_col_dis_histo,
+                        scales = 'free_y')+ 
     ggplot2::theme_minimal() + 
     ggplot2:::theme(strip.text = ggplot2::element_text(size = 12, face = 'bold', 
                                               hjust = 0), 
