@@ -1,6 +1,6 @@
 plot_continuous_profiles <- function(profiles, ncol_plot=2){
   profiles <- profiles %>% dplyr::filter(.data$plotgroup == 'continuous')
-  nclasses <- profiles$class %>% levels() %>% length()
+  nclasses <- profiles$class %>% unique() %>% length()
   n_col_plot <- ifelse(nclasses > 6, 1, 2)
   class_colors <- discrete_colors_for_classes[1:nclasses] # internal from package
 
@@ -55,7 +55,7 @@ plot_continuous_profiles <- function(profiles, ncol_plot=2){
 
 plot_binary_profiles <- function(profiles){
   profiles <- dplyr::filter(profiles, .data$plotgroup == 'binary')
-  nclasses <- profiles$class %>% levels() %>% length()
+  nclasses <- profiles$class %>% unique() %>% length()
   class_colors <- discrete_colors_for_classes[1:nclasses] # internal from package
 
   relative_freqs <- profiles %>%
