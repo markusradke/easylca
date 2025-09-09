@@ -191,20 +191,37 @@ if(length(discrete)>0){
   discrete_data <- data %>% dplyr::select(dplyr::all_of(discrete)) %>% 
     tidyr::pivot_longer(cols = everything(),
                         names_to = "variable", values_to = "value")
-  ggplot2::ggplot(discrete_data, 
-                  ggplot2::aes(y = as.factor(value))) + 
-    ggplot2::geom_bar(fill = 'grey45', stat = 'count',
-                            na.rm = T) + 
-    ggplot2::labs(x = 'frequency', y = '') + 
-    ggplot2::facet_wrap(~ variable, 
+  modus <- discrete_data %>% 
+    dplyr::count(.data$variable, .data$value) %>% 
+    dplyr::group_by(.data$variable) %>% 
+    dplyr::slice_max(n = 1, order_by = .data$n) %>% 
+    dplyr::select('variable', 'value') %>% 
+    dplyr::mutate(modus = TRUE)
+  
+  discrete_data <- suppressMessages(dplyr::left_join(discrete_data, modus)) %>% 
+    dplyr::mutate(modus = ifelse(is.na(.data$modus), FALSE, modus))
+  
+  ggplot2::ggplot(discrete_data,
+                  ggplot2::aes(y = as.factor(.data$value),
+                               fill = .data$modus)) +
+    ggplot2::geom_bar(stat = 'count',
+                      na.rm = T) +
+    ggplot2::scale_fill_manual(values = c('grey45', '#c40d20')) +
+    ggplot2::labs(x = 'frequency', y = '', 
+                  subtitle = 'modus') +
+    ggplot2::facet_wrap(~ variable,
                         ncol = n_col_dis_histo,
-                        scales = 'free_y')+ 
-    ggplot2::theme_minimal() + 
-    ggplot2:::theme(strip.text = ggplot2::element_text(size = 12, face = 'bold', 
-                                              hjust = 0), 
+                        scales = 'free_y') +
+    ggplot2::theme_minimal() +
+    ggplot2:::theme(strip.text = ggplot2::element_text(size = 12, face = 'bold',
+                                              hjust = 0),
+                    plot.subtitle = ggplot2::element_text(size = 10,
+                                                          color = '#c40d20'),
+                    legend.position = 'none',
                     axis.title = ggplot2::element_text(color = 'grey45'),
-                    axis.text.y = ggplot2::element_text(size =  12, color = 'black'), 
-                    axis.text.x = ggplot2::element_text(color = 'grey45'), 
+                    axis.text.y = ggplot2::element_text(size =  12, 
+                                                        color = 'black'),
+                    axis.text.x = ggplot2::element_text(color = 'grey45'),
                     panel.grid = ggplot2::element_blank())
 } 
 ```
