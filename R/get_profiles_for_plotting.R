@@ -20,10 +20,14 @@ get_profile_types <- function(settings){
   binary <- get_binary_indicators(settings)
   nominal <- settings$nominal
   continuous <- settings$use[! settings$use %in% union(categorical, nominal)]
+  negbin <- settings$negbin
+  poisson <- settings$poisson
   list(continuous = continuous,
        categorical = categorical,
        binary = binary,
-       nominal = nominal)
+       nominal = nominal,
+       negbin = negbin,
+       poisson = poisson)
 }
 
 get_binary_indicators <- function(settings){
@@ -91,10 +95,131 @@ calculate_probabilities_from_logits <- function(logit){
   dplyr::bind_rows(probabilites, reference_levels)
 }
 
-get_continuous_profiles <- function(model, continuous){
-  continuous <- model$parameters$unstandaradized
+get_continuous_profiles <- function(model, profile_types){
+  continuous <- model$parameters$unstandardized %>%
+    dplyr::mutate(item = .data$param %>% tolower(),
+                  param = .data$paramHeader,
+                  significance = get_significance_level(pval)) %>%
+    dplyr::rename(class = 'LatentClass') %>%
+    dplyr::filter(stringr::str_detect(.data$item,
+                                      paste(profile_types$continuous, collapse = '|'))) %>%
+    dplyr::select(-'paramHeader')
+  means <- get_means_from_profiles(continuous)
+  means <- correct_negbin_poisson_means(means, profile_types$negbin, profile_types$possion)
+  errors <- get_errors_from_profiles(continuous, means)
+  errors <- correct_negbin_errors(means, errors, continuous, profile_types$negbin)
+  errors <- correct_poisson_errors(means, errors, continuous, profile_types$possion)
+
+  pzero <- get_pzero_from_profiles(continuous)
+  continuous <- combine_continuous_items(means, errors, pzero)
+  continuous <- calculate_ypos_for_pzero(continuous)
   continuous
 }
+
+get_means_from_profiles <- function(continuous){
+  continuous %>%
+    dplyr::filter(! stringr::str_detect(.data$item, '#1')) %>%
+    dplyr::filter(stringr::str_detect(.data$param, 'Means'))
+}
+
+correct_negbin_poisson_means <- function(means, negbin, poisson){
+  if(length(negbin) > 0){
+    means <- means %>%
+      dplyr::mutate(est = ifelse(.data$item %in% negbin,
+                               exp(.data$est), .data$est))
+  }
+  if(length(poisson) > 0){
+    means <- means %>%
+      dplyr::mutate(est = ifelse(.data$item %in% poisson & .data$est < 0,
+                                 0, .data$est))
+  }
+  means
+}
+
+get_errors_from_profiles <-function(profiles, means){
+  suppressMessages(profiles %>%
+                     dplyr::filter(.data$param == 'Variances' | .data$param == 'Dispersion') %>%
+                     dplyr::left_join(means %>% dplyr::select('item',
+                                                              'class',
+                                                              'mean'= 'est')) %>%
+                     dplyr::mutate(sd = sqrt(.data$est),
+                                   sd = ifelse(.data$sd == 'Inf', 0, .data$sd),
+                                   upper = .data$mean + .data$sd,
+                                   lower = .data$mean - .data$sd) %>%
+                     dplyr::select('upper', 'lower', 'class', 'item'))
+}
+
+correct_negbin_errors <- function(means, errors, continuous, negbin){
+  errors_dispersion <- suppressMessages(
+    continuous %>%
+      dplyr::filter(.data$param == 'Dispersion') %>%
+      dplyr::select('class',
+                    'item',
+                    'disp' = 'est') %>%
+      dplyr::inner_join(means) %>%
+      dplyr::inner_join(errors) %>%
+      dplyr::mutate(upper = .data$est + sqrt(.data$est + exp(.data$disp) * .data$est ** 2),
+                    lower = .data$est - sqrt(.data$est + exp(.data$disp) * .data$est ** 2)) %>%
+      dplyr::select('upper', 'lower', 'class', 'item')
+  )
+
+  errors %>% dplyr::filter(! .data$item %in% negbin) %>%
+    rbind(errors_dispersion)
+}
+
+correct_poisson_errors <- function(means, errors, continuous, poisson){
+  errors_poisson <- means %>%
+    dplyr::filter(.data$item %in% poisson) %>%
+    dplyr::mutate(est = ifelse(.data$est < 0, 0, .data$est),
+                  upper = .data$est + sqrt(.data$est),
+                  lower = .data$est - sqrt(.data$est)) %>%
+    dplyr::select('upper', 'lower', 'class', 'item')
+
+  errors %>% dplyr::filter(! .data$item %in% poisson) %>%
+    rbind(errors_poisson)
+}
+
+get_pzero_from_profiles <- function(continuous){
+  continuous %>%
+    dplyr::filter(stringr::str_detect(.data$item, '#1')) %>%
+    dplyr::mutate(pzero = exp(.data$est) / (exp(.data$est) +1),
+                  pzero = round(.data$pzero, 2),
+                  pzero = paste0('P(y <= 0)\n= ', .data$pzero, '\n', .data$significance),
+                  item = stringr::str_remove_all(.data$item, '#1')) %>%
+    dplyr::select(-dplyr::all_of(c('est', 'se', 'est_se', 'pval', 'significance')))
+}
+
+combine_continuous_items <- function(means, errors, pzero){
+  combined <- suppressMessages(dplyr::left_join(means, errors) %>%
+                                 dplyr::left_join(pzero) %>%
+                                 dplyr::mutate(pzero = ifelse(is.na(pzero), '', pzero),
+                                               plotgroup = 'continuous'))
+  combined
+}
+
+calculate_ypos_for_pzero <- function(continuous) {
+  upperclass <- suppressMessages(continuous %>%
+                                   dplyr::mutate(upper = ifelse(is.na(upper), est, upper)) %>%  # for poisson
+                                   dplyr::group_by(.data$item) %>%
+                                   dplyr::slice_max(.data$upper, n = 1) %>%
+                                   dplyr::ungroup() %>%
+                                   dplyr::select(item = 'item', uppermax = 'upper') %>%
+                                   dplyr::right_join(continuous))
+
+  classrange <- suppressMessages(continuous %>%
+                                   dplyr::mutate(lower = ifelse(is.na(lower), est, lower)) %>%  # for poisson
+                                   dplyr::group_by(.data$item) %>%
+                                   dplyr::slice_min(.data$lower, n = 1) %>%
+                                   dplyr::ungroup() %>%
+                                   dplyr::select('item', lowermin = 'lower') %>%
+                                   dplyr::right_join(upperclass))
+
+  classrange %>%
+    dplyr::mutate(paramrange = .data$uppermax - .data$lowermin,
+                  yposinflation = .data$lowermin - 0.3 * .data$paramrange) %>%
+    dplyr::select(-'lowermin', -'uppermax', -'paramrange')
+}
+
 
 get_significance_level <- function(pval){
   significance <- ifelse(pval < 0.001, '***',
@@ -104,6 +229,7 @@ get_significance_level <- function(pval){
   significance
 }
 
+# ----- OLD
 # get_profiles_for_plotting <- function(model, settings){
 #   profiles <- extract_profile(model, settings)
 #   means <- get_means_from_profiles(profiles)
@@ -116,9 +242,9 @@ get_significance_level <- function(pval){
 #   binary_indicators <- get_binary_indicators(settings)
 #   categorical <- get_categorical_from_profiles(profiles, binary_indicators)
 #
-#   metric <- combine_metric_items(means, errors, pzero)
-#   metric <- calculate_ypos_for_pzero(metric)
-#   profile_ready <- rbind(metric, categorical)
+#   continuous <- combine_continuous_items(means, errors, pzero)
+#   continuous <- calculate_ypos_for_pzero(continuous)
+#   profile_ready <- rbind(continuous, categorical)
 #   profile_ready
 # }
 #
@@ -145,7 +271,7 @@ get_significance_level <- function(pval){
 #   else {profile_categorical  <- .make_empty_frame()}
 #
 #   if(!is.null(model[["parameters"]][["unstandardized"]])){
-#     profile_metric <- model[["parameters"]][["unstandardized"]] %>% as.data.frame() %>%
+#     profile_continuous <- model[["parameters"]][["unstandardized"]] %>% as.data.frame() %>%
 #       dplyr::rename(item = 'param',
 #                     param = 'paramHeader',
 #                     segment= 'LatentClass') %>%
@@ -155,10 +281,10 @@ get_significance_level <- function(pval){
 #       dplyr::filter(.data$param != 'Thresholds') %>%
 #       dplyr::filter(!stringr::str_detect(.data$item, 'CLASS#[0-9]+'))
 #   }
-#   else {profile_metric <- .make_empty_frame()}
+#   else {profile_continuous <- .make_empty_frame()}
 #
 #
-#   profile <- rbind(profile_metric, profile_categorical) %>%
+#   profile <- rbind(profile_continuous, profile_categorical) %>%
 #     dplyr::mutate(est_se = as.double(ifelse(stringr::str_detect(.data$est_se, '\\*'),
 #                                             NA,
 #                                             .data$est_se))) %>%
@@ -180,70 +306,10 @@ get_significance_level <- function(pval){
 # }
 #
 #
-# get_means_from_profiles <- function(profiles){
-#   profiles %>%
-#     dplyr::filter(! stringr::str_detect(.data$item, '#1')) %>%
-#     dplyr::filter(stringr::str_detect(.data$param, 'Means'))
-# }
+
+
 #
-# get_errors_from_profiles <-function(profiles, means){
-#   suppressMessages(profiles %>%
-#                      dplyr::filter(.data$param == 'Variances' | .data$param == 'Dispersion') %>%
-#                      dplyr::left_join(means %>% dplyr::select('item',
-#                                                               'segment',
-#                                                               'mean'= 'est')) %>%
-#                      dplyr::mutate(sd = sqrt(.data$est),
-#                                    sd = ifelse(.data$sd == 'Inf', 0, .data$sd),
-#                                    upper = .data$mean + .data$sd,
-#                                    lower = .data$mean - .data$sd) %>%
-#                      dplyr::select('upper', 'lower', 'segment', 'item'))
-# }
-#
-# correct_negbin_poisson_means <- function(means, settings){
-#   means %>%
-#     dplyr::mutate(est = ifelse(.data$item %in% settings$negbin, exp(.data$est), .data$est)) %>%
-#     dplyr::mutate(est = ifelse(.data$item %in% settings$poisson & .data$est < 0, 0, .data$est))
-# }
-#
-# correct_negbin_poisson_errors <- function(means, errors, profiles, settings){
-#   errors_dispersion <- suppressMessages(
-#     profiles %>%
-#       dplyr::filter(.data$param == 'Dispersion') %>%
-#       dplyr::select('segment',
-#                     'item',
-#                     'disp' = 'est') %>%
-#       dplyr::inner_join(means) %>%
-#       dplyr::inner_join(errors) %>%
-#       dplyr::mutate(upper = .data$est + sqrt(.data$est + exp(.data$disp) * .data$est ** 2),
-#                     lower = .data$est - sqrt(.data$est + exp(.data$disp) * .data$est ** 2)) %>%
-#       dplyr::select('upper', 'lower', 'segment', 'item')
-#   )
-#
-#   errors_dispersion_correct <- errors %>% dplyr::filter(! .data$item %in% settings$negbin) %>%
-#     rbind(errors_dispersion)
-#
-#   errors_poisson <- means %>%
-#     dplyr::filter(.data$item %in% settings$poisson) %>%
-#     dplyr::mutate(est = ifelse(.data$est < 0, 0, .data$est),
-#                   upper = .data$est + sqrt(.data$est),
-#                   lower = .data$est - sqrt(.data$est)) %>%
-#     dplyr::select('upper', 'lower', 'segment', 'item')
-#
-#   errors_dispersion_correct %>% dplyr::filter(! .data$item %in% settings$poisson) %>%
-#     rbind(errors_poisson)
-# }
-#
-# get_pzero_from_profiles <- function(profiles){
-#   profiles %>%
-#     dplyr::filter(stringr::str_detect(.data$item, '#1')) %>%
-#     dplyr::mutate(pzero = exp(.data$est) / (exp(.data$est) +1),
-#                   pzero = round(.data$pzero, 2),
-#                   pzero = paste0('P(y <= 0)\n= ', .data$pzero, '\n', .data$significance),
-#                   item = stringr::str_remove_all(.data$item, '#1')) %>%
-#     dplyr::select(-dplyr::all_of(c('est', 'se', 'est_se', 'pval',
-#                                    'level', 'count', 'significance')))
-# }
-#
+
 
 # get_categorical_from_profiles <- function(profiles, binary_indicators) {
 #   profiles %>%
@@ -256,31 +322,5 @@ get_significance_level <- function(pval){
 #                                      'binary', 'discrete'))
 # }
 #
-# combine_metric_items <- function(means, errors, pzero){
-#   combined <- suppressMessages(dplyr::left_join(means, errors) %>%
-#                                  dplyr::left_join(pzero) %>%
-#                                  dplyr::mutate(pzero = ifelse(is.na(pzero), '', pzero),
-#                                                plotgroup = 'continuous'))
-#   combined
-# }
+
 #
-# calculate_ypos_for_pzero <- function(allparameters) {
-#   upperclass <- suppressMessages(allparameters %>%
-#                                    dplyr::group_by(.data$item) %>%
-#                                    dplyr::slice_max(.data$upper, n = 1) %>%
-#                                    dplyr::ungroup() %>%
-#                                    dplyr::select(item = 'item', uppermax = 'upper') %>%
-#                                    dplyr::right_join(allparameters))
-#
-#   lowerclass <- suppressMessages(allparameters %>%
-#                                    dplyr::group_by(.data$item) %>%
-#                                    dplyr::slice_min(.data$lower, n = 1) %>%
-#                                    dplyr::ungroup() %>%
-#                                    dplyr::select('item', lowermin = 'lower') %>%
-#                                    dplyr::right_join(upperclass))
-#
-#   lowerclass %>%
-#     dplyr::mutate(paramrange = .data$uppermax - .data$lowermin,
-#                   yposinflation = .data$lowermin - 0.3 * .data$paramrange) %>%
-#     dplyr::select(-'lowermin', -'uppermax', -'paramrange')
-# }

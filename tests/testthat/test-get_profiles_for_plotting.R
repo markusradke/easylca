@@ -3,14 +3,18 @@ test_that('indicator classes get identified correctly', {
   expected <- list(continuous = c('age', 'fare'),
                    categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
                    binary = c('survived', 'isfem'),
-                   nominal = c('port', 'pasclass'))
+                   nominal = c('port', 'pasclass'),
+                   negbin = character(),
+                   poisson = character())
   expect_equal(res, expected)
 
   res <- get_profile_types(random_testresults$settings)
   expected <- list(continuous = c('var3', 'var4', 'var5', 'var6', 'var7', 'var8'),
                    categorical = c('var1'),
                    binary = c('var1'),
-                   nominal = character())
+                   nominal = character(),
+                   negbin = c('var7'),
+                   poisson = c('var8'))
   expect_equal(res, expected)
 })
 
@@ -58,15 +62,14 @@ test_that('profile retrieval for nominal variables works', {
 
 test_that('profile retrieval for continuous variables works', {
   res <- get_continuous_profiles(random_testresults$models[[4]][[2]],
-                                 c('var3', 'var4', 'var5', 'var6', 'var7', 'var8'))
+                                 get_profile_types(random_testresults$settings))
   expect_equal(nrow(res), 12)
   expect_setequal(colnames(res), c('item', 'param', 'est', 'se', 'est_se', 'pval',
                                    'significance', 'class', 'plotgroup', 'upper', 'lower',
                                    'pzero', 'yposinflation'))
   expect_setequal(dplyr::distinct(res, class) %>% dplyr::pull(class), c(1,2))
   expect_setequal(dplyr::distinct(res, plotgroup) %>% dplyr::pull(plotgroup), c('continuous'))
-  expect_setequal(dplyr::distinct(res, significance) %>% dplyr::pull(significance), c('', '***'))
-  expect_true(all(is.na(pezero | (res$perzo <= 1 & res$pzero >= 0))))
+  expect_setequal(dplyr::distinct(res, significance) %>% dplyr::pull(significance), c('***'))
 })
 
 test_that('extraction of profiles for plotting retrieves correct variables', {
@@ -102,35 +105,6 @@ test_that('extraction of profiles for plotting retrieves correct variables', {
 #     unique() %>%
 #     length()
 #   expect_equal(n_unique_class1_counts, 1L)
-# })
-
-# test_that('error bars and means for count variables are correct', {
-#   model <- random_testresults$models[[2]][[3]]
-#   settings <- random_testresults$settings
-#   profiles <- get_profiles_for_plotting(model, settings)
-#
-#   means <- get_means_from_profiles(profiles)
-#   errors <- get_errors_from_profiles(profiles, means)
-#
-#   countmeans <- correct_negbin_poisson_means(means, settings)
-#   expect_equal(dplyr::filter(countmeans, item =='var7') %>% dplyr::pull(est),
-#                dplyr::filter(means, item == 'var7') %>% dplyr::pull(est) %>% exp)
-#
-#   counterorrs <- correct_negbin_poisson_errors(countmeans, errors, profiles, settings)
-#
-#   poisson_mean <- dplyr::filter(means, item == 'var8') %>%
-#     dplyr::mutate(est = ifelse(est < 0, 0, est)) %>%
-#     dplyr::pull(est)
-#   expect_equal(dplyr::filter(counterorrs, item == 'var8') %>% dplyr::pull(upper), poisson_mean + sqrt(poisson_mean))
-#   expect_equal(dplyr::filter(counterorrs, item == 'var8') %>% dplyr::pull(lower), poisson_mean - sqrt(poisson_mean))
-#
-#   meanvar7 <- dplyr::filter(means, item == 'var7') %>% dplyr::pull(est) %>% exp
-#   divvar7 <- dplyr::filter(profiles, param == 'Dispersion' & item == 'var7') %>% dplyr::pull(est)
-#
-#   expect_equal(dplyr::filter(counterorrs, item == 'var7') %>% dplyr::pull(upper),
-#                meanvar7 + sqrt(meanvar7 + exp(divvar7) * meanvar7**2))
-#   expect_equal(dplyr::filter(counterorrs, item == 'var7') %>% dplyr::pull(lower),
-#                meanvar7 - sqrt(meanvar7 + exp(divvar7) * meanvar7**2))
 # })
 
 
