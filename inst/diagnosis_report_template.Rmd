@@ -125,18 +125,27 @@ if(length(continuous)>0){
   continuous_data <- data %>% dplyr::select(dplyr::all_of(continuous)) %>% 
     tidyr::pivot_longer(cols = everything(),
                         names_to = "variable", values_to = "value")
+  medians <- continuous_data %>% 
+    dplyr::group_by(variable) %>% 
+    dplyr::summarize(median = median(value, na.rm = TRUE))
   
   n_bins <- 80
   ggplot2::ggplot(continuous_data, 
                   ggplot2::aes(x = value)) + 
-    ggplot2::geom_histogram(fill = 'grey45', bins = n_bins, na.rm = T) + 
+    ggplot2::geom_histogram(fill = 'grey45', bins = n_bins, na.rm = T) +
+    ggplot2::geom_vline(data = medians,
+                        ggplot2::aes(xintercept = median), 
+                        color = '#c40d20', linewidth = 0.75) + 
     ggplot2::facet_wrap(~ variable, 
                         ncol = n_col_cont_histo,
                         scales = 'free')+ 
     ggplot2::theme_minimal() + 
-    ggplot2::ylab('frequency') +
+    ggplot2::labs(y = 'frequency', 
+                  subtitle = 'median') +
     ggplot2:::theme(strip.text = ggplot2::element_text(size = 14, face = 'bold', 
-                                              hjust = 0), 
+                                              hjust = 0),
+                    plot.subtitle = ggplot2::element_text(size = 10,
+                                                          color = '#c40d20'),
                     axis.title = ggplot2::element_text(color = 'grey45'),
                     axis.text = ggplot2::element_text(color = 'grey45'), 
                     panel.grid = ggplot2::element_blank())
