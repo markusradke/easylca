@@ -95,7 +95,7 @@ if(n_continuous == 0){cat('There are no continuous indicators.')}
 
 ## Binary indicators
 
-```{r, binary_indicators, echo=F, fig.width=classes * 1, fig.height=n_binary *1}
+```{r, binary_indicators, echo=F, fig.width=classes * 1, fig.height=n_binary *1 + 0.5}
 if(n_binary > 0){
   plot_binary_profiles(model_parameters)
 }
