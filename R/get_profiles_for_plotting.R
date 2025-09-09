@@ -105,6 +105,9 @@ get_continuous_profiles <- function(model, profile_types){
   continuous <- model$parameters$unstandardized %>%
     dplyr::mutate(item = .data$param %>% tolower(),
                   param = .data$paramHeader,
+                  est_se = account_for_non_estimated_values(est),
+                  se = account_for_non_estimated_values(se),
+                  est = account_for_non_estimated_values(est_se),
                   significance = get_significance_level(.data$pval)) %>%
     dplyr::rename(class = 'LatentClass') %>%
     dplyr::filter(stringr::str_detect(.data$item,
@@ -235,6 +238,11 @@ get_significance_level <- function(pval){
                                 ifelse(pval < 0.05, '*',
                                        '')))
   significance
+}
+
+account_for_non_estimated_values <- function(value){
+  ifelse(value == '*********', NA, value) %>%
+    as.double()
 }
 
 get_model_estimated_class_prevalences <- function(model){

@@ -87,6 +87,10 @@ test_that('extraction of profiles for plotting retrieves correct variables', {
   model <- random_testresults$models[[1]][[2]]
   settings <- random_testresults$settings
   test_for_columnnames_completeness(model, settings)
+
+  model <- titanic_lca_results$models[[1]][[4]]
+  settings <- titanic_lca_results$settings
+  test_for_columnnames_completeness(model, settings)
 })
 
 test_that('prevalences are extracted correctly', {
