@@ -40,6 +40,47 @@ get_categorical_profiles <- function(model, categorical, binary){
   categoricals
 }
 
+get_nominal_profiles <- function(model, nominal){
+  nominals_logit <- model$parameters$unstandardized %>%
+    dplyr::mutate(item = .data$param %>% tolower()) %>%
+    dplyr::filter(stringr::str_detect(.data$item,
+                                      paste(nominal, collapse = '|'))) %>%
+    dplyr::mutate(param = 'probability',
+                  plotgroup = 'discrete',
+                  significance = get_significance_level(pval),
+                  level = stringr::str_extract(item, '(?<=#)[0-9]*') %>%
+                    as.integer(),
+                  item = stringr::str_extract(item, '.*(?=#)')) %>%
+    dplyr::rename(class = 'LatentClass') %>%
+    dplyr::select(-paramHeader, -se, -est_se)
+  nominals <- calculate_probabilities_from_logits(nominals_logit)
+  nominals
+}
+
+calculate_probabilities_from_logits <- function(logit){
+  # logit for reference category (last) is 0
+  odds <- logit %>% dplyr::mutate(est = exp(.data$est))
+  sum_odds <- odds %>%
+    dplyr::group_by(item, class) %>%
+    dplyr::summarize(sum_odds = sum(est) + 1)  # +1 for reference level
+  odds <- suppressMessages(dplyr::full_join(sum_odds, odds))
+  probabilites <- odds %>% # calculate via softmax function
+    dplyr::mutate(est = .data$est / .data$sum_odds) %>%
+    dplyr::select(-sum_odds)
+  reference_levels <- probabilites %>%
+    dplyr::group_by(item, class) %>%
+    dplyr::summarize(
+      est = 1 - sum(est, na.rm = TRUE),
+      param = 'probability',
+      pval = NA,
+      plotgroup = 'discrete',
+      significance = ' (ref)',
+      level = max(level) + 1
+    ) %>%
+    dplyr::ungroup()
+  dplyr::bind_rows(probabilites, reference_levels)
+}
+
 get_significance_level <- function(pval){
   significance <- ifelse(pval < 0.001, '***',
                          ifelse(pval < 0.01, '**',

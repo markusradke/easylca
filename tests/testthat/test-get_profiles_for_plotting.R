@@ -39,6 +39,23 @@ test_that('profile retrieval for categorical variables works', {
   expect_setequal(dplyr::distinct(res, plotgroup) %>% dplyr::pull(plotgroup), c('binary', 'discrete'))
 })
 
+test_that('profile retrieval for nominal variables works', {
+  res <- get_nominal_profiles(titanic_lca_results$models[[3]][[4]],
+                              c('pasclass', 'port'))
+  expect_equal(nrow(res), 4 * 2 * 3)
+  expect_setequal(colnames(res), c('item', 'param', 'est', 'pval',
+                                   'level', 'class', 'significance', 'plotgroup'))
+  expect_setequal(dplyr::distinct(res, class) %>% dplyr::pull(class), c(1,2,3,4))
+  expect_setequal(dplyr::distinct(res, level) %>% dplyr::pull(level), c(1,2,3))
+  expect_true(all(res$est <= 1) & all(res$est >= 0))
+  expect_true(all(res$param == 'probability'))
+  expect_true(all(res %>% dplyr::group_by(.data$item, .data$class) %>% # probabilites sum to 1
+                    dplyr::summarize(sum_prob = sum(est)) %>%
+                    dplyr::pull(sum_prob) == 1))
+  expect_setequal(dplyr::distinct(res, significance) %>% dplyr::pull(significance), c('*', '***', '', ' (ref)'))
+  expect_setequal(dplyr::distinct(res, plotgroup) %>% dplyr::pull(plotgroup), c('discrete'))
+})
+
 
 # test_that('nominal indicators are in plot group "discrete"', {
 #   profiles <- get_profiles_for_plotting(
