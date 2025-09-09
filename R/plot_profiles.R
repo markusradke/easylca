@@ -1,8 +1,9 @@
-plot_metric_profiles <- function(profiles, ncol_plot=2){
+plot_continuous_profiles <- function(profiles, ncol_plot=2){
+  profiles <- profiles %>% dplyr::filter(.data$plotgroup == 'continuous')
   nclasses <- profiles$segment %>% levels() %>% length()
+  n_col_plot <- ifelse(nclasses > 6, 1, 2)
   class_colors <- discrete_colors_for_classes[1:nclasses] # internal from package
 
-  profiles <- profiles %>% dplyr::filter(.data$param == 'Means')
 
   average_means <- suppressMessages(
     profiles %>%
@@ -53,6 +54,7 @@ plot_metric_profiles <- function(profiles, ncol_plot=2){
 
 
 plot_binary_profiles <- function(profiles){
+  profiles <- dplyr::filter(profiles, plotgroup == 'binary')
   nclasses <- profiles$segment %>% levels() %>% length()
   class_colors <- discrete_colors_for_classes[1:nclasses] # internal from package
 

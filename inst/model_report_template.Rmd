@@ -17,7 +17,8 @@ classes <- params$classes
 
 
 model <- easylca$models[[paste0('modeltype_', modeltype)]][[classes]]
-model_parameters <- extract_profile_for_plotting(model, easylca$settings)
+model_parameters <- get_profiles_for_plotting(model, easylca$settings)
+print(model_parameters %>% dplyr::distinct(.data$item, .keep_all = TRUE))
 n_indicators <- unique((model_parameters$item)) %>% length()
 n_continuous <- model_parameters %>% 
   dplyr::distinct(item, .keep_all = T) %>% 
@@ -77,7 +78,7 @@ ggplot2::ggplot(class_counts, ggplot2::aes(x = count,
 
 ## Indicator relevance
 
-```{r, indicator_relevance, echo=F, fig.height=n_continuous*0.65}
+```{r, indicator_relevance, echo=F, fig.height=n_indicators*0.65}
 plot_kruskal_profiles(model)
 ```
 
@@ -85,8 +86,7 @@ plot_kruskal_profiles(model)
 
 ```{r, continuous_indicators, echo=F, fig.height=ceiling(n_continuous /ifelse(classes > 6, 1, 2))*3}
 if(n_continuous > 0){
-  n_col_plot <- ifelse(classes > 6, 1, 2)
-  plot_metric_profiles(model_parameters, ncol_plot = n_col_plot)
+  plot_continuous_profiles(model_parameters)
 }
 ```
 

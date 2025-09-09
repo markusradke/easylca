@@ -1,4 +1,4 @@
-extract_profile_for_plotting <- function(model, settings){
+get_profiles_for_plotting <- function(model, settings){
   profiles <- extract_profile(model, settings)
   means <- get_means_from_profiles(profiles)
   errors <- get_errors_from_profiles(profiles, means)
@@ -155,7 +155,7 @@ get_categorical_from_profiles <- function(profiles, binary_indicators) {
                   pzero = '',
                   yposinflation = NA,
                   plotgroup = ifelse(.data$item %in% binary_indicators,
-                                     'binary', 'multi_discrete'))
+                                     'binary', 'discrete'))
 }
 
 combine_metric_items <- function(means, errors, pzero){
