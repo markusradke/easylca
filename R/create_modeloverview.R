@@ -83,13 +83,15 @@ create_modeloverview_table <- function(overview){
                   bg = ifelse(overview_selection$saBIC == min(overview_selection$saBIC),
                               '#adebad', 'white')) %>%
     flextable::bg(j = 'p VLMRT',
-                  bg = ifelse(overview_selection$`p VLMRT` == 'not calculated',
+                  bg = ifelse(overview_selection$`p VLMRT` == 'not calculated' |
+                                is.na(overview_selection$`p VLMRT`),
                               'grey',
-                              ifelse(overview_selection$`p VLMRT` > 0.05, '#adebad', 'white'))) %>%
+                              ifelse(overview_selection$`p VLMRT` > 0.05, '#ff9999', 'white'))) %>%
     flextable::bg(j = 'p adj. VLMRT',
-                  bg = ifelse(overview_selection$`p adj. VLMRT` == 'not calculated',
+                  bg = ifelse(overview_selection$`p adj. VLMRT` == 'not calculated' |
+                                is.na(overview_selection$`p adj. VLMRT`),
                               'grey',
-                              ifelse(overview_selection$`p adj. VLMRT` > 0.05, '#adebad', 'white'))) %>%
+                              ifelse(overview_selection$`p adj. VLMRT` > 0.05, '#ff9999', 'white'))) %>%
     flextable::bg(j = 'Entropy',
                   bg = ifelse(is.na(overview_selection$Entropy),
                               'grey', 'white')) %>%
@@ -99,7 +101,8 @@ create_modeloverview_table <- function(overview){
                   bg = ifelse(overview_selection$`Boundary Values`, '#ff9999', 'white')) %>%
     flextable::bg(j = 'n Min', bg = ifelse(overview_selection$`n Min` < 100,
                                            '#ff9999', 'white')) %>%
-    flextable::merge_v() %>%
+    flextable::merge_v(colnames(overview_selection)[! colnames(overview_selection) %in%
+                                                      c('p VLMRT', 'p adj. VLMRT')]) %>%
     flextable::autofit()
 }
 
