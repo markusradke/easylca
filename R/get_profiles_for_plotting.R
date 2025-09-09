@@ -106,9 +106,9 @@ get_continuous_profiles <- function(model, profile_types){
   continuous <- model$parameters$unstandardized %>%
     dplyr::mutate(item = .data$param %>% tolower(),
                   param = .data$paramHeader,
-                  est_se = account_for_non_estimated_values(est),
-                  se = account_for_non_estimated_values(se),
-                  est = account_for_non_estimated_values(est_se),
+                  est_se = account_for_non_estimated_values(.data$est),
+                  se = account_for_non_estimated_values(.data$se),
+                  est = account_for_non_estimated_values(.data$est_se),
                   significance = get_significance_level(.data$pval)) %>%
     dplyr::rename(class = 'LatentClass') %>%
     dplyr::filter(stringr::str_detect(.data$item,
@@ -260,7 +260,7 @@ get_model_estimated_class_prevalences <- function(model){
 rename_items <- function(profiles, profile_types){
   profiles %>%
     dplyr::mutate(item = ifelse(.data$item %in% profile_types$negbin,
-                                paste0(item, '\n(negbin)'), item),
+                                paste0(.data$item, '\n(negbin)'), .data$item),
                   item = ifelse(.data$item %in% profile_types$poisson,
-                                paste0(item, '\n(poisson)'), item))
+                                paste0(.data$item, '\n(poisson)'), .data$item))
 }

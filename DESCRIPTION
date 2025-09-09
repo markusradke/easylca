@@ -20,7 +20,8 @@ Imports:
     stringr,
     utils,
     tidyr,
-    methods
+    methods,
+    forcats
 Suggests: 
     testthat (>= 3.0.0),
     rhdf5

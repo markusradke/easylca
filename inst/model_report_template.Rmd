@@ -101,11 +101,18 @@ if(n_binary > 0){
 }
 ```
 
+
 ```{r no_binary_indicators, echo=F, results='asis'}
 if(n_binary == 0){cat('There are no binary indicators.')}
 ```
 
-## Discrete indicators (upcoming)
+## Discrete indicators 
+
+```{r, discrete_indicators, echo=F, fig.height=n_discrete * classes * 0.3 + 1}
+if(n_discrete > 0){
+  plot_discrete_profiles(model_parameters)
+}
+```
 
 ```{r no_discrete_indicators, echo=F, results='asis'}
 if(n_discrete == 0){cat('There are no discrete indicators with more than 2 levels.')}

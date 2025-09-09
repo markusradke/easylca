@@ -155,3 +155,43 @@ plot_kruskal_profiles <- function(model){
                    axis.text.y = ggplot2::element_text(size = 14, face = 'bold'),
                    axis.text.x = ggplot2::element_text(size = 10, color = 'grey45', hjust = 0))
 }
+
+plot_discrete_profiles <- function(profiles){
+  profiles <- dplyr::filter(profiles, .data$plotgroup == 'discrete') %>%
+    dplyr::mutate(label = sprintf('%.0f%%%s',
+                                  round(100 * .data$est),
+                                  .data$significance),
+                  label_color = ifelse(.data$est < 0.5, 0, 1) %>% as.factor())
+  nclasses <- profiles$class %>% unique() %>% length()
+  class_colors <- discrete_colors_for_classes[1:nclasses] # internal from package
+  max_levels <- max(profiles$level, na.rm = TRUE)
+  plot_n_cols <- ifelse(max_levels < 4, 2, 1)
+
+  ggplot2::ggplot(data = profiles,
+                  ggplot2::aes(x = forcats::fct_inorder(as.character(.data$level)),
+                               y =  forcats::fct_inorder(as.character(.data$item)),
+                               fill = forcats::fct_inorder(as.character(.data$class))))+
+    ggplot2::facet_wrap(.~.data$class, ncol = plot_n_cols)+
+    ggplot2::geom_tile(ggplot2::aes(alpha = .data$est)) +
+    ggplot2::geom_text(ggplot2::aes(label = .data$label, color = .data$label_color),
+                       hjust = 0, vjust = 0.5, nudge_x = -0.25) +
+    ggplot2::scale_color_manual(values = c('grey35', 'grey90')) +
+    ggplot2::scale_fill_manual(values = class_colors) +
+    ggplot2::scale_x_discrete(expand = c(0, 0), position = 'top')+
+    ggplot2::labs(subtitle = 'P(level | class)',
+                  x = 'level', y = '')+
+    ggplot2::theme_minimal() +
+    ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                    legend.position = 'none',
+                    strip.placement = 'inside',
+                    strip.text = ggplot2::element_text(
+                      size = 14,
+                      face = 'bold',
+                      color = 'black',
+                    ),
+                    axis.text.y = ggplot2::element_text(size = 12),
+                    axis.text.x = ggplot2::element_text(size = 12, color = 'grey45'),
+                    axis.ticks.x = ggplot2::element_blank(),
+                    axis.title.x = ggplot2::element_text(size = 10, color = 'grey45', hjust = 0),
+                    plot.subtitle = ggplot2::element_text(size = 12, hjust = 0))
+}
