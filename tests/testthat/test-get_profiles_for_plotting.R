@@ -2,24 +2,44 @@ test_that('indicator classes get identified correctly', {
   res <- get_profile_types(titanic_settings)
   expected <- list(continuous = c('age', 'fare'),
                    categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
+                   binary = c('survived', 'isfem'),
                    nominal = c('port', 'pasclass'))
   expect_equal(res, expected)
 
-  res <- get_profile_types(random_testresults$settings22)
+  res <- get_profile_types(random_testresults$settings)
+  expected <- list(continuous = c('var3', 'var4', 'var5', 'var6', 'var7', 'var8'),
+                   categorical = c('var1'),
+                   binary = c('var1'),
+                   nominal = character())
+  expect_equal(res, expected)
+})
+
+test_that('get binary indicators returns correct indicators', {
+  temp_data <- random_testdata[3:5,]
+  settings <- define_lca(frame = temp_data,
+                         analysis_name = 'test', id_variable = 'id',
+                         categorical = 'var1',
+                         nominal = 'var2', 'var7')
+  res <- get_binary_indicators(settings)
+  expect_setequal(res, c('var1', 'var2'))
+})
+
+test_that('profile retrieval for categorical variables works', {
+  res <- get_categorical_profiles(titanic_lca_results$models[[1]][[2]],
+                                  c('survived', 'nsibsp', 'nparchi', 'isfem'),
+                                  c('survived', 'isfem'))
+  expect_equal(nrow(res), 20)
+  expect_setequal(colnames(res), c('item', 'param', 'est', 'se', 'est_se', 'pval',
+                                   'level', 'class', 'significance', 'plotgroup'))
+  expect_setequal(dplyr::distinct(res, class) %>% dplyr::pull(class), c(1,2))
+  expect_setequal(dplyr::distinct(res, level) %>% dplyr::pull(level), c(1,2,3))
+  expect_true(all(res$est <= 1) & all(res$est >= 0))
+  expect_true(all(res$param == 'probability'))
+  expect_setequal(dplyr::distinct(res, significance) %>% dplyr::pull(significance), c('*', '**', '***'))
+  expect_setequal(dplyr::distinct(res, plotgroup) %>% dplyr::pull(plotgroup), c('binary', 'discrete'))
 })
 
 
-
-# test_that('get binary indicators returns correct indicators', {
-#   temp_data <- random_testdata[3:5,]
-#   settings <- define_lca(frame = temp_data,
-#                          analysis_name = 'test', id_variable = 'id',
-#                          categorical = 'var1',
-#                          nominal = 'var2', 'var7')
-#   res <- get_binary_indicators(settings)
-#   expect_setequal(res, c('var1', 'var2'))
-# })
-#
 # test_that('nominal indicators are in plot group "discrete"', {
 #   profiles <- get_profiles_for_plotting(
 #     model = titanic_lca_results$models$modeltype_2$titanic_model2_lca.06_titanic_model2_lca.out,
@@ -32,7 +52,7 @@ test_that('indicator classes get identified correctly', {
 #
 # test_that('extraction of profiles for plotting retrieves correct variables', {
 #   test_for_columnnames_completeness <- function(model, settings){
-#     profile_variables <- c('param', 'item', 'est', 'se', 'est_se', 'pval', 'segment', 'level', 'count',
+#     profile_variables <- c('param', 'item', 'est', 'se', 'est_se', 'pval', 'class', 'level', 'count',
 #                            'significance', 'upper', 'lower', 'pzero', 'yposinflation', 'plotgroup')
 #     res <- get_profiles_for_plotting(model, settings)
 #     expect_setequal(res %>% colnames(), profile_variables)
@@ -58,7 +78,7 @@ test_that('indicator classes get identified correctly', {
 #   expect_equal(sum_var3, summed_counts)
 #
 #   n_unique_class1_counts <- profiles %>%
-#     dplyr::filter(segment %>% stringr::str_detect('class 1')) %>%
+#     dplyr::filter(class %>% stringr::str_detect('class 1')) %>%
 #     dplyr::pull(count) %>%
 #     unique() %>%
 #     length()

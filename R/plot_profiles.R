@@ -1,6 +1,6 @@
 plot_continuous_profiles <- function(profiles, ncol_plot=2){
   profiles <- profiles %>% dplyr::filter(.data$plotgroup == 'continuous')
-  nclasses <- profiles$segment %>% levels() %>% length()
+  nclasses <- profiles$class %>% levels() %>% length()
   n_col_plot <- ifelse(nclasses > 6, 1, 2)
   class_colors <- discrete_colors_for_classes[1:nclasses] # internal from package
 
@@ -13,9 +13,9 @@ plot_continuous_profiles <- function(profiles, ncol_plot=2){
   )
 
 
-  ggplot2::ggplot(average_means, ggplot2::aes(x = as.factor(.data$segment),
+  ggplot2::ggplot(average_means, ggplot2::aes(x = as.factor(.data$class),
                                               y = .data$est,
-                                              color = .data$segment))+
+                                              color = .data$class))+
     ggplot2::facet_wrap(.~.data$item,  scales = "free", ncol = ncol_plot)+
     ggplot2::geom_errorbar(ggplot2::aes(ymin = .data$lower, ymax = .data$upper))+
     ggplot2::geom_point(size = 2)+
@@ -55,18 +55,18 @@ plot_continuous_profiles <- function(profiles, ncol_plot=2){
 
 plot_binary_profiles <- function(profiles){
   profiles <- dplyr::filter(profiles, plotgroup == 'binary')
-  nclasses <- profiles$segment %>% levels() %>% length()
+  nclasses <- profiles$class %>% levels() %>% length()
   class_colors <- discrete_colors_for_classes[1:nclasses] # internal from package
 
   relative_freqs <- profiles %>%
-    dplyr::filter(.data$param == 'Probabilities' & .data$level==1) %>%
-    dplyr::rename(share_of_1 = 'est') %>%
-    dplyr::mutate(share_label = paste0(round(.data$share_of_1, 2), .data$significance)) %>%
-    dplyr::select('segment', 'item', 'share_of_1', 'share_label')
+    dplyr::filter(.data$param == 'probability' & .data$level==2) %>%
+    dplyr::rename(share_of_2 = 'est') %>%
+    dplyr::mutate(share_label = paste0(round(.data$share_of_2, 2), .data$significance)) %>%
+    dplyr::select('class', 'item', 'share_of_2', 'share_label')
 
-  ggplot2::ggplot(relative_freqs, ggplot2::aes(x = .data$segment,
-                                               y = .data$item, fill = .data$segment)) +
-    ggplot2::geom_tile(ggplot2::aes(alpha = .data$share_of_1), color = "white",
+  ggplot2::ggplot(relative_freqs, ggplot2::aes(x = .data$class,
+                                               y = .data$item, fill = .data$class)) +
+    ggplot2::geom_tile(ggplot2::aes(alpha = .data$share_of_2), color = "white",
                        show.legend = FALSE) +
     ggplot2::geom_text(ggplot2::aes(label = .data$share_label), color = "black") +
     ggplot2::scale_alpha_continuous(range = c(0, 0.75)) +

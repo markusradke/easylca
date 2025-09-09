@@ -1,12 +1,52 @@
-get_profile_types <- function(settings){
-  categorical <- settings$categorical
-  nominal <- settings$nominal
-  continuous <- settings$use[! settings$use %in% union(categorical, nominal)]
-  return(list(continuous = continuous,
-              categorical = categorical,
-              nominal = nominal))
+get_profiles_for_plotting <- function(model, settings){
+  profile_types <- get_profile_types(settings)
+  categoricals <- get_categorical_profiles(model,
+                                           profile_types$categorical,
+                                           profile_types$binary)
+
 }
 
+get_profile_types <- function(settings){
+  categorical <- settings$categorical
+  binary <- get_binary_indicators(settings)
+  nominal <- settings$nominal
+  continuous <- settings$use[! settings$use %in% union(categorical, nominal)]
+  list(continuous = continuous,
+       categorical = categorical,
+       binary = binary,
+       nominal = nominal)
+}
+
+get_binary_indicators <- function(settings){
+  potential_variables <- union(settings$categorical, settings$nominal)
+  dplyr::summarize_at(settings$frame, potential_variables,
+                      function(x) length(unique(x))) %>%
+    tidyr::pivot_longer(cols = dplyr::everything()) %>%
+    dplyr::filter(.data$value == 2) %>%
+    dplyr::pull(.data$name)
+}
+
+
+get_categorical_profiles <- function(model, categorical, binary){
+  categoricals <- model$parameters$probability.scale %>%
+    dplyr::mutate(item = .data$param %>% tolower(),
+                  param = 'probability',
+                  significance = get_significance_level(pval),
+                  plotgroup = ifelse(.data$item %in% binary,
+                                     'binary', 'discrete')) %>%
+    dplyr::filter(.data$item %in% categorical) %>%
+    dplyr::rename(level = 'category',
+                  class = 'LatentClass')
+  categoricals
+}
+
+get_significance_level <- function(pval){
+  significance <- ifelse(pval < 0.001, '***',
+                         ifelse(pval < 0.01, '**',
+                                ifelse(pval < 0.05, '*',
+                                       '')))
+  significance
+}
 
 # get_profiles_for_plotting <- function(model, settings){
 #   profiles <- extract_profile(model, settings)
@@ -148,15 +188,7 @@ get_profile_types <- function(settings){
 #                                    'level', 'count', 'significance')))
 # }
 #
-# get_binary_indicators <- function(settings){
-#   potential_variables <- union(settings$categorical, settings$nominal)
-#   dplyr::summarize_at(settings$frame, potential_variables,
-#                       function(x) length(unique(x))) %>%
-#     tidyr::pivot_longer(cols = dplyr::everything()) %>%
-#     dplyr::filter(.data$value == 2) %>%
-#     dplyr::pull(.data$name)
-# }
-#
+
 # get_categorical_from_profiles <- function(profiles, binary_indicators) {
 #   profiles %>%
 #     dplyr::filter(.data$param == 'Probabilities') %>%
