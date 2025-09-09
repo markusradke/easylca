@@ -4,7 +4,11 @@ test_that('indicator classes get identified correctly', {
                    categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
                    nominal = c('port', 'pasclass'))
   expect_equal(res, expected)
+
+  res <- get_profile_types(random_testresults$settings22)
 })
+
+
 
 # test_that('get binary indicators returns correct indicators', {
 #   temp_data <- random_testdata[3:5,]

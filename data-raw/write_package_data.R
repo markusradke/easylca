@@ -40,7 +40,7 @@ random_testdata_weights$weights <- random_weights
 
 random_testresults <- readRDS('data-raw/testresults.rds')
 # testresults were generated like this:
-# testsettings <- define_lca(testdata, 'test','id', nclasses = 3, starts = 20L, cores = 16,
+# testsettings <- define_lca(random_testdata, 'test','id', nclasses = 3, starts = 20L, cores = 16,
 #                        use = c('var1', 'var3', 'var4', 'var5', 'var6', 'var7', 'var8'),
 #                        categorical = c('var1'),
 #                        censored_above = c('var6'),
