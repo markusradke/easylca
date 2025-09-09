@@ -50,7 +50,7 @@ get_categorical_profiles <- function(model, categorical, binary){
   categoricals <- model$parameters$probability.scale %>%
     dplyr::mutate(item = .data$param %>% tolower(),
                   param = 'probability',
-                  significance = get_significance_level(pval),
+                  significance = get_significance_level(.data$pval),
                   plotgroup = ifelse(.data$item %in% binary,
                                      'binary', 'discrete'),
                   level = as.integer(.data$category)) %>%
@@ -67,12 +67,12 @@ get_nominal_profiles <- function(model, nominal){
                                       paste(nominal, collapse = '|'))) %>%
     dplyr::mutate(param = 'probability',
                   plotgroup = 'discrete',
-                  significance = get_significance_level(pval),
-                  level = stringr::str_extract(item, '(?<=#)[0-9]*') %>%
+                  significance = get_significance_level(.data$pval),
+                  level = stringr::str_extract(.data$item, '(?<=#)[0-9]*') %>%
                     as.integer(),
-                  item = stringr::str_extract(item, '.*(?=#)')) %>%
+                  item = stringr::str_extract(.data$item, '.*(?=#)')) %>%
     dplyr::rename(class = 'LatentClass') %>%
-    dplyr::select(-paramHeader, -se, -est_se)
+    dplyr::select(-'paramHeader', -'se', -'est_se')
   nominals <- calculate_probabilities_from_logits(nominals_logit)
   nominals
 }
@@ -81,21 +81,21 @@ calculate_probabilities_from_logits <- function(logit){
   # logit for reference category (last) is 0
   odds <- logit %>% dplyr::mutate(est = exp(.data$est))
   sum_odds <- odds %>%
-    dplyr::group_by(item, class) %>%
-    dplyr::summarize(sum_odds = sum(est) + 1)  # +1 for reference level
+    dplyr::group_by(.data$item, .data$class) %>%
+    dplyr::summarize(sum_odds = sum(.data$est) + 1)  # +1 for reference level
   odds <- suppressMessages(dplyr::full_join(sum_odds, odds))
   probabilites <- odds %>% # calculate via softmax function
     dplyr::mutate(est = .data$est / .data$sum_odds) %>%
-    dplyr::select(-sum_odds)
+    dplyr::select(-'sum_odds')
   reference_levels <- probabilites %>%
-    dplyr::group_by(item, class) %>%
+    dplyr::group_by(.data$item, .data$class) %>%
     dplyr::summarize(
-      est = 1 - sum(est, na.rm = TRUE),
+      est = 1 - sum(.data$est, na.rm = TRUE),
       param = 'probability',
       pval = NA,
       plotgroup = 'discrete',
       significance = ' (ref)',
-      level = max(level) + 1
+      level = max(.data$level) + 1
     ) %>%
     dplyr::ungroup()
   dplyr::bind_rows(probabilites, reference_levels)
@@ -105,7 +105,7 @@ get_continuous_profiles <- function(model, profile_types){
   continuous <- model$parameters$unstandardized %>%
     dplyr::mutate(item = .data$param %>% tolower(),
                   param = .data$paramHeader,
-                  significance = get_significance_level(pval)) %>%
+                  significance = get_significance_level(.data$pval)) %>%
     dplyr::rename(class = 'LatentClass') %>%
     dplyr::filter(stringr::str_detect(.data$item,
                                       paste(profile_types$continuous, collapse = '|'))) %>%
@@ -205,7 +205,8 @@ combine_continuous_items <- function(means, errors, pzero){
 
 calculate_ypos_for_pzero <- function(continuous) {
   upperclass <- suppressMessages(continuous %>%
-                                   dplyr::mutate(upper = ifelse(is.na(upper), est, upper)) %>%  # for poisson
+                                   dplyr::mutate(upper = ifelse(is.na(.data$upper),
+                                                                .data$est, .data$upper)) %>%  # for poisson
                                    dplyr::group_by(.data$item) %>%
                                    dplyr::slice_max(.data$upper, n = 1) %>%
                                    dplyr::ungroup() %>%
@@ -213,7 +214,8 @@ calculate_ypos_for_pzero <- function(continuous) {
                                    dplyr::right_join(continuous))
 
   classrange <- suppressMessages(continuous %>%
-                                   dplyr::mutate(lower = ifelse(is.na(lower), est, lower)) %>%  # for poisson
+                                   dplyr::mutate(lower = ifelse(is.na(.data$lower),
+                                                                .data$est, .data$lower)) %>%  # for poisson
                                    dplyr::group_by(.data$item) %>%
                                    dplyr::slice_min(.data$lower, n = 1) %>%
                                    dplyr::ungroup() %>%
@@ -237,6 +239,6 @@ get_significance_level <- function(pval){
 
 get_model_estimated_class_prevalences <- function(model){
   model$class_counts$modelEstimated %>%
-    dplyr::select(-proportion) %>%
-    dplyr::mutate(class = as.character(class))
+    dplyr::select(-'proportion') %>%
+    dplyr::mutate(class = as.character(.data$class))
 }

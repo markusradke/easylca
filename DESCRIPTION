@@ -12,7 +12,6 @@ RoxygenNote: 7.3.2
 Imports: 
     dplyr,
     flextable,
-    forcats,
     ggplot2,
     magrittr,
     MplusAutomation,

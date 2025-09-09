@@ -54,7 +54,7 @@ plot_continuous_profiles <- function(profiles, ncol_plot=2){
 
 
 plot_binary_profiles <- function(profiles){
-  profiles <- dplyr::filter(profiles, plotgroup == 'binary')
+  profiles <- dplyr::filter(profiles, .data$plotgroup == 'binary')
   nclasses <- profiles$class %>% levels() %>% length()
   class_colors <- discrete_colors_for_classes[1:nclasses] # internal from package
 
