@@ -95,7 +95,6 @@ test_that('prevalences are extracted correctly', {
 
   summed_counts <- model$class_counts$modelEstimated$count %>% round() %>% sum
   sum_var3 <- profiles %>% dplyr::filter(item == 'var3') %>%
-    dplyr::mutate(count = as.integer(count)) %>%
     dplyr::summarize(sum(count)) %>% dplyr::pull()
   expect_equal(sum_var3, summed_counts)
 
@@ -106,6 +105,3 @@ test_that('prevalences are extracted correctly', {
     length()
   expect_equal(n_unique_class1_counts, 1L)
 })
-
-
-# TODO: write a test for parameter retrieval without continuos data

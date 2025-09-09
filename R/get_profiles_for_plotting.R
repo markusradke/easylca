@@ -13,9 +13,12 @@ get_profiles_for_plotting <- function(model, settings){
   } else{nominals <- c()}
 
   init <- data.frame('se' = double(), 'est_se' = double(), 'level' = integer(),
-                     'count' = double(), 'upper' = double(), 'lower' = double(),
+                     'upper' = double(), 'lower' = double(),
                      'pzero' = character(), 'yposinflation' = double())
-  dplyr::bind_rows(init, continuous, categoricals, nominals)
+  combined_profiles <- dplyr::bind_rows(init, continuous, categoricals, nominals)
+  class_prevalences <- get_model_estimated_class_prevalences(model)
+  suppressMessages(dplyr::inner_join(combined_profiles, class_prevalences)) %>%
+    dplyr::mutate(class = paste('class', class))
 }
 
 get_profile_types <- function(settings){
@@ -232,98 +235,8 @@ get_significance_level <- function(pval){
   significance
 }
 
-# ----- OLD
-# get_profiles_for_plotting <- function(model, settings){
-#   profiles <- extract_profile(model, settings)
-#   means <- get_means_from_profiles(profiles)
-#   errors <- get_errors_from_profiles(profiles, means)
-#
-#   means <- correct_negbin_poisson_means(means, settings)
-#   errors <- correct_negbin_poisson_errors(means, errors, profiles, settings)
-#   pzero <- get_pzero_from_profiles(profiles)
-#
-#   binary_indicators <- get_binary_indicators(settings)
-#   categorical <- get_categorical_from_profiles(profiles, binary_indicators)
-#
-#   continuous <- combine_continuous_items(means, errors, pzero)
-#   continuous <- calculate_ypos_for_pzero(continuous)
-#   profile_ready <- rbind(continuous, categorical)
-#   profile_ready
-# }
-#
-#
-# extract_profile<- function(model, settings){
-#   .make_empty_frame <- function(){
-#     data.frame(param = character(),
-#            item = character(),
-#            est = numeric(),
-#            se = numeric(),
-#            est_se = numeric(),
-#            pval = numeric(),
-#            segment = character(),
-#            level = numeric())
-#   }
-#   if(!is.null(model[["parameters"]][["probability.scale"]])){
-#     profile_categorical <- model[["parameters"]][["probability.scale"]] %>% as.data.frame() %>%
-#       dplyr::rename(item = 'param',
-#                     level= 'category',
-#                     segment = 'LatentClass') %>%
-#       dplyr::mutate(param = 'Probabilities') %>%
-#       dplyr::mutate(level = as.integer(.data$level)-1)
-#   }
-#   else {profile_categorical  <- .make_empty_frame()}
-#
-#   if(!is.null(model[["parameters"]][["unstandardized"]])){
-#     profile_continuous <- model[["parameters"]][["unstandardized"]] %>% as.data.frame() %>%
-#       dplyr::rename(item = 'param',
-#                     param = 'paramHeader',
-#                     segment= 'LatentClass') %>%
-#       dplyr::mutate(level = NA,
-#                     est = ifelse(.data$est == '*********', NA, .data$est),
-#                     est = as.double(.data$est)) %>%
-#       dplyr::filter(.data$param != 'Thresholds') %>%
-#       dplyr::filter(!stringr::str_detect(.data$item, 'CLASS#[0-9]+'))
-#   }
-#   else {profile_continuous <- .make_empty_frame()}
-#
-#
-#   profile <- rbind(profile_continuous, profile_categorical) %>%
-#     dplyr::mutate(est_se = as.double(ifelse(stringr::str_detect(.data$est_se, '\\*'),
-#                                             NA,
-#                                             .data$est_se))) %>%
-#     dplyr::mutate(item = tolower(.data$item),
-#                   level = as.factor(.data$level)) %>%
-#     dplyr::mutate_at(c("segment","item"), forcats::fct_inorder)
-#
-#   relative_prevalences <- round((model[["class_counts"]][["modelEstimated"]][["proportion"]]*100),
-#                                 2)
-#   levels(profile$segment) <- paste0("class ",levels(profile$segment))
-#
-#   profile$count <- profile$segment
-#   levels(profile$count) <- round(model[['class_counts']][['modelEstimated']][['count']])
-#   profile$count <- as.numeric(levels(profile$count))[as.integer(profile$count)]
-#
-#   profile %>% dplyr::mutate(significance = ifelse(.data$pval < 0.05, '*', ''),
-#                             significance = ifelse(.data$pval < 0.01, '**', .data$significance),
-#                             significance = ifelse(.data$pval < 0.001, '***', .data$significance))
-# }
-#
-#
-
-
-#
-
-
-# get_categorical_from_profiles <- function(profiles, binary_indicators) {
-#   profiles %>%
-#     dplyr::filter(.data$param == 'Probabilities') %>%
-#     dplyr::mutate(upper = NA,
-#                   lower = NA,
-#                   pzero = '',
-#                   yposinflation = NA,
-#                   plotgroup = ifelse(.data$item %in% binary_indicators,
-#                                      'binary', 'discrete'))
-# }
-#
-
-#
+get_model_estimated_class_prevalences <- function(model){
+  model$class_counts$modelEstimated %>%
+    dplyr::select(-proportion) %>%
+    dplyr::mutate(class = as.character(class))
+}
