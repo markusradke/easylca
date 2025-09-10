@@ -34,9 +34,8 @@ assert_is_folder <- function(settings){
 
 get_estimated_modeltypes <- function(settings){
   directories <- list.dirs(settings$folder_name, recursive = FALSE)
-  pattern <-paste0('(?<=', settings$folder_name,'/',
-                   settings$analysis_name, '_model)',
-                   '[1-6](?=_lca)')
+  pattern <-paste0('(?<=', settings$folder_name,
+                   '/modeltype_)[1-6]')
   types <- stringr::str_extract_all(directories, pattern) %>%
     unlist() %>% as.integer()
   if(length(types) == 0){
@@ -65,11 +64,9 @@ read_modeltypes <- function(settings, modeltypes){
 
 read_single_modeltype <- function(settings, modeltype){
   setwd(settings$folder_name)
-  analysis <- paste0(settings$analysis_name, '_model', modeltype)
-  type_folder <- paste0(analysis, '_lca')
-  message(paste0('Reading type ', modeltype, ' from folder ', type_folder, '...'))
-
-  mplus_results<- MplusAutomation::readModels(type_folder,recursive=T)
+  type_folder <- sprintf('modeltype_%d', modeltype)
+  message(paste0('Reading model type ', modeltype, '...'))
+  mplus_results<- MplusAutomation::readModels(type_folder, recursive=T)
 
   if('summaries' %in% names(mplus_results)) { # when only one class is found
     temp <- mplus_results
@@ -81,9 +78,7 @@ read_single_modeltype <- function(settings, modeltype){
     }) %>% unlist()
     names(mplus_results) <- new_names
   }
-
-  saveRDS(mplus_results,paste0(analysis,"_lca/",analysis,".rds"))
-
+  saveRDS(mplus_results,paste0(type_folder, '/', type_folder, '.rds'))
   setwd('..')
   return(mplus_results)
 }
