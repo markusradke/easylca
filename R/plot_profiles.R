@@ -1,3 +1,36 @@
+plot_class_prevalences <- function(model){
+  class_counts <- model$class_counts$modelEstimated %>%
+    dplyr::arrange(.data$count) %>%
+    dplyr::mutate(count = round(.data$count),
+                  greater100 = ifelse(.data$count > 100, T, F),
+                  class = as.factor(sprintf('class %d', .data$class)),
+                  proportion = sprintf('%.2f %%', .data$proportion * 100))
+  prop_annotation <- utils::tail(class_counts, 3)
+
+  ggplot2::ggplot(class_counts, ggplot2::aes(x = .data$count,
+                                             y = forcats::fct_inorder(.data$class)))+
+    ggplot2::geom_col(fill = 'grey') +
+    ggplot2::geom_vline(xintercept = 100, color = 'black',
+                        size = 1) +
+    ggplot2::annotate('text', x = 100, y = nrow(class_counts),
+                      label = '100', color = 'black',
+                      size = 5, hjust = -0.1) +
+    ggplot2::scale_x_continuous(expand = c(0, 0.05), position = 'top') +
+    ggplot2::geom_text(data = prop_annotation,
+                       ggplot2::aes(x = .data$count,
+                                    y = forcats::fct_inorder(.data$class),
+                                    label = .data$proportion),
+                       size = 5, color = 'white', hjust = 1.1) +
+    ggplot2::labs(x = 'model estimated count', y = '') +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(axis.title = ggplot2::element_text(color = 'grey45',
+                                                      size = 12, hjust = 0),
+                   axis.text.x = ggplot2::element_text(color = 'grey45',
+                                                       size = 10, hjust = 0),
+                   axis.text.y = ggplot2::element_text(size = 14, face = 'bold'),
+                   panel.grid = ggplot2::element_blank())
+}
+
 plot_continuous_profiles <- function(profiles, ncol_plot=2){
   profiles <- profiles %>% dplyr::filter(.data$plotgroup == 'continuous')
   nclasses <- profiles$class %>% unique() %>% length()

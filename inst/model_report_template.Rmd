@@ -45,34 +45,7 @@ Number of Parameters: `r model$summaries$Parameters`
 ## Model implicated class sizes
 
 ```{r class_sizes, echo=F, fig.height=classes*0.75}
-class_counts <- model$class_counts$modelEstimated %>% 
-  dplyr::arrange(count) %>% 
-  dplyr::mutate(count = round(count), 
-                greater100 = ifelse(count > 100, T, F),
-                class = as.factor(sprintf('class %d', class)), 
-                proportion = sprintf('%.2f %%', proportion * 100))
-prop_annotation <- tail(class_counts, 3)
-
-ggplot2::ggplot(class_counts, ggplot2::aes(x = count, 
-                                           y = forcats::fct_inorder(class)))+ 
-  ggplot2::geom_col(fill = 'grey') +
-  ggplot2::geom_vline(xintercept = 100, color = 'black', 
-                      size = 1) +
-  ggplot2::annotate('text', x = 100, y = classes, label = '100', color = 'black', 
-                    size = 5, hjust = -0.1) +
-  ggplot2::scale_x_continuous(expand = c(0, 0.05), position = 'top') + 
-  ggplot2::geom_text(data = prop_annotation, 
-                     ggplot2::aes(x = count, y = forcats::fct_inorder(class),
-                                  label = proportion), 
-                     size = 5, color = 'white', hjust = 1.1) + 
-  ggplot2::labs(x = 'model estimated count', y = '') + 
-  ggplot2::theme_minimal() + 
-  ggplot2::theme(axis.title = ggplot2::element_text(color = 'grey45', 
-                                                    size = 12, hjust = 0), 
-                 axis.text.x = ggplot2::element_text(color = 'grey45', 
-                                                     size = 10, hjust = 0), 
-                 axis.text.y = ggplot2::element_text(size = 14, face = 'bold'), 
-                 panel.grid = ggplot2::element_blank())
+plot_class_prevalences(model)
 ```
 
 ## Indicator relevance
@@ -101,12 +74,11 @@ if(n_binary > 0){
 }
 ```
 
-
 ```{r no_binary_indicators, echo=F, results='asis'}
 if(n_binary == 0){cat('There are no binary indicators.')}
 ```
 
-## Discrete indicators 
+## Discrete indicators
 
 ```{r, discrete_indicators, echo=F, fig.height=n_discrete * classes * 0.3 + 1}
 if(n_discrete > 0){
