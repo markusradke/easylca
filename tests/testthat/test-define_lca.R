@@ -166,6 +166,7 @@ test_that('Assertion nominal variables must contain only integers > 1', {
 test_that('Assertion nominal variables must contain only integers > 1 is also met with NA values', {
   data <- random_testdata
   data[1, 'var2'] <- NA
+  data[2:10, 'var2'] <- 3 # make a third level for nominal
   expect_no_condition(define_lca(data, 'test', 'id', nominal = 'var2'))
 })
 
@@ -195,4 +196,11 @@ test_that('Assertion variable have <= 8 characters', {
   data <- random_testdata %>% dplyr::rename('toolongname'='var1')
   expect_error(define_lca(data, 'test', 'id'),
                'Please make sure no variable name is longer that 8 characters.')
+})
+
+test_that('binary discrete variabels must be in categorical, not in nominal', {
+  data <- random_testdata
+
+  expect_error(define_lca(random_testdata, 'test', 'id', nominal = 'var2'),
+               'Please make sure binary variables are not listed in nominal, but in categorical: var2')
 })
