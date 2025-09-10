@@ -47,7 +47,7 @@ random_testresults <- readRDS('data-raw/testresults.rds')
 #                        poisson = 'var8',
 #                        negbin = 'var7',
 #                        inflated = c('var7', 'var4'))
-# testresults <- perform_lca(testsettings)
+# random_testresults <- perform_lca(testsettings)
 
 # other utility data for functions ----
 discrete_colors_for_classes <- Polychrome::dark.colors() # 24 distinct colors

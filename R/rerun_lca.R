@@ -109,9 +109,12 @@ rerun_specified_models <- function(easylca, models_and_starts){
   create_templates(easylca$settings)
 
   for(row in seq(nrow(models_and_starts))){
-    rerun_modeltype <- rerun_mplus_lca_single_model(easylca$settings,
-                                                    models_and_starts$modeltype[row],
-                                                    models_and_starts$classes[row])
+    rerun_modeltype <- rerun_mplus_lca_single_model(
+      easylca,
+      easylca$settings,
+      models_and_starts$modeltype[row],
+      models_and_starts$classes[row]
+    )
     name_modeltype <- paste0('modeltype_', models_and_starts$modeltype[row])
     easylca$models[[name_modeltype]] <- rerun_modeltype
   }
@@ -127,7 +130,7 @@ rerun_specified_models <- function(easylca, models_and_starts){
 }
 
 
-rerun_mplus_lca_single_model <- function(settings, modeltype, class){
+rerun_mplus_lca_single_model <- function(easylca, settings, modeltype, class){
   setwd(settings$folder_name)
   type_folder <- sprintf('modeltype_%d', modeltype)
   template_file <- sprintf('modeltype_%d_template.txt', modeltype)
@@ -145,10 +148,11 @@ rerun_mplus_lca_single_model <- function(settings, modeltype, class){
   MplusAutomation::runModels(sprintf('%s/%.2d_classes.inp', type_folder, class),
                              logFile = paste0(type_folder, '/', type_folder,'_log.txt'),
                              showOutput = FALSE, quiet= FALSE)
-
-  mplus_results<- MplusAutomation::readModels(type_folder, recursive = TRUE)
-  # TODO: check if all models in easylca object could be read for the modeltype, if not replace them
-  saveRDS(mplus_results,paste0(type_folder, '/', type_folder, '.rds'))
+  mplus_results <- MplusAutomation::readModels(type_folder, recursive = TRUE)
+  mplus_results <- make_list_if_only_one_model(mplus_results, modeltype)
+  models_for_type <- easylca$models[[sprintf('modeltype_%d', modeltype)]]
+  models_for_type <- utils::modifyList(models_for_type, mplus_results)
+  saveRDS(models_for_type,paste0(type_folder, '/', type_folder, '.rds'))
   setwd('..')
-  return(mplus_results)
+  return(models_for_type)
 }

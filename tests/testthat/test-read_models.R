@@ -51,7 +51,7 @@ if(is_mplus_installed()){
     message('Read test LCA with one class solution deleted...')
     lca <- suppressMessages(read_models(settings))
     expect_equal(length(lca$models$modeltype_3), 1)
-    expect_equal(names(lca$models$modeltype_3), 'modeltype_03.01_classes.out')
+    expect_equal(names(lca$models$modeltype_3), 'modeltype_3.01_classes.out')
 
     unlink(settings$folder_name, recursive = TRUE, force = TRUE)
   })

@@ -14,7 +14,8 @@ test_that('assert modeltype has been modeled', { # TODO only catches the case wh
 
 test_that("report generation creates file in the current wd directory",{
   generate_model_report(random_testresults, modeltype = 1, classes = 3)
-  is_file <- file.exists('modeltype-1_3-classes_test_20250909_11-15.html')
+  # please change name if chaning test results
+  is_file <- file.exists('modeltype-1_3-classes_test_20250910_17-17.html')
   expect_true(is_file)
-  if(is_file){file.remove('modeltype-1_3-classes_test_20250909_11-15.html')}
+  if(is_file){file.remove('modeltype-1_3-classes_test_20250910_17-17.html')}
 })

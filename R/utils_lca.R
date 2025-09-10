@@ -24,3 +24,15 @@ remove_remaining_templates <- function(settings){
   template_files <- files[stringr::str_detect(files, 'template.txt')]
   lapply(template_files, file.remove)
 }
+
+make_list_if_only_one_model <- function(mplus_results, modeltype){
+  if('summaries' %in% names(mplus_results)) { # when only one class is found
+    temp <- mplus_results
+    mplus_results <- list()
+    model_name <- sprintf('modeltype_%d.%.2d_classes.out',
+                          modeltype,
+                          temp$summaries$NLatentClass)
+    mplus_results[[model_name]] = temp
+  }
+  mplus_results
+}

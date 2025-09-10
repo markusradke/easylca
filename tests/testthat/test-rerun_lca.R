@@ -101,14 +101,17 @@ if(is_mplus_installed()){
   })
 }
 
-# if(is_mplus_installed()){
-#   test_that('performs reruns with a higher number of classes', {
-#     results <- rerun_lca(random_testresults,
-#                          models_and_starts = data.frame(classes = 4,
-#                                                         modeltype = 1,
-#                                                         starts = 5))
-#     out_path_14 <- paste0(get_path_from_type(settings, 1), '_lca/02_test_model4_lca.out')
-#     expect_true(file.exists(out_path_14))
-#     unlink(settings$folder_name, recursive = T)
-#   })
-# }
+if(is_mplus_installed()){
+  test_that('performs reruns with a higher number of classes', {
+    results <- rerun_lca(random_testresults,
+                         models_and_starts = data.frame(classes = 4,
+                                                        modeltype = 1,
+                                                        starts = 5))
+    out_path_14 <- paste0(get_path_from_type(random_testresults$settings, 1),
+                          '/04_classes.out')
+    expect_true('modeltype_1.03_classes.out' %in% names(results$models$modeltype_1))
+    expect_true('modeltype_1.04_classes.out' %in% names(results$models$modeltype_1))
+    expect_true(file.exists(out_path_14))
+    unlink(random_testresults$settings$folder_name, recursive = T)
+  })
+}

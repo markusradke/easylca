@@ -66,17 +66,10 @@ read_single_modeltype <- function(settings, modeltype){
   setwd(settings$folder_name)
   type_folder <- sprintf('modeltype_%d', modeltype)
   message(paste0('Reading model type ', modeltype, '...'))
-  mplus_results<- MplusAutomation::readModels(type_folder, recursive=T)
-
-  if('summaries' %in% names(mplus_results)) { # when only one class is found
-    temp <- mplus_results
-    mplus_results <- list()
-    model_name <- sprintf('%s.%.2d_classes.out',
-                          sprintf('modeltype_%.2d', modeltype),
-                          temp$summaries$NLatentClass)
-    mplus_results[[model_name]] = temp
-  }
+  mplus_results <- MplusAutomation::readModels(type_folder, recursive=T)
+  mplus_results <- make_list_if_only_one_model(mplus_results, modeltype)
   saveRDS(mplus_results,paste0(type_folder, '/', type_folder, '.rds'))
   setwd('..')
   return(mplus_results)
 }
+
