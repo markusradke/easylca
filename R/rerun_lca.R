@@ -37,6 +37,10 @@ rerun_lca <- function(easylca, models_and_starts = NULL, recursive = FALSE,
 
   counter <- 1
   easylca$settings$vlmrt_last_run <- vlmrt
+  easylca$settings <- update_settings_for_higher_classnumbers(easylca$settings,
+                                                              models_and_starts)
+
+
   easylca <- rerun_specified_models(easylca, models_and_starts)
   if(recursive & (! all(easylca$summary$replicated) | any(is.na(easylca$summary$Parameters)))){ #TODO check logic
     while(counter < 10 ){
@@ -80,6 +84,11 @@ check_assertions_models_and_starts <- function(easylca, models_and_starts){
 }
 
 
+update_settings_for_higher_classnumbers <- function(settings, models_and_starts){
+  settings$nclasses <- max(max(models_and_starts$classes), settings$nclasses)
+  settings
+}
+
 print_rerun <- function(models_and_starts){
   frameprint <- utils::capture.output(print(models_and_starts))
   message('Rerunning:\n', paste(frameprint, collapse = "\n"))
@@ -100,6 +109,7 @@ rerun_specified_models <- function(easylca, models_and_starts){
   create_templates(easylca$settings)
 
   for(row in seq(nrow(models_and_starts))){
+    browser()
     rerun_modeltype <- rerun_mplus_lca_single_model(easylca$settings,
                                                     models_and_starts$modeltype[row],
                                                     models_and_starts$classes[row])
@@ -135,6 +145,7 @@ rerun_mplus_lca_single_model <- function(settings, modeltype, class){
                              logFile=paste0(analysis,"_lca/", analysis,"_log.txt"),showOutput=F,quiet=F)
 
   mplus_results<- MplusAutomation::readModels(type_folder,recursive=T)
+  # TODO: check if all models in easylca object could be read for the modeltype, if not replace them
   saveRDS(mplus_results,paste0(analysis,"_lca/",analysis,".rds"))
   setwd('..')
   return(mplus_results)

@@ -1,3 +1,7 @@
+get_path_from_type <- function(settings, type){
+  paste0(settings$folder_name, '/', settings$analysis_name, '_model', type)
+}
+
 test_that('create correct frame if no input is supplied', {
   lca <- random_testresults
   models_and_starts <- data.frame(classes = c(3,3,3,3,3,3),
@@ -52,10 +56,6 @@ perform_test_lca <- function(settings, modeltypes){
 
 if(is_mplus_installed()){
   test_that('creates templates and performs rerun with new classes', {
-    get_path_from_type <- function(type){
-      paste0(settings$folder_name, '/', settings$analysis_name, '_model', type)
-    }
-
     settings <- define_lca(random_testdata, 'test', 'id', nclasses = 2, starts = 5,
                            use = c('var3', 'var4'))
     results <- perform_test_lca(settings, modeltypes = c(1,2))
@@ -69,11 +69,22 @@ if(is_mplus_installed()){
                   info = paste0('Did not write file for model ', i, '...'))
     }
 
-    out_path_12 <- paste0(get_path_from_type(1), '_lca/02_test_model1_lca.out')
-    out_path_21 <- paste0(get_path_from_type(2), '_lca/01_test_model2_lca.out')
+    out_path_12 <- paste0(get_path_from_type(settings, 1), '_lca/02_test_model1_lca.out')
+    out_path_21 <- paste0(get_path_from_type(settings, 2), '_lca/01_test_model2_lca.out')
     expect_true(file.exists(out_path_12))
     expect_true(file.exists(out_path_21))
     unlink(settings$folder_name, recursive = T)
   })
 }
 
+if(is_mplus_installed()){
+  test_that('performs reruns with a higher number of classes', {
+    results <- rerun_lca(random_testresults,
+                         models_and_starts = data.frame(classes = 4,
+                                                        modeltype = 1,
+                                                        starts = 5))
+    out_path_14 <- paste0(get_path_from_type(settings, 1), '_lca/02_test_model4_lca.out')
+    expect_true(file.exists(out_path_14))
+    unlink(settings$folder_name, recursive = T)
+  })
+}
