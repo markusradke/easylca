@@ -18,6 +18,7 @@ Imports:
     purrr,
     rmarkdown,
     stringr,
+    scales,
     utils,
     tidyr,
     methods,

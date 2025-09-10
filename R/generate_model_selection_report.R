@@ -16,9 +16,9 @@ generate_model_selection_report <- function(easylca){
   if(! 'easylca' %in% class(easylca)){
     stop('Please provide an object of type "easylca".')
   }
-  rmd_file <- system.file("summary_report_template.Rmd", package = "easylca")
+  rmd_file <- system.file("model_selection_report_template.Rmd", package = "easylca")
   if (!file.exists(rmd_file)) {
-    stop("Cannot find the template file for summary report generation: 'summary_report_template.Rmd'.\nPlease check your easylca installation.")
+    stop("Cannot find the template file for summary report generation: 'model_selection_report_template.Rmd'.\nPlease check your easylca installation.")
   }
   rmarkdown::render(input = rmd_file,
                     output_dir = getwd(),

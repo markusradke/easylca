@@ -65,7 +65,7 @@ select_overview_table_columns <- function(overview){
                   'p adj. VLMRT' = 'T11_LMR_PValue')
 }
 
-create_ic_plot <- function(data, measure = 'BIC'){
+plot_ic_trajectory <- function(data, measure = 'BIC'){
   not_replicated <- data %>%
     dplyr::filter(! .data$replicated)
   first_not_replicated <- not_replicated %>%

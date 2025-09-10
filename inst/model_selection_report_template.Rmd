@@ -36,11 +36,11 @@ create_modeloverview_table(data)
 ### BIC
 
 ```{r bic_plot, echo=F}
-create_ic_plot(data, 'BIC')
+plot_ic_trajectory(data, 'BIC')
 ```
 
 ### saBIC
 
 ```{r sabic_plot, echo=F}
-create_ic_plot(data, 'saBIC')
+plot_ic_trajectory(data, 'saBIC')
 ```
