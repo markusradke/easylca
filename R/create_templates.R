@@ -34,18 +34,18 @@ create_templates <- function(settings){
 create_headers <- function(settings){
   headers <- list()
   for(i in seq(6)){
-    extended_name <- paste0(settings$analysis_name, '_model', i, '_lca')
+    modeltype_folder <- paste0('modeltype_', i)
     model_header <- c('[[init]]',
                       'iterators = classes;',
                       paste0('classes = 1:', settings$nclasses, ';'),
                       paste0('classname#classes = ',
                              paste(sprintf("%02d", 1:settings$nclasses), collapse = ' '), ';'),
-                      paste0('filename = \"[[classname#classes]]_', extended_name,'.inp\";'),
-                      paste0('outputDirectory = \"', extended_name, '\";'),
+                      paste0('filename = \"[[classname#classes]]_classes.inp\";'),
+                      paste0('outputDirectory = \"', modeltype_folder, '\";'),
                       paste0('[[/init]]'),
                       '',
                       paste0('TITLE: ', settings$analysis_name, '[[classes]] classes'),
-                      paste0('DATA: FILE IS ', extended_name, '.dat;'))
+                      paste0('DATA: FILE IS ', modeltype_folder, '.dat;'))
     headers <- c(headers, list(model_header))
   }
   headers
@@ -133,14 +133,14 @@ create_analysis <- function(settings){
 create_plot_save <- function(settings){
   plot_save <- list()
   for(i in seq(6)){
-    extended_name <- paste0(settings$analysis_name, '_model', i, '_lca')
+    modeltype_folder <- paste0('modeltype_', i)
     model_plot_save <- c('OUTPUT:')
     if(settings$vlmrt_last_run) {model_plot_save <- c(model_plot_save, 'SVALUES ENTROPY TECH1 TECH4 TECH10 TECH11;')}
     else{model_plot_save <- c(model_plot_save, 'SVALUES ENTROPY TECH1 TECH4 TECH10;')}
     model_plot_save <- c(model_plot_save,
                         'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
                         'SAVEDATA:',
-                        paste0('FILE IS ', extended_name, '_[[classes]].dat'),
+                        paste0('FILE IS [[classname#classes]]_classes.dat'),
                         'SAVE = cprobabilites bchweights;')
     plot_save <- c(plot_save, list(model_plot_save))
   }

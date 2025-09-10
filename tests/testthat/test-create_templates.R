@@ -15,17 +15,17 @@ test_that('headers are created the right way from settings', {
   settings <- define_lca(random_testdata, 'test', 'id')
   headers <- list()
   for(i in seq(6)){
-    extended_name <- paste0('test_model', i, '_lca')
+    modeltype_folder <- paste0('modeltype_', i)
     model_header <- c('[[init]]',
                       'iterators = classes;',
                       'classes = 1:4;',
                       'classname#classes = 01 02 03 04;',
-                      paste0('filename = \"[[classname#classes]]_', extended_name,'.inp\";'),
-                      paste0('outputDirectory = \"', extended_name, '\";'),
+                      paste0('filename = \"[[classname#classes]]_classes.inp\";'),
+                      paste0('outputDirectory = \"', modeltype_folder, '\";'),
                       paste0('[[/init]]'),
                       '',
                       paste0('TITLE: test[[classes]] classes'),
-                      paste0('DATA: FILE IS ', extended_name, '.dat;'))
+                      paste0('DATA: FILE IS ', modeltype_folder, '.dat;'))
     headers <- c(headers, list(model_header))
   }
   expect_equal(create_headers(settings), headers)
@@ -119,12 +119,12 @@ test_that('create plot save is working correctly', {
 
   plot_save <- list()
   for(i in seq(6)){
-    extended_name <- paste0('test_model', i, '_lca')
+    modeltype_folder <- paste0('modeltype_', i)
     model_plot_save <- c('OUTPUT:',
                          'SVALUES ENTROPY TECH1 TECH4 TECH10;',
                          'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
                          'SAVEDATA:',
-                         paste0('FILE IS ', extended_name, '_[[classes]].dat'),
+                         paste0('FILE IS [[classname#classes]]_classes.dat'),
                          'SAVE = cprobabilites bchweights;')
     plot_save <- c(plot_save, list(model_plot_save))
   }
@@ -233,12 +233,12 @@ test_that('LMRLRT is added on wish', {
   settings$vlmrt_last_run <- TRUE
   plot_save <- list()
   for(i in seq(6)){
-    extended_name <- paste0('test_model',  i, '_lca')
+    modeltype_folder <- paste0('modeltype_',  i)
     model_plot_save <- c('OUTPUT:',
                          'SVALUES ENTROPY TECH1 TECH4 TECH10 TECH11;',
                          'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
                          'SAVEDATA:',
-                         paste0('FILE IS ', extended_name, '_[[classes]].dat'),
+                         paste0('FILE IS [[classname#classes]]_classes.dat'),
                          'SAVE = cprobabilites bchweights;')
     plot_save <- c(plot_save, list(model_plot_save))
   }
