@@ -3,7 +3,7 @@ test_that('creates necessary files', {
   settings$vlmrt_last_run <- FALSE
   create_templates(settings)
   for(i in seq(6)){
-    model_path <- paste0(settings$folder_name, '/', settings$analysis_name, '_model',  i, '_template.txt')
+    model_path <- paste0(settings$folder_name, '/modeltype_',  i, '_template.txt')
     expect_true(file.exists(model_path),
                 info = paste0('Did not write file for model ', i, '...'))
   }

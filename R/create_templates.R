@@ -153,6 +153,6 @@ save_templates <- function(templates, settings){
   }
   for(i in seq(6)){
     writeLines(templates[[i]],
-               paste0(settings$folder_name, '/', settings$analysis_name, '_model', i, '_template.txt'))
+               paste0(settings$folder_name, '/modeltype_', i, '_template.txt'))
   }
 }

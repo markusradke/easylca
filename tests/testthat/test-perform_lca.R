@@ -24,10 +24,10 @@ if(is_mplus_installed()){
 
 
     for(type in modeltypes){
-      model_path <- paste0(settings$folder_name, '/test_model', type, '_lca/')
-      template <- paste0(model_path, 'test_model', type, '_template.txt')
-      data <- paste0(model_path, 'test_model', type, '_lca.dat')
-      log <- paste0(model_path, 'test_model', type, '_log.txt')
+      model_path <- paste0(settings$folder_name, '/modeltype_', type, '/')
+      template <- paste0(model_path, 'modeltype_', type, '_template.txt')
+      data <- paste0(model_path, 'modeltype_', type, '.dat')
+      log <- paste0(model_path, 'modeltype_', type, '_log.txt')
 
       expect_true(file.exists(template),
                   info = paste0('Model ', type, ': Did not write file for model template ', template, '.'))
@@ -39,8 +39,10 @@ if(is_mplus_installed()){
                   info = paste0('Model ', type, ': Did not write file for model log ', log, '.'))
 
       for(class in seq(settings$nclasses)){
-        input <- paste0(model_path, class, '_test_model', type, '_lca.inp')
-        output <- paste0(model_path, class, '_test_model', type, '_lca.out')
+        input <- sprintf('%s%.2d_classes.inp', model_path, class)
+        output <- sprintf('%s%.2d_classes.out', model_path, class)
+        expect_true(file.exists(input))
+        expect_true(file.exists(output))
       }
     }
 
