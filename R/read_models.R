@@ -71,12 +71,10 @@ read_single_modeltype <- function(settings, modeltype){
   if('summaries' %in% names(mplus_results)) { # when only one class is found
     temp <- mplus_results
     mplus_results <- list()
-    mplus_results[[paste0(temp$summaries$NLatentClass, '_classes')]] = temp
-  } else {
-    new_names <- lapply(mplus_results, function(model){
-      paste0(model$summaries$NLatentClass, '_classes')
-    }) %>% unlist()
-    names(mplus_results) <- new_names
+    model_name <- sprintf('%s.%.2d_classes.out',
+                          sprintf('modeltype_%.2d', modeltype),
+                          temp$summaries$NLatentClass)
+    mplus_results[[model_name]] = temp
   }
   saveRDS(mplus_results,paste0(type_folder, '/', type_folder, '.rds'))
   setwd('..')
