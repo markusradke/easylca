@@ -59,28 +59,24 @@ mplus_lca <- function(settings, modeltype){
   setwd(settings$folder_name)
   type_folder <- sprintf('modeltype_%d', modeltype)
   template_file <- sprintf('modeltype_%d_template.txt', modeltype)
-  analysis <- paste0(settings$analysis_name, '_model', modeltype)
 
   if (!dir.exists(type_folder)) {dir.create(type_folder)}
   list.files(type_folder, include.dirs = F, full.names = T) %>% file.remove()
   file.copy(template_file, paste0(type_folder, '/', template_file))
   file.remove(template_file)
 
+  datafile <- paste0(type_folder, '/', type_folder, '.dat')
   MplusAutomation::prepareMplusData(settings$frame,
-                                    paste0(type_folder, '/', type_folder, '.dat'))
+                                    datafile)
   MplusAutomation::createModels(paste0(type_folder, '/', template_file))
   MplusAutomation::runModels(type_folder,
                              logFile = paste0(type_folder, '/', type_folder,'_log.txt'),
-                             showOutput = F, quiet = F)
-  mplus_results <- MplusAutomation::readModels(type_folder, recursive=T)
+                             showOutput = FALSE, quiet = FALSE)
+  mplus_results <- MplusAutomation::readModels(type_folder, recursive=TRUE)
   saveRDS(mplus_results,paste0(type_folder, '/', type_folder, '.rds'))
 
   setwd('..')
   return(mplus_results)
 }
 
-remove_remaining_templates <- function(settings){
-  files <- list.files(settings$folder_name, full.names = TRUE)
-  template_files <- files[stringr::str_detect(files, 'template.txt')]
-  lapply(template_files, file.remove)
-}
+

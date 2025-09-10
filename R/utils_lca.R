@@ -18,3 +18,9 @@ is_mplus_installed <- function() {
   })
   return(result)
 }
+
+remove_remaining_templates <- function(settings){
+  files <- list.files(settings$folder_name, full.names = TRUE)
+  template_files <- files[stringr::str_detect(files, 'template.txt')]
+  lapply(template_files, file.remove)
+}

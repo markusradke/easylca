@@ -109,13 +109,13 @@ rerun_specified_models <- function(easylca, models_and_starts){
   create_templates(easylca$settings)
 
   for(row in seq(nrow(models_and_starts))){
-    browser()
     rerun_modeltype <- rerun_mplus_lca_single_model(easylca$settings,
                                                     models_and_starts$modeltype[row],
                                                     models_and_starts$classes[row])
     name_modeltype <- paste0('modeltype_', models_and_starts$modeltype[row])
     easylca$models[[name_modeltype]] <- rerun_modeltype
   }
+  remove_remaining_templates(easylca$settings)
   modeltypes_in_lca <- as.integer(gsub("[^0-9]", "", names(easylca$models)))
   easylca$summary <- create_modeloverview(easylca$models,
                                           easylca$settings,
@@ -129,24 +129,26 @@ rerun_specified_models <- function(easylca, models_and_starts){
 
 rerun_mplus_lca_single_model <- function(settings, modeltype, class){
   setwd(settings$folder_name)
-  analysis <- paste0(settings$analysis_name, '_model', modeltype)
-  type_folder <- paste0(analysis, '_lca')
+  type_folder <- sprintf('modeltype_%d', modeltype)
+  template_file <- sprintf('modeltype_%d_template.txt', modeltype)
 
   if (!dir.exists(type_folder)) {dir.create(type_folder)}
-  file.copy(paste0(analysis,"_template.txt"),paste0(analysis,"_lca/"), overwrite = T)
+  file.copy(template_file, paste0(type_folder, '/', template_file),
+            overwrite = TRUE)
+  file.remove(template_file)
 
-  datafile <- paste0(analysis,"_lca/",analysis,"_lca.dat")
+  datafile <- paste0(type_folder, '/', type_folder, '.dat')
   if (! file.exists(datafile)){
     MplusAutomation::prepareMplusData(settings$frame, datafile)
   }
-  MplusAutomation::createModels(paste0(analysis,"_lca/",analysis,"_template.txt"))
+  MplusAutomation::createModels(paste0(type_folder, '/', template_file))
+  MplusAutomation::runModels(sprintf('%s/%.2d_classes.inp', type_folder, class),
+                             logFile = paste0(type_folder, '/', type_folder,'_log.txt'),
+                             showOutput = FALSE, quiet= FALSE)
 
-  MplusAutomation::runModels(paste0(type_folder, '/', sprintf("%02d", class), '_', type_folder, '.inp'),
-                             logFile=paste0(analysis,"_lca/", analysis,"_log.txt"),showOutput=F,quiet=F)
-
-  mplus_results<- MplusAutomation::readModels(type_folder,recursive=T)
+  mplus_results<- MplusAutomation::readModels(type_folder, recursive = TRUE)
   # TODO: check if all models in easylca object could be read for the modeltype, if not replace them
-  saveRDS(mplus_results,paste0(analysis,"_lca/",analysis,".rds"))
+  saveRDS(mplus_results,paste0(type_folder, '/', type_folder, '.rds'))
   setwd('..')
   return(mplus_results)
 }
