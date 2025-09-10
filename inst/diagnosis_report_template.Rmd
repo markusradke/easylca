@@ -40,33 +40,13 @@ n_row_dis_histo <- ceiling(length(discrete)/n_col_dis_histo)
 ## Missings
 
 ```{r missings_calc, echo=F}
-missings <- sapply(data %>% dplyr::select(-dplyr::all_of(idcol)),
-       function(x) 1 - length(na.omit(x)) / length(x))
-missings <- data.frame(var = names(missings), 
-                       relfreq_na = missings) %>% 
-  dplyr::arrange(dplyr::desc(relfreq_na)) %>% 
-  dplyr::filter(relfreq_na != 0) %>% 
-  dplyr::mutate(label = sprintf('%.0f%%', relfreq_na * 100))
+missings <- get_missings_frequencies(data, idcol)
 is_missings <- nrow(missings) > 0
 ```
 
 ```{r missings_plot, echo=F, fig.height=nrow(missings)*0.4+0.75, warning=F}
 if(is_missings){
-  ggplot2::ggplot(missings, ggplot2::aes(y = forcats::fct_rev(forcats::fct_inorder(var)), x = relfreq_na)) + 
-    ggplot2::geom_col(ggplot2::aes(fill = relfreq_na), show.legend = F) + 
-    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0, 0.025)),
-                                limits = c(0,1), position = 'top')+ 
-    ggplot2::scale_fill_gradientn(colors = c("grey85", "#c40d20"),
-                                  values = scales::rescale(c(0, 0.4))) + 
-    ggplot2::xlab('relative frequency of NAs') + 
-    ggplot2::ylab('')+
-    ggplot2::geom_text(ggplot2::aes(label = label), hjust = 0, nudge_x = 0.01) + 
-    ggplot2::theme_minimal() + 
-    ggplot2::theme(legend.position = 'none', 
-          panel.grid = ggplot2::element_blank(), 
-          axis.title.x = ggplot2::element_text(color = 'grey45', size = 14, hjust = 0),
-          axis.text.x = ggplot2::element_blank(), 
-          axis.text.y = ggplot2::element_text(size = 14, face = 'italic'))
+  plot_missings_frequencies(missings)
 }
 ```
 
@@ -80,33 +60,7 @@ All other indicators do not have missing values.
 
 ```{r correlations, echo=F, fig.height=length(continuous)*0.5+1.5, fig.width=length(continuous)*0.5+2, warning=F}
 if(continuous_greater_1){
-  cor_matrix <- stats::cor(data %>% 
-                             dplyr::select(all_of(continuous)),
-                           use = 'pairwise.complete.obs',
-                           method = "spearman")
-  cor_df <- as.data.frame(cor_matrix)
-  cor_long <- cor_df %>%
-    tibble::rownames_to_column(var = "Var1") %>%
-    tidyr::pivot_longer(cols = -Var1, names_to = "Var2", values_to = "value") %>% 
-    dplyr::mutate(lower_triangular = match(Var1, unique(Var1)) > match(Var2, unique(Var2)), 
-                  label = sprintf('%.2f', value), 
-      Var1 = forcats::fct_inorder(Var1), 
-      Var2 = forcats::fct_inorder(Var2))
-  
-  ggplot2::ggplot(cor_long, ggplot2::aes(Var1, Var2, 
-                                         fill = ifelse(lower_triangular,
-                                                       NA, value))) +
-    ggplot2::geom_tile(color = "white") +
-    ggplot2::scale_x_discrete(position = 'top') +
-    ggplot2::scale_fill_gradient(low = "white", high = "#c40d20",na.value = "white") +
-    ggplot2::geom_text(ggplot2::aes(label = ifelse(lower_triangular, '', label)),
-                       color = 'grey25')+
-    ggplot2::theme_minimal() +
-    ggplot2::labs(x = "", y = "") +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(size = 14, 
-                                                       angle = 45, hjust = 0), 
-                   axis.text.y = ggplot2::element_text(size = 14), 
-                   legend.position = 'none')
+  plot_spearman_correlations(data, continuous)
 } 
 ```
 
@@ -122,33 +76,7 @@ if(!continuous_greater_1){
 
 ```{r continuous_histograms, echo=F, fig.height=n_row_cont_histo*2.5+0.001,  warning=F}
 if(length(continuous)>0){
-  continuous_data <- data %>% dplyr::select(dplyr::all_of(continuous)) %>% 
-    tidyr::pivot_longer(cols = everything(),
-                        names_to = "variable", values_to = "value")
-  medians <- continuous_data %>% 
-    dplyr::group_by(variable) %>% 
-    dplyr::summarize(median = median(value, na.rm = TRUE))
-  
-  n_bins <- 80
-  ggplot2::ggplot(continuous_data, 
-                  ggplot2::aes(x = value)) + 
-    ggplot2::geom_histogram(fill = 'grey45', bins = n_bins, na.rm = T) +
-    ggplot2::geom_vline(data = medians,
-                        ggplot2::aes(xintercept = median), 
-                        color = '#c40d20', linewidth = 0.75) + 
-    ggplot2::facet_wrap(~ variable, 
-                        ncol = n_col_cont_histo,
-                        scales = 'free')+ 
-    ggplot2::theme_minimal() + 
-    ggplot2::labs(y = 'frequency', 
-                  subtitle = 'median') +
-    ggplot2:::theme(strip.text = ggplot2::element_text(size = 14, face = 'bold', 
-                                              hjust = 0),
-                    plot.subtitle = ggplot2::element_text(size = 10,
-                                                          color = '#c40d20'),
-                    axis.title = ggplot2::element_text(color = 'grey45'),
-                    axis.text = ggplot2::element_text(color = 'grey45'), 
-                    panel.grid = ggplot2::element_blank())
+  plot_continuous_histograms(data, continuous, n_col_cont_histo)
 }
 ```
 
@@ -160,23 +88,7 @@ if(! is_continuous){cat('There are no continuous indicators.')}
 
 ```{r continuous_distribution_parameters, echo=F, fig.height=length(continuous)*0.4+0.75, warning=F}
 if(length(continuous)>1){
-  iqrs <- continuous_data %>% dplyr::group_by(variable) %>% 
-    dplyr::summarize(iqr = IQR(value, na.rm = T) * 1.5) %>%  # equals variance for Gaussian
-    dplyr::arrange(-iqr)
-  ggplot2::ggplot(iqrs, ggplot2::aes(x = iqr, y = forcats::fct_rev(forcats::fct_inorder(variable)))) + 
-    ggplot2::geom_col(fill = 'grey45') +
-    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.0, 
-                                                                     0.05)), 
-                                position = 'top')+
-    ggplot2::xlab('Interquartile range (IQR) x 1.5') + 
-    ggplot2::ylab('')+
-    ggplot2::theme_minimal() + 
-    ggplot2::theme(axis.text.x = ggplot2::element_text(color = 'grey45'), 
-                   panel.grid = ggplot2::element_blank(), 
-                   axis.title.x = ggplot2::element_text(color = 'grey45', 
-                                                        hjust = 0, 
-                                                        size = 14), 
-                   axis.text.y = ggplot2::element_text(size = 14, face = 'italic'))
+  plot_continuous_iqrs(data, continuous)
 }
 ```
 
@@ -188,41 +100,7 @@ if(! continuous_greater_1){cat('There are less than 2 continuous indicators. Thu
 
 ```{r discrete_histograms, echo=F, fig.height=n_row_dis_histo * 2.5+0.001,  warning=F}
 if(length(discrete)>0){
-  discrete_data <- data %>% dplyr::select(dplyr::all_of(discrete)) %>% 
-    tidyr::pivot_longer(cols = everything(),
-                        names_to = "variable", values_to = "value")
-  modus <- discrete_data %>% 
-    dplyr::count(.data$variable, .data$value) %>% 
-    dplyr::group_by(.data$variable) %>% 
-    dplyr::slice_max(n = 1, order_by = .data$n) %>% 
-    dplyr::select('variable', 'value') %>% 
-    dplyr::mutate(modus = TRUE)
-  
-  discrete_data <- suppressMessages(dplyr::left_join(discrete_data, modus)) %>% 
-    dplyr::mutate(modus = ifelse(is.na(.data$modus), FALSE, modus))
-  
-  ggplot2::ggplot(discrete_data,
-                  ggplot2::aes(y = as.factor(.data$value),
-                               fill = .data$modus)) +
-    ggplot2::geom_bar(stat = 'count',
-                      na.rm = T) +
-    ggplot2::scale_fill_manual(values = c('grey45', '#c40d20')) +
-    ggplot2::labs(x = 'frequency', y = '', 
-                  subtitle = 'modus') +
-    ggplot2::facet_wrap(~ variable,
-                        ncol = n_col_dis_histo,
-                        scales = 'free_y') +
-    ggplot2::theme_minimal() +
-    ggplot2:::theme(strip.text = ggplot2::element_text(size = 12, face = 'bold',
-                                              hjust = 0),
-                    plot.subtitle = ggplot2::element_text(size = 10,
-                                                          color = '#c40d20'),
-                    legend.position = 'none',
-                    axis.title = ggplot2::element_text(color = 'grey45'),
-                    axis.text.y = ggplot2::element_text(size =  12, 
-                                                        color = 'black'),
-                    axis.text.x = ggplot2::element_text(color = 'grey45'),
-                    panel.grid = ggplot2::element_blank())
+  plot_discrete_histograms(data, discrete, n_row_dis_histo)
 } 
 ```
 

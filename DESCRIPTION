@@ -16,11 +16,13 @@ Imports:
     magrittr,
     MplusAutomation,
     purrr,
+    stats,
     rmarkdown,
     stringr,
     scales,
     utils,
     tidyr,
+    tibble,
     methods,
     forcats
 Suggests: 

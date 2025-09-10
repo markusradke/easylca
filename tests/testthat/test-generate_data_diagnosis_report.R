@@ -50,4 +50,9 @@ test_that("report generation creates file in the current wd directory",{
   is_file <- file.exists('data_diagnosis_testreport.html')
   expect_true(is_file)
   if(is_file){file.remove('data_diagnosis_testreport.html')}
+
+  generate_data_diagnosis_report(titanic_passengers, 'id', 'testreport')
+  is_file <- file.exists('data_diagnosis_testreport.html')
+  expect_true(is_file)
+  if(is_file){file.remove('data_diagnosis_testreport.html')}
 })
