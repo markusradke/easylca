@@ -161,6 +161,16 @@ define_lca <- function(frame,
     if(any(colnames(lca$frame) %>% stringr::str_length() >8)){
       stop('Please make sure no variable name is longer that 8 characters.')
     }
+
+    is_any_nominal_binary <- sapply(lca$frame[lca$nominal],
+                                    function(x) length(unique(x[!is.na(x)])) < 3) %>%
+      as.logical()
+    binary_nominal <- lca$nominal[is_any_nominal_binary]
+
+    if(length(binary_nominal) > 0){
+      stop(sprintf('Please make sure binary discrete variables are not listed in nominal, but in categorical: %s',
+                   paste(binary_nominal, collapse = ', ')))
+    }
   }
 
   check_discrete_values <- function(frame, categorical) {

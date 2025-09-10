@@ -200,7 +200,6 @@ test_that('Assertion variable have <= 8 characters', {
 
 test_that('binary discrete variabels must be in categorical, not in nominal', {
   data <- random_testdata
-
   expect_error(define_lca(random_testdata, 'test', 'id', nominal = 'var2'),
-               'Please make sure binary variables are not listed in nominal, but in categorical: var2')
+               'Please make sure binary discrete variables are not listed in nominal, but in categorical: var2')
 })
