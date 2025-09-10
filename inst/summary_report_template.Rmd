@@ -21,12 +21,6 @@ if(! 'T11_VLMR_PValue' %in% colnames(data)){
 if(! 'T11_LMR_PValue' %in% colnames(data)){
   data$T11_LMR_PValue <- 'not calculated'
 }
-
-not_replicated <- data %>% 
-  dplyr::filter(! replicated)
-first_not_replicated <- not_replicated %>% 
-  dplyr::arrange(classes) %>% dplyr::first() %>% 
-  dplyr::select(classes, BIC, saBIC)
 ```
 
 ## Models overview
@@ -42,67 +36,11 @@ create_modeloverview_table(data)
 ### BIC
 
 ```{r bic_plot, echo=F}
-bic_plot <- ggplot2::ggplot(data, ggplot2::aes(x = classes, 
-                                   y = BIC, 
-                                   color = as.factor(modeltype))) +
-  ggplot2::geom_line(linewidth = 1, alpha = 0.8) +  
-  ggplot2::geom_point(data = not_replicated, color = 'red', size = 2)+ 
-  ggplot2::theme_minimal() +
-  ggplot2::scale_color_discrete(name = 'type') + 
-  ggplot2::scale_y_continuous(labels = scales::comma_format(big.mark = ','))+
-  ggplot2::scale_x_continuous(breaks = seq(max(data$classes))) + 
-  ggplot2::labs(x = '# of classes',
-                y = 'BIC') +
-  ggplot2::theme(panel.grid = ggplot2::element_blank(),
-                 axis.title = ggplot2::element_text(color = 'grey45'), 
-                 axis.text.y = ggplot2::element_text(color = 'grey45'), 
-                 axis.text.x = ggplot2::element_text(face = 'bold'),
-                 legend.title = ggplot2::element_text(color = 'grey45'), 
-                 legend.text = ggplot2::element_text(color = 'grey45'), 
-                 legend.position = 'top', 
-                 legend.justification = 'left') 
-
-if(nrow(not_replicated) > 0){
-  bic_plot <- bic_plot + 
-    ggplot2::geom_text(data = first_not_replicated, 
-            ggplot2::aes(x = classes, y = BIC, label = "not replicated"), 
-            color = "red", 
-            hjust = 0, 
-            vjust = -3) 
-}
-bic_plot
+create_ic_plot(data, 'BIC')
 ```
 
 ### saBIC
 
 ```{r sabic_plot, echo=F}
-sabic_plot <- ggplot2::ggplot(data, ggplot2::aes(x = classes, 
-                                   y = saBIC, 
-                                   color = as.factor(modeltype))) +
-  ggplot2::geom_line(linewidth = 1, alpha = 0.8) +  
-  ggplot2::geom_point(data = not_replicated, color = 'red', size = 2)+ 
-  ggplot2::theme_minimal() +
-  ggplot2::scale_color_discrete(name = 'type') + 
-  ggplot2::scale_y_continuous(labels = scales::comma_format(big.mark = ','))+
-  ggplot2::scale_x_continuous(breaks = seq(max(data$classes))) + 
-  ggplot2::labs(x = '# of classes',
-                y = 'saBIC') +
-  ggplot2::theme(panel.grid = ggplot2::element_blank(),
-                 axis.title = ggplot2::element_text(color = 'grey45'), 
-                 axis.text.y = ggplot2::element_text(color = 'grey45'), 
-                 axis.text.x = ggplot2::element_text(face = 'bold'),
-                 legend.title = ggplot2::element_text(color = 'grey45'), 
-                 legend.text = ggplot2::element_text(color = 'grey45'), 
-                 legend.position = 'top', 
-                 legend.justification = 'left') 
-
-  if(nrow(not_replicated) > 0){
-  sabic_plot <- sabic_plot + 
-    ggplot2::geom_text(data = first_not_replicated, 
-            ggplot2::aes(x = classes, y = saBIC, label = "not replicated"), 
-            color = "red", 
-            hjust = 0, 
-            vjust = -3) 
-  }
-sabic_plot
+create_ic_plot(data, 'saBIC')
 ```

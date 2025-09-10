@@ -64,3 +64,42 @@ select_overview_table_columns <- function(overview){
                   'p VLMRT' = 'T11_VLMR_PValue',
                   'p adj. VLMRT' = 'T11_LMR_PValue')
 }
+
+create_ic_plot <- function(data, measure = 'BIC'){
+  not_replicated <- data %>%
+    dplyr::filter(! .data$replicated)
+  first_not_replicated <- not_replicated %>%
+    dplyr::arrange(.data$classes) %>% dplyr::first()
+
+  plot <- ggplot2::ggplot(data, ggplot2::aes(x = .data$classes,
+                                     y = .data[[measure]],
+                                     color = as.factor(.data$modeltype))) +
+    ggplot2::geom_line(linewidth = 1, alpha = 0.8) +
+    ggplot2::geom_point(data = not_replicated, color = 'red', size = 2)+
+    ggplot2::theme_minimal() +
+    ggplot2::scale_color_discrete(name = 'type') +
+    ggplot2::scale_y_continuous(labels = scales::comma_format(big.mark = ','))+
+    ggplot2::scale_x_continuous(breaks = seq(max(data$classes))) +
+    ggplot2::labs(x = '# of classes',
+                  y = measure) +
+    ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                   axis.title = ggplot2::element_text(color = 'grey45'),
+                   axis.text.y = ggplot2::element_text(color = 'grey45'),
+                   axis.text.x = ggplot2::element_text(face = 'bold'),
+                   legend.title = ggplot2::element_text(color = 'grey45'),
+                   legend.text = ggplot2::element_text(color = 'grey45'),
+                   legend.position = 'top',
+                   legend.justification = 'left')
+
+  if(nrow(not_replicated) > 0){
+    plot <- plot +
+      ggplot2::geom_text(data = first_not_replicated,
+                         ggplot2::aes(x = .data$classes,
+                                      y = .data[[measure]],
+                                      label = "not replicated"),
+                         color = "red",
+                         hjust = 0,
+                         vjust = -3)
+  }
+  plot
+}
