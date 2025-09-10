@@ -18,8 +18,7 @@ test_that('looks up which model types were estimated', {
   create_modeltype_folders <- function(settings, types){
     for(i in types){
       dir.create(paste0(settings$folder_name,
-                        '/', settings$analysis_name,
-                        '_model', i, '_lca'))
+                        '/modeltype_', i))
     }
     return(NULL)
   }
@@ -48,10 +47,7 @@ if(is_mplus_installed()){
     expect_equal(names(lca), c('settings', 'models', 'summary'))
     expect_equal(names(lca$models), c('modeltype_1', 'modeltype_3'))
 
-    file.remove(paste0(settings$folder_name,
-                       '/', settings$analysis_name,
-                       '_model3_lca/02_', settings$analysis_name,
-                       '_model3_lca.out'))
+    file.remove(paste0(settings$folder_name, '/modeltype_3/02_classes.out'))
     message('Read test LCA with one class solution deleted...')
     lca <- suppressMessages(read_models(settings))
     expect_equal(length(lca$models$modeltype_3), 1)
