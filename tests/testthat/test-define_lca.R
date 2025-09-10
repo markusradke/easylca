@@ -6,7 +6,7 @@ test_that('definition returns object of class lca_settings', {
 test_that('variable names in settings environment are correct', {
   lcasettings <- define_lca(random_testdata, 'test', 'id')
   varnames <- c('analysis_name','folder_name', 'use', 'categorical', 'nominal', 'censored_above', 'censored_below', 'cores', 'correlate', 'frame', 'freevariance', 'id', 'weights',
-                'inflated', 'lmrlrt', 'names', 'nclasses', 'negbin', 'poisson', 'starts', 'auxvariables')
+                'inflated', 'vlmrt_last_run', 'names', 'nclasses', 'negbin', 'poisson', 'starts', 'auxvariables')
   expect_setequal(ls(lcasettings), varnames)
 })
 
@@ -24,7 +24,7 @@ test_that('variables classes in settings environment are correct',{
                         'freevariance' = 'character',
                         'id' = 'character',
                         'inflated' = 'character',
-                        'lmrlrt' = 'logical',
+                        'vlmrt_last_run' = 'logical',
                         'names' = 'character',
                         'nclasses' = 'integer',
                         'negbin' = 'character',

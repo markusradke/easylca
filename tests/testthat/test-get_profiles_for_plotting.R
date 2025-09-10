@@ -20,12 +20,14 @@ test_that('indicator classes get identified correctly', {
 
 test_that('get binary indicators returns correct indicators', {
   temp_data <- random_testdata[3:5,]
+  temp_data$var2 <- c(1,2,3)
+  temp_data$var7 <- c(1,2,3)
   settings <- define_lca(frame = temp_data,
                          analysis_name = 'test', id_variable = 'id',
-                         categorical = 'var1',
-                         nominal = 'var2', 'var7')
+                         categorical = c('var1','var2'),
+                         nominal = 'var7')
   res <- get_binary_indicators(settings)
-  expect_setequal(res, c('var1', 'var2'))
+  expect_setequal(res, c('var1'))
 })
 
 test_that('profile retrieval for categorical variables works', {

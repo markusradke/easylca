@@ -19,7 +19,6 @@
 #' @param inflated Character vector with all zero-inflated variables (can only be censored or poisson, negbin). Inflation is always assumed to vary between classes.
 #' @param poisson Character vector with all poisson-distributed variables. Poisson-distributed variables must be positive integers.
 #' @param negbin Character vector with all negative-binomial-distributed variables. Negative-binomial-distributed variables must be positive integers.
-#' @param lmrlrt Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.
 #'
 #' @return Environment with settings for the LCA that can be passed to the [perform_lca()] command.
 #' @export
@@ -33,7 +32,6 @@
 #'  categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
 #'  starts = 160,
 #'  cores = 16,
-#'  lmrlrt = FALSE
 #' )
 
 define_lca <- function(frame,
@@ -50,8 +48,7 @@ define_lca <- function(frame,
                        censored_below = character(),
                        inflated = character(),
                        poisson = character(),
-                       negbin = character(),
-                       lmrlrt = FALSE){
+                       negbin = character()){
 
   create_lca_environment <- function(lca){
     lca$names <- colnames(lca$frame)
@@ -196,7 +193,7 @@ define_lca <- function(frame,
               inflated = inflated,
               poisson = poisson,
               negbin = negbin,
-              lmrlrt = lmrlrt)
+              vlmrt_last_run = NA)
 
 
   lca <- create_lca_environment(lca)

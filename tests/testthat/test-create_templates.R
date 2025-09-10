@@ -1,7 +1,7 @@
 test_that('creates necessary files', {
   settings <- define_lca(random_testdata, 'test', 'id')
+  settings$vlmrt_last_run <- FALSE
   create_templates(settings)
-
   for(i in seq(6)){
     model_path <- paste0(settings$folder_name, '/', settings$analysis_name, '_model',  i, '_template.txt')
     expect_true(file.exists(model_path),
@@ -44,7 +44,9 @@ test_that('variables specs are created the right way from settings',{
   variable_settings <- rep(list(variable_settings), 6) %>% as.list()
   expect_equal(create_variable_specs(settings), variable_settings)
 
-  settings <- define_lca(random_testdata, 'test', 'id', use = c('var1', 'var2', 'var3', 'var4'),
+  data <- random_testdata
+  data[1:10, 'var1'] <- 3
+  settings <- define_lca(data, 'test', 'id', use = c('var1', 'var2', 'var3', 'var4'),
                          nominal = 'var1',
                          categorical = 'var2')
   variable_settings <- c('VARIABLE:',
@@ -113,6 +115,7 @@ test_that('variables specs are created the right way from settings',{
 
 test_that('create plot save is working correctly', {
   settings <- define_lca(random_testdata, 'test', 'id')
+  settings$vlmrt_last_run <- FALSE
 
   plot_save <- list()
   for(i in seq(6)){
@@ -226,7 +229,8 @@ test_that('create analysis is working correctly', {
 })
 
 test_that('LMRLRT is added on wish', {
-  settings <- define_lca(random_testdata, 'test', 'id', lmrlrt = TRUE)
+  settings <- define_lca(random_testdata, 'test', 'id')
+  settings$vlmrt_last_run <- TRUE
   plot_save <- list()
   for(i in seq(6)){
     extended_name <- paste0('test_model',  i, '_lca')

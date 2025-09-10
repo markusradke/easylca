@@ -19,8 +19,7 @@ define_lca(
   censored_below = character(),
   inflated = character(),
   poisson = character(),
-  negbin = character(),
-  lmrlrt = FALSE
+  negbin = character()
 )
 }
 \arguments{
@@ -53,8 +52,6 @@ define_lca(
 \item{poisson}{Character vector with all poisson-distributed variables. Poisson-distributed variables must be positive integers.}
 
 \item{negbin}{Character vector with all negative-binomial-distributed variables. Negative-binomial-distributed variables must be positive integers.}
-
-\item{lmrlrt}{Logical indicating wether to perform the Lo-Mendell-Rubin Likelihood Ratio Test. Attention: Takes a lot of time to perform.}
 }
 \value{
 Environment with settings for the LCA that can be passed to the \code{\link[=perform_lca]{perform_lca()}} command.
@@ -72,6 +69,5 @@ titanic_settings <- define_lca(
  categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
  starts = 160,
  cores = 16,
- lmrlrt = FALSE
 )
 }

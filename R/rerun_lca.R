@@ -1,18 +1,19 @@
 #' Rerun LCA
 #'
-#' Rerun LCA with other start values to get replicated results.
+#' Rerun LCA that was initially conducted with the [perform_lca()] command with other start values to get replicated results.
 #' Inspect the results with [generate_model_selection_report()], [generate_model_report()], and [get_prediction_for_model()].
 #'
 #' @param easylca easylca object obtained from the [perform_lca()] or [rerun_lca()] command.
 #' @param models_and_starts models to rerun with new start values. Must be a data.frame with columns: classes, modeltype, starts. If NULL (default) will rerun all models that were not replicated with doubled number of starts.
 #' @param recursive If TRUE will repeat the rerun process while doubling the number of starts until all models are converged and replicated (maximum number of 10 repeats).
+#' @param vlmrt Logical indicating wether to perform a Likelihood Ratio Test for class enumaration. The test was proposed by Lo, Mendell, & Rubin (2001) based on work by Vuong (1989). Attention: Takes a lot of time to perform.
 #'
 #' @return easylca object with updated values
 #' @export
-#'
+#' @seealso [perform_lca()]
 #' @examples
 #' # takes a while to compute
-#' #lca <- perform_lca(titanlic_settings, modeltypes = c(1,2))
+#' # lca <- perform_lca(titanlic_settings, modeltypes = c(1,2))
 #'
 #' # automatic update of start values and choice of models
 #' # rerun_lca(lca)
@@ -22,7 +23,8 @@
 #'
 #' # repeat until all converged and replicated (max. 10 times)
 #' # rerun_lca(lca, recursive = TRUE)
-rerun_lca <- function(easylca, models_and_starts = NULL, recursive = FALSE){
+rerun_lca <- function(easylca, models_and_starts = NULL, recursive = FALSE,
+                      vlmrt = FALSE){
   if(! is_mplus_installed()){stop('Please make sure that Mplus is installed on this computer. It cannot be detected by the MplusAutomation package.')}
   if(! methods::is(easylca, 'easylca')){
     stop('Please make sure to supply an object of type "easylca" as input to the rerun_lca function. \n"easylca" objects can be obtained through the perform_lca command.')
@@ -34,6 +36,7 @@ rerun_lca <- function(easylca, models_and_starts = NULL, recursive = FALSE){
   print_rerun(models_and_starts)
 
   counter <- 1
+  easylca$settings$vlmrt_last_run <- vlmrt
   easylca <- rerun_specified_models(easylca, models_and_starts)
   if(recursive & (! all(easylca$summary$replicated) | any(is.na(easylca$summary$Parameters)))){ #TODO check logic
     while(counter < 10 ){

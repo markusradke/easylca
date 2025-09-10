@@ -4,18 +4,20 @@
 \alias{perform_lca}
 \title{Perform LCA}
 \usage{
-perform_lca(settings, modeltypes = seq(6))
+perform_lca(settings, modeltypes = seq(6), vlmrt = FALSE)
 }
 \arguments{
 \item{settings}{Settings for the lca, including data, variable specification, and additional technical specifications. Please use the \code{\link[=define_lca]{define_lca()}} command to generate the settings and refer to its documentation for further details.}
 
 \item{modeltypes}{Modeltypes to perform the LCA for. Defaults to all 6 model types.}
+
+\item{vlmrt}{Logical indicating wether to perform a Likelihood Ratio Test for class enumaration. The test was proposed by Lo, Mendell, & Rubin (2001) based on work by Vuong (1989). Attention: Takes a lot of time to perform.}
 }
 \value{
 easylca object that contains settings, models, and plots
 }
 \description{
-Performs the LCA with the settings provided and saves diagnostic plots for all combinations of model types and classes as well as a summary of all models for model choice.
+Performs the LCA with the settings specified via the \code{\link[=define_lca]{define_lca()}} command for all given combinations of model types and classes. If wished for, a likelihood ratio test is performed for later model selection.
 There are 6 modeltypes that can be estimated :
 \enumerate{
 \item Equal variances across classes, and covariances fixed to
@@ -27,7 +29,7 @@ There are 6 modeltypes that can be estimated :
 }
 }
 \details{
-Inspect the results with \code{\link[=generate_model_selection_report]{generate_model_selection_report()}}, \code{\link[=generate_model_report]{generate_model_report()}}, and \code{\link[=get_prediction_for_model]{get_prediction_for_model()}}.
+Inspect the results with \code{\link[=generate_model_selection_report]{generate_model_selection_report()}}, \code{\link[=generate_model_report]{generate_model_report()}}, and \code{\link[=get_prediction_for_model]{get_prediction_for_model()}}. Rerun the model if not replicated with \code{\link[=rerun_lca]{rerun_lca()}}.
 }
 \examples{
 # for more model types, add them to the modeltype vector, take a while to compute

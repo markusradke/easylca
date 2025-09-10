@@ -135,7 +135,7 @@ create_plot_save <- function(settings){
   for(i in seq(6)){
     extended_name <- paste0(settings$analysis_name, '_model', i, '_lca')
     model_plot_save <- c('OUTPUT:')
-    if(settings$lmrlrt) {model_plot_save <- c(model_plot_save, 'SVALUES ENTROPY TECH1 TECH4 TECH10 TECH11;')}
+    if(settings$vlmrt_last_run) {model_plot_save <- c(model_plot_save, 'SVALUES ENTROPY TECH1 TECH4 TECH10 TECH11;')}
     else{model_plot_save <- c(model_plot_save, 'SVALUES ENTROPY TECH1 TECH4 TECH10;')}
     model_plot_save <- c(model_plot_save,
                         'PLOT: TYPE=PLOT1 PLOT2 PLOT3;',
