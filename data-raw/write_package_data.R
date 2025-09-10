@@ -24,8 +24,7 @@ titanic_settings <- define_lca(frame = titanic_passengers,
                                nominal = c('port', 'pasclass'),
                                categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
                                starts = 80,
-                               cores = 16,
-                               lmrlrt = F)
+                               cores = 16)
 
 titanic_lca_results <- readRDS('data-raw/titanic_lca_results.rds')
 # titanic_res <- perform_lca(titanic_settings, modeltypes = 1)
