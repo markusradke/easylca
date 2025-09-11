@@ -3,7 +3,7 @@ title: "*easylca* model report report for `r params$easylca$settings$folder_name
 date: "*created `r format(Sys.time(), '%H:%M, %B %d, %Y')`*"
 output: 
   html_document:
-    css: summary_report_template.css
+    css: model_report_template.css
 params:
   easylca: NULL
   modeltype: NULL
@@ -40,12 +40,22 @@ Number of Parameters: `r model$summaries$Parameters`
 
 `r n_continuous` continuous indicators, `r n_binary + n_discrete` discrete indicators (`r n_binary` of these binary)
 
-**Model Entropy: `r model$summaries$Entropy`**
+## Model Entropy
+
+`r model$summaries$Entropy`
 
 ## Model implicated class sizes
 
 ```{r class_sizes, echo=F, fig.height=classes*0.75}
 plot_class_prevalences(model)
+```
+
+## Mean class assignement probabilites (posterior)
+
+[from high to low mean probability:]{style="color: #737373;"}
+
+```{r assignement_probabilities, echo=F}
+create_mean_assignement_probabilities_table(model)
 ```
 
 ## Indicator relevance

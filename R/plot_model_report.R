@@ -95,6 +95,34 @@ plot_kruskal_profiles <- function(model){
                    axis.text.x = ggplot2::element_text(size = 10, color = 'grey45', hjust = 0))
 }
 
+create_mean_assignement_probabilities_table <- function(model){
+  prediction_probabilites <- model$savedata %>%
+    dplyr::mutate(cprob = apply(dplyr::select(., dplyr::starts_with('CPROB')),
+                                1, max, na.rm = TRUE)) %>%
+    dplyr::select(class = 'CLASS', 'cprob')
+  mean_assignement_probabilites <- prediction_probabilites %>%
+    dplyr::group_by(.data$class) %>%
+    dplyr::summarize(mean_prob = mean(.data$cprob)) %>%
+    dplyr::arrange(-.data$mean_prob)
+
+  class_colors <- discrete_colors_for_classes[mean_assignement_probabilites$class] # internal from package
+  formatted_probabilites <- mean_assignement_probabilites %>%
+    dplyr::mutate(
+      class = sprintf('class %d', class),
+      class = forcats::fct_inorder(class),
+      mean_prob = sprintf('%.1f%%', mean_prob * 100))
+
+  flextable::flextable(formatted_probabilites) %>%
+    flextable::delete_part('header') %>%
+    flextable::border_remove() %>%
+    flextable::fontsize(size = 14) %>%
+    flextable::bold(j = 1) %>%
+    flextable::color(j = 1, color = class_colors) %>%
+    flextable::set_table_properties(layout = "autofit",
+                                    align = 'left')
+
+}
+
 plot_continuous_profiles <- function(profiles, ncol_plot=2){
   profiles <- profiles %>% dplyr::filter(.data$plotgroup == 'continuous')
   nclasses <- profiles$class %>% unique() %>% length()
