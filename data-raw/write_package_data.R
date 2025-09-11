@@ -1,4 +1,6 @@
+rm(list=ls())
 library(devtools)
+load_all()
 
 # titanic passengers example data set ----
 ports_lookup <- c('S' = 1, 'C' = 2, 'Q' = 3) # Southhampton, Cherbourg, Queenstown
@@ -27,7 +29,6 @@ titanic_settings <- define_lca(frame = titanic_passengers,
                                cores = 16)
 
 titanic_lca_results <- readRDS('data-raw/titanic_lca_results.rds')
-# titanic_res <- perform_lca(titanic_settings, modeltypes = 1)
 
 # small random test data for testing ----
 random_testdata <- readRDS('data-raw/testdata.rds')
@@ -64,3 +65,4 @@ use_data(random_testdata,
          discrete_colors_for_classes,
          internal = T,
          overwrite = T)
+rm(list=ls())
