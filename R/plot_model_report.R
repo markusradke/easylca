@@ -2,20 +2,26 @@ plot_class_prevalences <- function(model){
   class_counts <- model$class_counts$modelEstimated %>%
     dplyr::arrange(.data$count) %>%
     dplyr::mutate(count = round(.data$count),
-                  greater100 = ifelse(.data$count > 100, T, F),
-                  class = as.factor(sprintf('class %d', .data$class)),
-                  proportion = sprintf('%.2f %%', .data$proportion * 100))
-  prop_annotation <- utils::tail(class_counts, 3)
+                  greater100 = ifelse(.data$count > 100, T, F))
+  class_colors <- discrete_colors_for_classes[class_counts$class] # internal from package
+  class_counts_formatted <- class_counts %>%
+    dplyr::mutate(
+      class = forcats::fct_inorder(sprintf('class %d', .data$class)),
+      proportion = sprintf('%.2f %%', .data$proportion * 100)
+    )
+  prop_annotation <- utils::tail(class_counts_formatted, 3)
 
-  ggplot2::ggplot(class_counts, ggplot2::aes(x = .data$count,
-                                             y = forcats::fct_inorder(.data$class)))+
-    ggplot2::geom_col(fill = 'grey') +
+  ggplot2::ggplot(class_counts_formatted, ggplot2::aes(x = .data$count,
+                                             y = .data$class,
+                                             fill = .data$class))+
+    ggplot2::geom_col() +
     ggplot2::geom_vline(xintercept = 100, color = 'black',
                         size = 1) +
-    ggplot2::annotate('text', x = 100, y = nrow(class_counts),
+    ggplot2::annotate('text', x = 100, y = nrow(class_counts_formatted),
                       label = '100', color = 'black',
                       size = 5, hjust = -0.1) +
     ggplot2::scale_x_continuous(expand = c(0, 0.05), position = 'top') +
+    ggplot2::scale_fill_manual(values = class_colors) +
     ggplot2::geom_text(data = prop_annotation,
                        ggplot2::aes(x = .data$count,
                                     y = forcats::fct_inorder(.data$class),
@@ -23,12 +29,41 @@ plot_class_prevalences <- function(model){
                        size = 5, color = 'white', hjust = 1.1) +
     ggplot2::labs(x = 'model estimated count', y = '') +
     ggplot2::theme_minimal() +
-    ggplot2::theme(axis.title = ggplot2::element_text(color = 'grey45',
-                                                      size = 12, hjust = 0),
-                   axis.text.x = ggplot2::element_text(color = 'grey45',
-                                                       size = 10, hjust = 0),
-                   axis.text.y = ggplot2::element_text(size = 14, face = 'bold'),
-                   panel.grid = ggplot2::element_blank())
+    ggplot2::theme(
+      legend.position = 'none',
+      axis.title = ggplot2::element_text(color = 'grey45', size = 12, hjust = 0),
+      axis.text.x = ggplot2::element_text(color = 'grey45', size = 10, hjust = 0),
+      axis.text.y = ggplot2::element_text(size = 14, face = 'bold'),
+      panel.grid = ggplot2::element_blank()
+    )
+}
+
+create_mean_assignement_probabilities_table <- function(model){
+  prediction_probabilites <- model$savedata %>%
+    dplyr::mutate(cprob = apply(dplyr::select(., dplyr::starts_with('CPROB')),
+                                1, max, na.rm = TRUE)) %>%
+    dplyr::select(class = 'CLASS', 'cprob')
+  mean_assignement_probabilites <- prediction_probabilites %>%
+    dplyr::group_by(.data$class) %>%
+    dplyr::summarize(mean_prob = mean(.data$cprob)) %>%
+    dplyr::arrange(-.data$mean_prob)
+
+  class_colors <- discrete_colors_for_classes[mean_assignement_probabilites$class] # internal from package
+  formatted_probabilites <- mean_assignement_probabilites %>%
+    dplyr::mutate(
+      class = sprintf('class %d', class),
+      class = forcats::fct_inorder(class),
+      mean_prob = sprintf('%.1f%%', mean_prob * 100))
+
+  flextable::flextable(formatted_probabilites) %>%
+    flextable::delete_part('header') %>%
+    flextable::border_remove() %>%
+    flextable::fontsize(size = 14) %>%
+    flextable::bold(j = 2) %>%
+    flextable::color(j = 2, color = class_colors) %>%
+    flextable::set_table_properties(layout = "autofit",
+                                    align = 'left')
+
 }
 
 plot_kruskal_profiles <- function(model){
@@ -93,34 +128,6 @@ plot_kruskal_profiles <- function(model){
                    plot.subtitle = ggplot2::element_text(hjust = 0, size = 12),
                    axis.text.y = ggplot2::element_text(size = 14, face = 'bold'),
                    axis.text.x = ggplot2::element_text(size = 10, color = 'grey45', hjust = 0))
-}
-
-create_mean_assignement_probabilities_table <- function(model){
-  prediction_probabilites <- model$savedata %>%
-    dplyr::mutate(cprob = apply(dplyr::select(., dplyr::starts_with('CPROB')),
-                                1, max, na.rm = TRUE)) %>%
-    dplyr::select(class = 'CLASS', 'cprob')
-  mean_assignement_probabilites <- prediction_probabilites %>%
-    dplyr::group_by(.data$class) %>%
-    dplyr::summarize(mean_prob = mean(.data$cprob)) %>%
-    dplyr::arrange(-.data$mean_prob)
-
-  class_colors <- discrete_colors_for_classes[mean_assignement_probabilites$class] # internal from package
-  formatted_probabilites <- mean_assignement_probabilites %>%
-    dplyr::mutate(
-      class = sprintf('class %d', class),
-      class = forcats::fct_inorder(class),
-      mean_prob = sprintf('%.1f%%', mean_prob * 100))
-
-  flextable::flextable(formatted_probabilites) %>%
-    flextable::delete_part('header') %>%
-    flextable::border_remove() %>%
-    flextable::fontsize(size = 14) %>%
-    flextable::bold(j = 1) %>%
-    flextable::color(j = 1, color = class_colors) %>%
-    flextable::set_table_properties(layout = "autofit",
-                                    align = 'left')
-
 }
 
 plot_continuous_profiles <- function(profiles, ncol_plot=2){
