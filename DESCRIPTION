@@ -1,6 +1,6 @@
 Package: easylca
 Title: Conduct LCA the easy way with this user friendly interface to MPlus
-Version: 0.8.0
+Version: 0.9.0
 Authors@R: 
     person("Markus", "Radke", , "markus.radke.1@campus.tu-berlin.de", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0001-1719-7060"))
