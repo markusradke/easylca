@@ -51,9 +51,9 @@ create_mean_assignement_probabilities_table <- function(model){
   class_colors <- discrete_colors_for_classes[mean_assignement_probabilites$class] # internal from package
   formatted_probabilites <- mean_assignement_probabilites %>%
     dplyr::mutate(
-      class = sprintf('class %d', class),
-      class = forcats::fct_inorder(class),
-      mean_prob = sprintf('%.1f%%', mean_prob * 100))
+      class = sprintf('class %d', .data$class),
+      class = forcats::fct_inorder(.data$class),
+      mean_prob = sprintf('%.1f%%', .data$mean_prob * 100))
 
   flextable::flextable(formatted_probabilites) %>%
     flextable::delete_part('header') %>%

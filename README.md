@@ -15,7 +15,7 @@ If required, please follow these two commands to complete installation:
     ``install.packages("BiocManager");
     BiocManager::install("rhdf5")``
 
-## How to conduct an LCA with `easylca`
+## How to conduct LCA with `easylca`
 Follow these steps to conduct an LCA using `easylca`: 
 1. Inspect your data using the `generate_data_diagnosis_report()` function (this generates an HTML report in the current working directory).
 2. Define your analysis with `define_lca()`.
