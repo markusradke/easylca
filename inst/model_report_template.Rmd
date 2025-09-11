@@ -42,7 +42,7 @@ Number of Parameters: `r model$summaries$Parameters`
 
 ## Model Entropy
 
-`r model$summaries$Entropy`
+[**`r model$summaries$Entropy`**]{style="font-size: 20pt"}
 
 ## Model implicated class sizes
 
