@@ -9,7 +9,6 @@ plot_class_prevalences <- function(model){
       class = forcats::fct_inorder(sprintf('class %d', .data$class)),
       proportion = sprintf('%.2f %%', .data$proportion * 100)
     )
-  prop_annotation <- utils::tail(class_counts_formatted, 3)
 
   ggplot2::ggplot(class_counts_formatted, ggplot2::aes(x = .data$count,
                                              y = .data$class,
@@ -18,15 +17,13 @@ plot_class_prevalences <- function(model){
     ggplot2::geom_vline(xintercept = 100, color = 'black',
                         size = 1) +
     ggplot2::annotate('text', x = 100, y = nrow(class_counts_formatted),
-                      label = '100', color = 'black',
+                      label = '100', color = 'white',
                       size = 5, hjust = -0.1) +
-    ggplot2::scale_x_continuous(expand = c(0, 0.05), position = 'top') +
+    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0, .3)),
+                                position = 'top') +
     ggplot2::scale_fill_manual(values = class_colors) +
-    ggplot2::geom_text(data = prop_annotation,
-                       ggplot2::aes(x = .data$count,
-                                    y = forcats::fct_inorder(.data$class),
-                                    label = .data$proportion),
-                       size = 5, color = 'white', hjust = 1.1) +
+    ggplot2::geom_text(ggplot2::aes(label = .data$proportion),
+                       size = 5, color = 'black', hjust = -0.1) +
     ggplot2::labs(x = 'model estimated count', y = '') +
     ggplot2::theme_minimal() +
     ggplot2::theme(
