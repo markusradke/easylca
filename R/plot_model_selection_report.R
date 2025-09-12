@@ -1,28 +1,21 @@
 create_modeloverview_table <- function(overview){
   overview_selection <- select_overview_table_columns(overview)
-  overview_selection$loc_min_bic <- get_local_minima(overview_selection$BIC)
-  overview_selection$loc_min_sabic <- get_local_minima(overview_selection$saBIC)
+  overview_selection$loc_min_bic <- get_local_minima(overview_selection, 'BIC')
+  overview_selection$loc_min_sabic <- get_local_minima(overview_selection, 'saBIC')
+  dont_include <- c('loc_min_bic', 'loc_min_sabic')
 
-  flextable::flextable(overview_selection) %>%
+  flextable::flextable(overview_selection,
+                       col_keys = colnames(overview_selection)[! colnames(overview_selection) %in% dont_include]) %>%
     flextable::bold(part='header') %>%
     flextable::align(align='center', part = 'all') %>%
     flextable::align(j = 1, align = 'left', part = 'all') %>%
     flextable::border_inner(part = 'body') %>%
     flextable::bg(bg = 'white', part = 'all') %>%
-    flextable::bg(j = 'LL',
-                  bg = ifelse(overview_selection$LL == max(overview_selection$LL),
-                              '#adebad', 'white')) %>%
-    flextable::bg(j = 'AIC',
-                  bg = ifelse(overview_selection$AIC == min(overview_selection$AIC),
-                              '#adebad', 'white')) %>%
-    flextable::bg(j = 'AICC',
-                  bg = ifelse(overview_selection$AICC == min(overview_selection$AICC),
-                              '#adebad', 'white')) %>%
     flextable::bg(j = 'BIC',
-                  bg = ifelse(overview_selection$BIC == min(overview_selection$BIC),
+                  bg = ifelse(overview_selection$loc_min_bic,
                               '#adebad', 'white')) %>%
     flextable::bg(j = 'saBIC',
-                  bg = ifelse(overview_selection$saBIC == min(overview_selection$saBIC),
+                  bg = ifelse(overview_selection$loc_min_sabic,
                               '#adebad', 'white')) %>%
     flextable::bg(j = 'p VLMRT',
                   bg = ifelse(overview_selection$`p VLMRT` == 'not calculated' |

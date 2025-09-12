@@ -3,7 +3,7 @@ title: "*easylca* summary report for `r params$title`"
 date: "*created `r format(Sys.time(), '%H:%M, %B %d, %Y')`*"
 output: 
   html_document:
-    css: summary_report_template.css
+    css: model_selection_report_template.css
 params:
   data: NULL
   n_observations: NULL
@@ -26,6 +26,8 @@ if(! 'T11_LMR_PValue' %in% colnames(data)){
 ## Models overview
 
 N = `r n_observations` observations
+
+[**Local minima for BIC and saBIC** within model types are colored green. If no local minima could be found for any model type, the global lowest value is colored green.]{style="color: #1e7b1e"}
 
 ```{r echo = F}
 create_modeloverview_table(data)
