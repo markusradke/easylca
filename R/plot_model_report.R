@@ -206,7 +206,7 @@ plot_binary_profiles <- function(profiles){
     ggplot2::scale_fill_manual(values = class_colors) +
     ggplot2::theme_minimal() +
     ggplot2::labs(y = '',
-                  subtitle = 'P(2 | class)',
+                  subtitle = 'P(level 2 | class)',
                   x = '* p < 0.05, ** p < 0.01, *** p < 0.001') +
     suppressWarnings(
       ggplot2::theme(
