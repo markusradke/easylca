@@ -26,3 +26,6 @@ If you are unable to complete the analysis for any reason, you can use the `read
 4. Inspect the results and select a model using the `generate_model_selection_report()` command (this generates an HTML report in the current working directory).
 5. Inspect the profiles of individual models with the `generate_model_report()` command (this generates an HTML report in the current working directory).
 6. Use `rerun_lca()` to increase the number of random starting values for the analysis if the best solution for some models was not replicated (see `generate_model_selection_report()`). For convenience, this function also offers a loop option that will rerun the analysis until all the requested models have replicated 
+7. Extract Model parameters and class-assignments for observations from the results-object of `perform_lca()`or `rerun_lca()` for further analysis or visualization. 
+
+Please refer to the help function (e.g., `?define_lca()`) to see a reference of all function arguments.
