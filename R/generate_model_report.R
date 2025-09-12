@@ -5,6 +5,7 @@
 #' @param easylca easylca object as can be obtained with [perform_lca()] or [rerun_lca()].
 #' @param modeltype type of model. For an explanation on model types please refer to the documentation of [perform_lca()]. Must have been calculated for the settings specified in the easylca object.
 #' @param classes Which k-class solution for the modeltype to show. Must be less or equal to nclasses parameter in the easylca setting.
+#' @param show_significance Logical deciding whether to include significance marks in the indicator profile plots. The default is FALSE.
 #'
 #' @return NULL. An html file with the model information will be generated in the current working directory.
 #' @export
@@ -14,7 +15,7 @@
 #' @examples
 #' # generate a report for model a type-2 model with 3 classes
 #' # generate_model_report(titanic_results, 2, 3)
-generate_model_report <- function(easylca, modeltype, classes){
+generate_model_report <- function(easylca, modeltype, classes, show_significance = FALSE){
   if(! 'easylca' %in% class(easylca)){
     stop('Please provide an object of type "easylca".')
   }
@@ -36,6 +37,7 @@ generate_model_report <- function(easylca, modeltype, classes){
                                           easylca$settings$folder_name),
                     params = list(easylca = easylca,
                                   modeltype = modeltype,
-                                  classes = classes))
+                                  classes = classes,
+                                  show_significance = show_significance))
   return(NULL)
 }

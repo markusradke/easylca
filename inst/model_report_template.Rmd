@@ -8,12 +8,14 @@ params:
   easylca: NULL
   modeltype: NULL
   classes: NULL
+  show_significance: NULL
 ---
 
 ```{r data_unpacking, echo=F}
 easylca <- params$easylca 
 modeltype <- params$modeltype
 classes <- params$classes
+show_significance <- params$show_significance
 
 
 model <- easylca$models[[paste0('modeltype_', modeltype)]][[classes]]
@@ -68,7 +70,8 @@ plot_kruskal_profiles(model)
 
 ```{r, continuous_indicators, echo=F, fig.height=ceiling(n_continuous /ifelse(classes > 6, 1, 2))*3}
 if(n_continuous > 0){
-  plot_continuous_profiles(model_parameters)
+  plot_continuous_profiles(model_parameters, 
+                           show_significance = show_significance)
 }
 ```
 
@@ -80,7 +83,8 @@ if(n_continuous == 0){cat('There are no continuous indicators.')}
 
 ```{r, binary_indicators, echo=F, fig.width=classes * 1, fig.height=n_binary *1 + 0.5}
 if(n_binary > 0){
-  plot_binary_profiles(model_parameters)
+  plot_binary_profiles(model_parameters, 
+                       show_significance = show_significance)
 }
 ```
 
@@ -92,7 +96,8 @@ if(n_binary == 0){cat('There are no binary indicators.')}
 
 ```{r, discrete_indicators, echo=F, fig.height=n_discrete * classes * 0.3 + 1}
 if(n_discrete > 0){
-  plot_discrete_profiles(model_parameters)
+  plot_discrete_profiles(model_parameters, 
+                         show_significance = show_significance)
 }
 ```
 

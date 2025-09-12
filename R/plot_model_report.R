@@ -127,7 +127,7 @@ plot_kruskal_profiles <- function(model){
                    axis.text.x = ggplot2::element_text(size = 10, color = 'grey45', hjust = 0))
 }
 
-plot_continuous_profiles <- function(profiles, ncol_plot=2){
+plot_continuous_profiles <- function(profiles, ncol_plot=2, show_significance = FALSE){
   profiles <- profiles %>% dplyr::filter(.data$plotgroup == 'continuous')
   nclasses <- profiles$class %>% unique() %>% length()
   n_col_plot <- ifelse(nclasses > 6, 1, 2)
@@ -142,7 +142,7 @@ plot_continuous_profiles <- function(profiles, ncol_plot=2){
   )
 
 
-  ggplot2::ggplot(average_means, ggplot2::aes(x = as.factor(.data$class),
+  plot <- ggplot2::ggplot(average_means, ggplot2::aes(x = as.factor(.data$class),
                                               y = .data$est,
                                               color = .data$class))+
     ggplot2::facet_wrap(.~.data$item,  scales = "free", ncol = ncol_plot)+
@@ -157,32 +157,35 @@ plot_continuous_profiles <- function(profiles, ncol_plot=2){
                        label = 'mean', x = 0, hjust = -1,
                        vjust = 1.05, color = 'grey70') +
     ggplot2::scale_x_discrete(position = 'top') +
-    ggplot2::labs(y = 'model estimate',
-                  subtitle = 'for P(y <= 0): * p < 0.05, ** p < 0.01, *** p < 0.001')+
+    ggplot2::ylab('model estimate') +
     ggplot2::theme_minimal() +
-    suppressWarnings(
-      ggplot2::theme(axis.text.x = ggplot2::element_text(size = 10, vjust = 1,
-                                                         # color = 'grey45',
-                                                         color = class_colors,
-                                                         ),
-                     axis.ticks.x = ggplot2::element_blank(),
-                     panel.grid.major.x = ggplot2::element_blank(),
-                     panel.grid.minor.x = ggplot2::element_blank(),
-                     legend.position = 'none',
-                     axis.text.y = ggplot2::element_text(color = 'grey45', size = 10),
-                     axis.title.y = ggplot2::element_text(color = 'grey45', size = 12),
-                     axis.title.x = ggplot2::element_blank(),
-                     plot.subtitle = ggplot2::element_text(color = 'grey45', size = 10),
-                     strip.text = ggplot2::element_text(face = 'bold', size = 14),
-                     strip.placement = 'outside',
-                     panel.spacing.x = ggplot2::unit(14, 'points'),
-                     panel.spacing.y = ggplot2::unit(36, 'points')
-                     )
-    )
+    ggplot2::theme(axis.text.x = ggplot2::element_text(size = 10, vjust = 1,
+                                                       # color = 'grey45',
+                                                       color = class_colors,
+                                                       ),
+                   axis.ticks.x = ggplot2::element_blank(),
+                   panel.grid.major.x = ggplot2::element_blank(),
+                   panel.grid.minor.x = ggplot2::element_blank(),
+                   legend.position = 'none',
+                   axis.text.y = ggplot2::element_text(color = 'grey45', size = 10),
+                   axis.title.y = ggplot2::element_text(color = 'grey45', size = 12),
+                   axis.title.x = ggplot2::element_blank(),
+                   strip.text = ggplot2::element_text(face = 'bold', size = 14),
+                   strip.placement = 'outside',
+                   panel.spacing.x = ggplot2::unit(14, 'points'),
+                   panel.spacing.y = ggplot2::unit(36, 'points')
+                   )
+  if(show_significance & ! all(profiles$pzero == '')){
+    plot <- plot +
+      ggplot2::labs(subtitle = 'for P(y <= 0): * p < 0.05, ** p < 0.01, *** p < 0.001') +
+      ggplot2::theme(plot.subtitle = ggplot2::element_text(color = 'grey45', size = 10))
+  }
+  suppressWarnings(plot)
+
 }
 
 
-plot_binary_profiles <- function(profiles){
+plot_binary_profiles <- function(profiles, show_significance = FALSE){
   profiles <- dplyr::filter(profiles, .data$plotgroup == 'binary')
   nclasses <- profiles$class %>% unique() %>% length()
   class_colors <- discrete_colors_for_classes[1:nclasses] # internal from package
@@ -193,7 +196,7 @@ plot_binary_profiles <- function(profiles){
     dplyr::mutate(share_label = paste0(round(.data$share_of_2, 2), .data$significance)) %>%
     dplyr::select('class', 'item', 'share_of_2', 'share_label')
 
-  ggplot2::ggplot(relative_freqs, ggplot2::aes(x = .data$class,
+  plot <- ggplot2::ggplot(relative_freqs, ggplot2::aes(x = .data$class,
                                                y = .data$item, fill = .data$class)) +
     ggplot2::geom_tile(ggplot2::aes(alpha = .data$share_of_2), color = "white",
                        show.legend = FALSE) +
@@ -204,24 +207,27 @@ plot_binary_profiles <- function(profiles){
     ggplot2::theme_minimal() +
     ggplot2::labs(y = '',
                   subtitle = 'P(level 2 | class)',
-                  x = '* p < 0.05, ** p < 0.01, *** p < 0.001') +
-    suppressWarnings(
-      ggplot2::theme(
-        axis.text.y = ggplot2::element_text(size = 14, face = 'bold'),
-        axis.text.x = ggplot2::element_text(size = 14,
-                                            color = class_colors,
-                                            # color = 'grey45'
-                                            ),
-        axis.ticks.x = ggplot2::element_blank(),
-        legend.position = 'top',
-        axis.title.x = ggplot2::element_text(size = 10, color = 'grey45', hjust = 0),
-        plot.subtitle = ggplot2::element_text(size = 12, hjust = 0),
-        panel.grid = ggplot2::element_blank()
-      )
+                  x = '') +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(size = 14, face = 'bold'),
+      axis.text.x = ggplot2::element_text(size = 14,
+                                          color = class_colors,
+                                          # color = 'grey45'
+                                          ),
+      axis.ticks.x = ggplot2::element_blank(),
+      legend.position = 'top',
+      axis.title.x = ggplot2::element_text(size = 10, color = 'grey45', hjust = 0),
+      plot.subtitle = ggplot2::element_text(size = 12, hjust = 0),
+      panel.grid = ggplot2::element_blank()
     )
+  if(show_significance){
+    plot <- plot +
+      ggplot2::labs(x = '* p < 0.05, ** p < 0.01, *** p < 0.001')
+  }
+  suppressWarnings(plot)
 }
 
-plot_discrete_profiles <- function(profiles){
+plot_discrete_profiles <- function(profiles, show_significance = FALSE){
   profiles <- dplyr::filter(profiles, .data$plotgroup == 'discrete') %>%
     dplyr::mutate(label = sprintf('%.0f%%%s',
                                   round(100 * .data$est),
@@ -232,7 +238,7 @@ plot_discrete_profiles <- function(profiles){
   max_levels <- max(profiles$level, na.rm = TRUE)
   plot_n_cols <- ifelse(max_levels < 4, 2, 1)
 
-  ggplot2::ggplot(data = profiles,
+  plot <- ggplot2::ggplot(data = profiles,
                   ggplot2::aes(x = forcats::fct_inorder(as.character(.data$level)),
                                y =  forcats::fct_inorder(as.character(.data$item)),
                                fill = forcats::fct_inorder(as.character(.data$class))))+
@@ -259,4 +265,9 @@ plot_discrete_profiles <- function(profiles){
                     axis.ticks.x = ggplot2::element_blank(),
                     axis.title.x = ggplot2::element_text(size = 10, color = 'grey45', hjust = 0),
                     plot.subtitle = ggplot2::element_text(size = 12, hjust = 0))
+  if(show_significance){
+    plot <- plot +
+      ggplot2::labs(x = 'level\n* p < 0.05, ** p < 0.01, *** p < 0.001, (ref) reference level for nominals')
+  }
+  plot
 }
