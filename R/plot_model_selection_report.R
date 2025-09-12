@@ -64,6 +64,12 @@ select_overview_table_columns <- function(overview){
                   'p adj. VLMRT' = 'T11_LMR_PValue')
 }
 
+is_local_minimum <- function(numeric_vector){
+  !is.na(numeric_vector) &
+    c(FALSE, diff(numeric_vector) < 0) &
+    c(FALSE, diff(rev(numeric_vector)) < 0) %>% rev()
+}
+
 plot_ic_trajectory <- function(data, measure = 'BIC'){
   not_replicated <- data %>%
     dplyr::filter(! .data$replicated)
