@@ -41,8 +41,7 @@ create_modeloverview_table <- function(overview){
                   bg = ifelse(overview_selection$`Boundary Values`, '#ff9999', 'white')) %>%
     flextable::bg(j = 'n Min', bg = ifelse(overview_selection$`n Min` < 100,
                                            '#ff9999', 'white')) %>%
-    flextable::merge_v(colnames(overview_selection)[! colnames(overview_selection) %in%
-                                                      c('p VLMRT', 'p adj. VLMRT')]) %>%
+    flextable::merge_v(c('Replicated', 'Boundary Values', 'Type')) %>%
     flextable::autofit()
 }
 
