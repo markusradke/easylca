@@ -4,7 +4,7 @@
 \alias{generate_model_report}
 \title{Show information on a specific model}
 \usage{
-generate_model_report(easylca, modeltype, classes)
+generate_model_report(easylca, modeltype, classes, show_significance = FALSE)
 }
 \arguments{
 \item{easylca}{easylca object as can be obtained with \code{\link[=perform_lca]{perform_lca()}} or \code{\link[=rerun_lca]{rerun_lca()}}.}
@@ -12,6 +12,8 @@ generate_model_report(easylca, modeltype, classes)
 \item{modeltype}{type of model. For an explanation on model types please refer to the documentation of \code{\link[=perform_lca]{perform_lca()}}. Must have been calculated for the settings specified in the easylca object.}
 
 \item{classes}{Which k-class solution for the modeltype to show. Must be less or equal to nclasses parameter in the easylca setting.}
+
+\item{show_significance}{Logical deciding whether to include significance marks in the indicator profile plots. The default is FALSE.}
 }
 \value{
 NULL. An html file with the model information will be generated in the current working directory.

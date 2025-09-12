@@ -33,7 +33,8 @@ test_that('get binary indicators returns correct indicators', {
 test_that('profile retrieval for categorical variables works', {
   res <- get_categorical_profiles(titanic_lca_results$models[[1]][[2]],
                                   c('survived', 'nsibsp', 'nparchi', 'isfem'),
-                                  c('survived', 'isfem'))
+                                  c('survived', 'isfem'),
+                                  show_significance = TRUE)
   expect_equal(nrow(res), 20)
   expect_setequal(colnames(res), c('item', 'param', 'est', 'se', 'est_se', 'pval',
                                    'level', 'class', 'significance', 'plotgroup'))
@@ -47,7 +48,8 @@ test_that('profile retrieval for categorical variables works', {
 
 test_that('profile retrieval for nominal variables works', {
   res <- get_nominal_profiles(titanic_lca_results$models[[3]][[4]],
-                              c('pasclass', 'port'))
+                              c('pasclass', 'port'),
+                              show_significance = TRUE)
   expect_equal(nrow(res), 4 * 2 * 3)
   expect_setequal(colnames(res), c('item', 'param', 'est', 'pval',
                                    'level', 'class', 'significance', 'plotgroup'))
@@ -64,7 +66,8 @@ test_that('profile retrieval for nominal variables works', {
 
 test_that('profile retrieval for continuous variables works', {
   res <- get_continuous_profiles(random_testresults$models[[4]][[2]],
-                                 get_profile_types(random_testresults$settings))
+                                 get_profile_types(random_testresults$settings),
+                                 show_significance = TRUE)
   expect_equal(nrow(res), 12)
   expect_setequal(colnames(res), c('item', 'param', 'est', 'se', 'est_se', 'pval',
                                    'significance', 'class', 'plotgroup', 'upper', 'lower',
@@ -78,7 +81,7 @@ test_that('extraction of profiles for plotting retrieves correct variables', {
   test_for_columnnames_completeness <- function(model, settings){
     profile_variables <- c('param', 'item', 'est', 'se', 'est_se', 'pval', 'class', 'level', 'count',
                            'significance', 'upper', 'lower', 'pzero', 'yposinflation', 'plotgroup')
-    res <- get_profiles_for_plotting(model, settings)
+    res <- get_profiles_for_plotting(model, settings, show_significance = TRUE)
     expect_setequal(res %>% colnames(), profile_variables)
   }
 

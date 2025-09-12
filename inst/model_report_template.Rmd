@@ -19,7 +19,9 @@ show_significance <- params$show_significance
 
 
 model <- easylca$models[[paste0('modeltype_', modeltype)]][[classes]]
-model_parameters <- get_profiles_for_plotting(model, easylca$settings)
+model_parameters <- get_profiles_for_plotting(model,
+                                              easylca$settings, 
+                                              show_significance)
 n_indicators <- unique((model_parameters$item)) %>% length()
 n_continuous <- model_parameters %>% 
   dplyr::distinct(item, .keep_all = T) %>% 

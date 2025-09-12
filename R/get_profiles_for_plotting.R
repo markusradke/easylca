@@ -1,15 +1,16 @@
-get_profiles_for_plotting <- function(model, settings){
+get_profiles_for_plotting <- function(model, settings, show_significance = FALSE){
   profile_types <- get_profile_types(settings)
   if(length(profile_types$continuous) > 0){
-    continuous <- get_continuous_profiles(model, profile_types)
+    continuous <- get_continuous_profiles(model, profile_types, show_significance)
   }
   if(length(profile_types$categorical) > 0){
     categoricals <- get_categorical_profiles(model,
                                              profile_types$categorical,
-                                             profile_types$binary)
+                                             profile_types$binary,
+                                             show_significance)
   } else{categoricals <- c()}
   if(length(profile_types$nominal) > 0){
-    nominals <- get_nominal_profiles(model, profile_types$nominal)
+    nominals <- get_nominal_profiles(model, profile_types$nominal, show_significance)
   } else{nominals <- c()}
 
   init <- data.frame('se' = double(), 'est_se' = double(), 'level' = integer(),
@@ -47,11 +48,11 @@ get_binary_indicators <- function(settings){
 }
 
 
-get_categorical_profiles <- function(model, categorical, binary){
+get_categorical_profiles <- function(model, categorical, binary, show_significance = FALSE){
   categoricals <- model$parameters$probability.scale %>%
     dplyr::mutate(item = .data$param %>% tolower(),
                   param = 'probability',
-                  significance = get_significance_level(.data$pval),
+                  significance = get_significance_level(.data$pval, show_significance),
                   plotgroup = ifelse(.data$item %in% binary,
                                      'binary', 'discrete'),
                   level = as.integer(.data$category)) %>%
@@ -61,24 +62,24 @@ get_categorical_profiles <- function(model, categorical, binary){
   categoricals
 }
 
-get_nominal_profiles <- function(model, nominal){
+get_nominal_profiles <- function(model, nominal, show_significance = FALSE){
   nominals_logit <- model$parameters$unstandardized %>%
     dplyr::mutate(item = .data$param %>% tolower()) %>%
     dplyr::filter(stringr::str_detect(.data$item,
                                       paste(nominal, collapse = '|'))) %>%
     dplyr::mutate(param = 'probability',
                   plotgroup = 'discrete',
-                  significance = get_significance_level(.data$pval),
+                  significance = get_significance_level(.data$pval, show_significance),
                   level = stringr::str_extract(.data$item, '(?<=#)[0-9]*') %>%
                     as.integer(),
                   item = stringr::str_extract(.data$item, '.*(?=#)')) %>%
     dplyr::rename(class = 'LatentClass') %>%
     dplyr::select(-'paramHeader', -'se', -'est_se')
-  nominals <- calculate_probabilities_from_logits(nominals_logit)
+  nominals <- calculate_probabilities_from_logits(nominals_logit, show_significance)
   nominals
 }
 
-calculate_probabilities_from_logits <- function(logit){
+calculate_probabilities_from_logits <- function(logit, show_significance = FALSE){
   # logit for reference category (last) is 0
   odds <- logit %>% dplyr::mutate(est = exp(.data$est))
   sum_odds <- odds %>%
@@ -99,17 +100,20 @@ calculate_probabilities_from_logits <- function(logit){
       level = max(.data$level) + 1
     ) %>%
     dplyr::ungroup()
+  if(!show_significance){
+    reference_levels$significance = ''
+  }
   dplyr::bind_rows(probabilites, reference_levels)
 }
 
-get_continuous_profiles <- function(model, profile_types){
+get_continuous_profiles <- function(model, profile_types, show_significance = FALSE){
   continuous <- model$parameters$unstandardized %>%
     dplyr::mutate(item = .data$param %>% tolower(),
                   param = .data$paramHeader,
                   est_se = account_for_non_estimated_values(.data$est),
                   se = account_for_non_estimated_values(.data$se),
                   est = account_for_non_estimated_values(.data$est_se),
-                  significance = get_significance_level(.data$pval)) %>%
+                  significance = get_significance_level(.data$pval, show_significance)) %>%
     dplyr::rename(class = 'LatentClass') %>%
     dplyr::filter(stringr::str_detect(.data$item,
                                       paste(profile_types$continuous, collapse = '|'))) %>%
@@ -238,7 +242,8 @@ calculate_ypos_for_pzero <- function(continuous) {
 }
 
 
-get_significance_level <- function(pval){
+get_significance_level <- function(pval, show_significance = FALSE){
+  if(! show_significance){return('')}
   significance <- ifelse(pval < 0.001, '***',
                          ifelse(pval < 0.01, '**',
                                 ifelse(pval < 0.05, '*',
