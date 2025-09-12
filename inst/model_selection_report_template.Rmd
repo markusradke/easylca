@@ -8,12 +8,14 @@ params:
   data: NULL
   n_observations: NULL
   title: NULL
+  n_min: NULL
 ---
 
 ```{r data_unpacking, echo=F}
 data <- params$data 
 title <- params$title
 n_observations <- params$n_observations
+n_min <- params$n_min
 
 if(! 'T11_VLMR_PValue' %in% colnames(data)){
   data$T11_VLMR_PValue <- 'not calculated'
@@ -31,10 +33,10 @@ N = `r n_observations` observations
 
 [Additionally, the **model with the most classes that has a significant VLMRT** (or adjusted VLMRT) is indicated in green for each model type.]{style="color: #1e7b1e"}
 
-[Red indicates **models with an estimated class size below 100** for at least one class, **models that were not replicated** (2x best LL with different starting values), models with **boundary value estimates**, and **models with non-significant VLMRT (or adjusted VLMRT)**.]{style="color: #c40d20"}
+[Red indicates **models with an estimated class size below `r n_min`** for at least one class, **models that were not replicated** (2x best LL with different starting values), models with **boundary value estimates**, and **models with non-significant VLMRT (or adjusted VLMRT)**.]{style="color: #c40d20"}
 
 ```{r echo = F}
-create_modeloverview_table(data)
+create_modeloverview_table(data, n_min)
 ```
 
 ## Information criteria
@@ -50,3 +52,4 @@ plot_ic_trajectory(data, 'BIC')
 ```{r sabic_plot, fig.height = 10, echo=F}
 plot_ic_trajectory(data, 'saBIC')
 ```
+

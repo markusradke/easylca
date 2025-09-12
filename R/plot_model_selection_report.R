@@ -1,4 +1,4 @@
-create_modeloverview_table <- function(overview){
+create_modeloverview_table <- function(overview, n_min = 100){
   overview_selection <- select_overview_table_columns(overview)
   overview_selection$loc_min_bic <- get_local_minima(overview_selection, 'BIC')
   overview_selection$loc_min_sabic <- get_local_minima(overview_selection, 'saBIC')
@@ -40,7 +40,7 @@ create_modeloverview_table <- function(overview){
                   bg = ifelse(overview_selection$Replicated, 'white', '#ff9999')) %>%
     flextable::bg(j = 'Boundary Values',
                   bg = ifelse(overview_selection$`Boundary Values`, '#ff9999', 'white')) %>%
-    flextable::bg(j = 'n Min', bg = ifelse(overview_selection$`n Min` < 100,
+    flextable::bg(j = 'n Min', bg = ifelse(overview_selection$`n Min` < n_min,
                                            '#ff9999', 'white')) %>%
     flextable::merge_v(c('Replicated', 'Boundary Values', 'Type')) %>%
     flextable::autofit()

@@ -4,10 +4,12 @@
 \alias{generate_model_selection_report}
 \title{Generate LCA model selection report}
 \usage{
-generate_model_selection_report(easylca)
+generate_model_selection_report(easylca, n_min = 100)
 }
 \arguments{
 \item{easylca}{easylca object created with \code{\link[=perform_lca]{perform_lca()}} or \code{\link[=rerun_lca]{rerun_lca()}}.}
+
+\item{n_min}{The desired minimum number of cases in a class for the selected model. This setting only affects the color display of the "n Min" column in the table. The default value is 100.}
 }
 \value{
 NULL. An html file with the model selection report will be generated in the current working directory.
@@ -16,7 +18,7 @@ NULL. An html file with the model selection report will be generated in the curr
 Generates an HTML report that compares all models that were estimated for model selection.
 }
 \examples{
-# generate_model_selection_report(titanic_results)
+# generate_model_selection_report(titanic_results, n_min = 100)
 }
 \seealso{
 \code{\link[=generate_model_report]{generate_model_report()}}

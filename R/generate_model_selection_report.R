@@ -3,6 +3,7 @@
 #' Generates an HTML report that compares all models that were estimated for model selection.
 #'
 #' @param easylca easylca object created with [perform_lca()] or [rerun_lca()].
+#' @param n_min The desired minimum number of cases in a class for the selected model. This setting only affects the color display of the "n Min" column in the table. The default value is 100.
 #'
 #' @return NULL. An html file with the model selection report will be generated in the current working directory.
 #' @export
@@ -11,8 +12,8 @@
 #' @seealso [generate_model_report()]
 #' [get_prediction_for_model()]
 #' @examples
-#' # generate_model_selection_report(titanic_results)
-generate_model_selection_report <- function(easylca){
+#' # generate_model_selection_report(titanic_results, n_min = 100)
+generate_model_selection_report <- function(easylca, n_min = 100){
   if(! 'easylca' %in% class(easylca)){
     stop('Please provide an object of type "easylca".')
   }
@@ -25,6 +26,7 @@ generate_model_selection_report <- function(easylca){
                     output_file = sprintf('model_selection_report_%s.html', easylca$settings$folder_name),
                     params = list(data = easylca$summary,
                                   n_observations = nrow(easylca$settings$frame),
-                                  title = easylca$settings$folder_name))
+                                  title = easylca$settings$folder_name,
+                                  n_min = n_min))
   return(NULL)
 }
