@@ -50,7 +50,7 @@ Number of Parameters: `r model$summaries$Parameters`
 plot_class_prevalences(model)
 ```
 
-## Mean class assignement probabilites (posterior)
+## Mean class assignment probabilities (posterior)
 
 [from high to low mean probability:]{style="color: #737373;"}
 
