@@ -22,7 +22,7 @@ generate_model_selection_report <- function(easylca){
   }
   rmarkdown::render(input = rmd_file,
                     output_dir = getwd(),
-                    output_file = sprintf('summary_%s.html', easylca$settings$folder_name),
+                    output_file = sprintf('model_selection_report_%s.html', easylca$settings$folder_name),
                     params = list(data = easylca$summary,
                                   n_observations = nrow(easylca$settings$frame),
                                   title = easylca$settings$folder_name))

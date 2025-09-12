@@ -1,5 +1,5 @@
 ---
-title: "*easylca* summary report for `r params$title`"
+title: "*easylca* model selection report for `r params$title`"
 date: "*created `r format(Sys.time(), '%H:%M, %B %d, %Y')`*"
 output: 
   html_document:
