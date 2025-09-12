@@ -35,12 +35,12 @@ create_modeloverview_table(data)
 
 ### BIC
 
-```{r bic_plot, echo=F}
+```{r bic_plot, fig.height = 10, echo=F}
 plot_ic_trajectory(data, 'BIC')
 ```
 
 ### saBIC
 
-```{r sabic_plot, echo=F}
+```{r sabic_plot, fig.height = 10, echo=F}
 plot_ic_trajectory(data, 'saBIC')
 ```
