@@ -37,3 +37,16 @@ test_that("get local minima from frame works with different modeltypes works", {
   expect_equal(get_local_minima(testdata, 'BIC'),
                c(FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE))
 })
+
+
+test_that("get best pvaol logical indicator from given vector works", {
+  expect_equal(is_vlmrt(c(0, 0, 0.05)), c(FALSE, TRUE, FALSE))
+  expect_equal(is_vlmrt(c(0, 0.05, 0.05)), c(TRUE, FALSE, FALSE))
+  expect_equal(is_vlmrt(c(NA, 0.0, 0.05)), c(FALSE, TRUE, FALSE))
+  expect_equal(is_vlmrt(c(NA, 0, 0.05, 0, 0.05)),
+               c(FALSE, FALSE, FALSE, TRUE, FALSE))
+  expect_equal(is_vlmrt(c('not calculated', 'not calculated')),
+               c(FALSE, FALSE))
+  expect_equal(is_vlmrt(c('not calculated', 0,  0.05)),
+               c(FALSE, TRUE, FALSE))
+})

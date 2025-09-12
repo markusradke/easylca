@@ -29,6 +29,10 @@ N = `r n_observations` observations
 
 [**Local minima for BIC and saBIC** within model types are colored green. If no local minima could be found for any model type, the global lowest value is colored green.]{style="color: #1e7b1e"}
 
+[Additionally, the **model with the most classes that has a significant VLMRT** (or adjusted VLMRT) is indicated in green for each model type.]{style="color: #1e7b1e"}
+
+[Red indicates **models with an estimated class size below 100** for at least one class, **models that were not replicated** (2x best LL with different starting values), models with **boundary value estimates**, and **models with non-significant VLMRT (or adjusted VLMRT)**.]{style="color: #c40d20"}
+
 ```{r echo = F}
 create_modeloverview_table(data)
 ```

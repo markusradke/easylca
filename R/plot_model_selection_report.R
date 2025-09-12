@@ -2,7 +2,9 @@ create_modeloverview_table <- function(overview){
   overview_selection <- select_overview_table_columns(overview)
   overview_selection$loc_min_bic <- get_local_minima(overview_selection, 'BIC')
   overview_selection$loc_min_sabic <- get_local_minima(overview_selection, 'saBIC')
-  dont_include <- c('loc_min_bic', 'loc_min_sabic')
+  overview_selection$is_vlmrt <- get_vlmrt(overview_selection, 'p VLMRT')
+  overview_selection$is_adj_vlmrt <- get_vlmrt(overview_selection, 'p adj. VLMRT')
+  dont_include <- c('loc_min_bic', 'loc_min_sabic', 'is_vlmrt', 'is_adj_vlmrt')
 
   flextable::flextable(overview_selection,
                        col_keys = colnames(overview_selection)[! colnames(overview_selection) %in% dont_include]) %>%
@@ -21,12 +23,16 @@ create_modeloverview_table <- function(overview){
                   bg = ifelse(overview_selection$`p VLMRT` == 'not calculated' |
                                 is.na(overview_selection$`p VLMRT`),
                               'grey',
-                              ifelse(overview_selection$`p VLMRT` > 0.05, '#ff9999', 'white'))) %>%
+                              ifelse(overview_selection$`p VLMRT` > 0.05, '#ff9999',
+                                     ifelse(overview_selection$is_vlmrt,
+                                            '#adebad', 'white')))) %>%
     flextable::bg(j = 'p adj. VLMRT',
                   bg = ifelse(overview_selection$`p adj. VLMRT` == 'not calculated' |
                                 is.na(overview_selection$`p adj. VLMRT`),
                               'grey',
-                              ifelse(overview_selection$`p adj. VLMRT` > 0.05, '#ff9999', 'white'))) %>%
+                              ifelse(overview_selection$`p adj. VLMRT` > 0.05, '#ff9999',
+                                     ifelse(overview_selection$is_adj_vlmrt,
+                                            '#adebad', 'white')))) %>%
     flextable::bg(j = 'Entropy',
                   bg = ifelse(is.na(overview_selection$Entropy),
                               'grey', 'white')) %>%
@@ -75,6 +81,27 @@ is_local_minimum <- function(numeric_vector){
   !is.na(numeric_vector) &
     c(FALSE, diff(numeric_vector) < 0) &
     c(FALSE, diff(rev(numeric_vector)) < 0) %>% rev()
+}
+
+get_vlmrt <- function(data, variable){
+  res <- data %>%
+    dplyr::group_by(.data$Type) %>%
+    dplyr::mutate(is_vlmrt = is_vlmrt(.data[[variable]])) %>%
+    dplyr::pull(.data$is_vlmrt)
+  res
+}
+
+is_vlmrt <- function(pvals){
+  res <- rep(FALSE, length(pvals))
+  if('not calculated' %in% pvals){
+    pvals <- ifelse(pvals == 'not calculated', NA, pvals)
+  }
+  if(all(is.na(pvals))){return(res)}
+  last_significant <- which(pvals < 0.05) %>% max()
+  if(length(last_significant) > 0){
+    res[last_significant] <- TRUE
+  }
+  res
 }
 
 plot_ic_trajectory <- function(data, measure = 'BIC'){
