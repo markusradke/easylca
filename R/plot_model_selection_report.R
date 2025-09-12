@@ -1,5 +1,7 @@
 create_modeloverview_table <- function(overview){
   overview_selection <- select_overview_table_columns(overview)
+  overview_selection$loc_min_bic <- get_local_minima(overview_selection$BIC)
+  overview_selection$loc_min_sabic <- get_local_minima(overview_selection$saBIC)
 
   flextable::flextable(overview_selection) %>%
     flextable::bold(part='header') %>%
@@ -62,6 +64,18 @@ select_overview_table_columns <- function(overview){
                   'saBIC',
                   'p VLMRT' = 'T11_VLMR_PValue',
                   'p adj. VLMRT' = 'T11_LMR_PValue')
+}
+
+get_local_minima <- function(data, variable){
+  res <- data %>%
+    dplyr::group_by(.data$Type) %>%
+    dplyr::mutate(loc_min = is_local_minimum(.data[[variable]])) %>%
+    dplyr::pull(.data$loc_min)
+  if(all(!res)){
+    res <- data[[variable]] == min(data[[variable]], na.rm = TRUE)
+    res <- ifelse(is.na(res), FALSE, res)
+  }
+  res
 }
 
 is_local_minimum <- function(numeric_vector){
