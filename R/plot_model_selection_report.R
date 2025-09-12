@@ -109,8 +109,7 @@ plot_ic_trajectory <- function(data, measure = 'BIC'){
     dplyr::filter(! .data$replicated)
   max_ic_value <- max(data[[measure]])
 
-  plot <- suppressWarnings(
-    ggplot2::ggplot(data, ggplot2::aes(x = .data$classes,
+  plot <- ggplot2::ggplot(data, ggplot2::aes(x = .data$classes,
                                      y = .data[[measure]],
                                      color = as.factor(.data$modeltype))) +
     ggplot2::geom_line(linewidth = 1, alpha = 0.8) +
@@ -129,7 +128,7 @@ plot_ic_trajectory <- function(data, measure = 'BIC'){
                    legend.text = ggplot2::element_text(color = 'grey45'),
                    legend.position = 'top',
                    legend.justification = 'left')
-  )
+
 
   if(nrow(not_replicated) > 0){
     plot <- plot +
@@ -139,5 +138,5 @@ plot_ic_trajectory <- function(data, measure = 'BIC'){
       ggplot2::annotate(geom = 'text', x = 2, y = max_ic_value, label = '= not replicated',
                         color = 'red', size = 4, hjust = -0.1)
   }
-  plot
+  suppressWarnings(plot)
 }
