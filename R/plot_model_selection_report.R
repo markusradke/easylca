@@ -68,20 +68,19 @@ select_overview_table_columns <- function(overview){
 plot_ic_trajectory <- function(data, measure = 'BIC'){
   not_replicated <- data %>%
     dplyr::filter(! .data$replicated)
-  first_not_replicated <- not_replicated %>%
-    dplyr::arrange(.data$classes) %>% dplyr::first()
+  max_ic_value <- max(data[[measure]])
 
   plot <- ggplot2::ggplot(data, ggplot2::aes(x = .data$classes,
                                      y = .data[[measure]],
                                      color = as.factor(.data$modeltype))) +
     ggplot2::geom_line(linewidth = 1, alpha = 0.8) +
-    ggplot2::geom_point(data = not_replicated, color = 'red', size = 2)+
-    ggplot2::theme_minimal() +
+    ggplot2::geom_point(data = not_replicated, color = 'red', size = 2) +
     ggplot2::scale_color_discrete(name = 'type') +
     ggplot2::scale_y_continuous(labels = scales::comma_format(big.mark = ','))+
     ggplot2::scale_x_continuous(breaks = seq(max(data$classes))) +
     ggplot2::labs(x = '# of classes',
                   y = measure) +
+    ggplot2::theme_minimal() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
                    axis.title = ggplot2::element_text(color = 'grey45'),
                    axis.text.y = ggplot2::element_text(color = 'grey45'),
@@ -93,13 +92,11 @@ plot_ic_trajectory <- function(data, measure = 'BIC'){
 
   if(nrow(not_replicated) > 0){
     plot <- plot +
-      ggplot2::geom_text(data = first_not_replicated,
-                         ggplot2::aes(x = .data$classes,
-                                      y = .data[[measure]],
-                                      label = "not replicated"),
-                         color = "red",
-                         hjust = 0,
-                         vjust = -3)
+      ggplot2::geom_point(data = data.frame(x = 2, y = max_ic_value),
+                          ggplot2::aes(x = .data$x, y = .data$y),
+                          color = 'red', size = 2) +
+      ggplot2::annotate(geom = 'text', x = 2, y = max_ic_value, label = '= not replicated',
+                        color = 'red', size = 4, hjust = -0.1)
   }
   plot
 }
