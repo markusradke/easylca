@@ -138,7 +138,6 @@ rerun_mplus_lca_single_model <- function(easylca, settings, modeltype, class){
   if (!dir.exists(type_folder)) {dir.create(type_folder)}
   file.copy(template_file, paste0(type_folder, '/', template_file),
             overwrite = TRUE)
-  file.remove(template_file)
 
   datafile <- paste0(type_folder, '/', type_folder, '.dat')
   if (! file.exists(datafile)){
