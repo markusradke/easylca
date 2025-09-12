@@ -16,7 +16,7 @@ test_that('Assertion models_and_starts frame as well as lca_settings object are 
     expect_error(suppressMessages(
       rerun_lca(random_testresults,
                 data.frame(test = c(1,2,3)))),
-                'models_and_frame parameter does not contain all neccessary columns for the operation. Please include "classes", "modeltype" and "start".')
+                'models_and_frame parameter does not contain all neccessary columns for the operation. Please include "classes", "modeltype" and "starts".')
 
     expect_error(suppressMessages(
       rerun_lca(random_testresults,
@@ -100,6 +100,7 @@ if(is_mplus_installed()){
     unlink(settings$folder_name, recursive = T)
   })
 }
+
 
 if(is_mplus_installed()){
   test_that('performs reruns with a higher number of classes', {

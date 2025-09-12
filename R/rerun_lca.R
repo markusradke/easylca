@@ -73,7 +73,7 @@ create_models_and_starts_for_rerun <- function(easylca){
 
 check_assertions_models_and_starts <- function(easylca, models_and_starts){
   if(! all(c('classes', 'modeltype', 'starts') %in% colnames(models_and_starts))){
-    stop('models_and_frame parameter does not contain all neccessary columns for the operation. Please include "classes", "modeltype" and "start".')
+    stop('models_and_frame parameter does not contain all neccessary columns for the operation. Please include "classes", "modeltype" and "starts".')
   }
   if(any(! models_and_starts$modeltype %in% c(1,2,3,4,5,6))) {
     stop('Please make sure models_and_frame contains only modeltypes 1, 2, 3, 4, 5 or 6.')
