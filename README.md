@@ -6,26 +6,84 @@ The `easylca` package is an easy-to-use wrapper around the `MplusAutomation` pac
 
 ## Installation 
 
-Please use this command to install the latest version of `easylca`: `devtools::install_github('markusradke/easylca')`.
+You can install the development version of `easylca` from [GitHub](https://github.com/) with:
 
+``` r
+devtools::install_github("markusradke/easylca")
+```
+
+::: {style="color: red"}
 **Be aware: *MPlus 8.4* must to be installed on your computer in order to use `easylca` and is *not* installed together with this package.**
+:::
 
-`easylca` also depends on the `rhdf5` package. Depending on your environment you may need to install the `BiocManager` package manager first to install the `rhdf5` package.
-If required, please follow these two commands to complete installation:
-    ``install.packages("BiocManager");
-    BiocManager::install("rhdf5")``
+`easylca` also depends on the `rhdf5` package. Depending on your environment you may need to install the `BiocManager` package manager first to install the `rhdf5` package. If required, please follow the two commands below to complete installation. 
+
+```r 
+install.packages("BiocManager")
+BiocManager::install("rhdf5")
+```
 
 ## How to conduct LCA with `easylca`
-Follow these steps to conduct an LCA using `easylca`: 
-1. Inspect your data using the `generate_data_diagnosis_report()` function (this generates an HTML report in the current working directory).
-2. Define your analysis with `define_lca()`.
-3. Run your initial analysis with `perform_lca()`. 
+Follow these steps to conduct a (mixed mode) latent class analysis (LCA) using `easylca`: 
+1. Prepare your data for an analysis with Mplus. Please note that all discrete variables must be stored in **integer**-vectors within your data frame with values greater or equal 1and with fewer than 10 different levels. All continuous variables must be stored in **numeric**/**double** vectors. For the analysis with *Mplus*, variable names also should not start with a number and must consists of a maximum of 8 characters.
+```r
+# This is our ready-made example data set:
+titanic_passengers 
+```
 
-If you are unable to complete the analysis for any reason, you can use the `read_models()` command to read the intermediate results from the folder structure created by `easylca` for the analysis.
+2. Inspect the relevant statistics for on the data for model definition with an HTML report that is created in the current working directory.
+```r 
+generate_data_diagnosis_report(titanic_passengers)
+```
 
-4. Inspect the results and select a model using the `generate_model_selection_report()` command (this generates an HTML report in the current working directory).
-5. Inspect the profiles of individual models with the `generate_model_report()` command (this generates an HTML report in the current working directory).
-6. Use `rerun_lca()` to increase the number of random starting values for the analysis if the best solution for some models was not replicated (see `generate_model_selection_report()`). For convenience, this function also offers a loop option that will rerun the analysis until all the requested models have replicated 
-7. Extract Model parameters and class-assignments for observations from the results-object of `perform_lca()`or `rerun_lca()` for further analysis or visualization. 
+3. Now, you can define your analysis and instruct easylca on how to model the variables in the data set.
+```r
+titanic_settings <- define_lca(frame = titanic_passengers,
+                               analysis_name = 'titanic',
+                               id_variable = 'id',
+                               nclasses = 3,
+                               nominal = c('port', 'pasclass'),
+                               categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
+                               starts = 80,
+                               cores = 16)
 
-Please refer to the help function (e.g., `?define_lca()`) to see a reference of all function arguments.
+```
+
+4. Run your initial analysis with the settings you just created. 
+```r
+# Attention: This may take quite a while...
+titanic_lca_results <- perform_lca(titanic_settings)
+```
+
+If you are unable to finish the analysis for any reason, you can use the `read_models()` command to retrieve the intermediate results from the folder structure created by `easylca` for the analysis. 
+For now, there is also an off-the-shelf example results object already prepared for your convenience: `titanic_lca_results`.
+
+5. Inspect the LCA results for different model types and numbers of classes using an HTML report that is created in the current working directory. This report is very helpful for class enumeration because it shows the necessary information criteria (e.g., *BIC* and *saBIC*) as well as information on the *[Vuong-Lo-Mendell-Rubin test](https://www.jstor.org/stable/2673445)* results (if the test was conducted during the modeling process).
+```r
+# You can try this command with the ready-made titanic_lca_results object from `easylca`
+generate_model_selection_report(titanic_lca_results)
+```
+
+6.   The best solution should be found at least two times with different random start values. If not all models were replicated, try increasing the number of random starting values for the analysis. For your convenience, this function also offers a loop option that will rerun the analysis until all the requested models are replicated.
+```r
+# Attention again: This also may take quite a while (or even longer)...
+rerun_lca(titanic_lca_results)
+```
+
+7. After deciding on a specific model, you can view its estimated class profiles in another HTML report created in the current working directory.
+```r
+generate_model_report(titanic_lca_resutls, 2, 6)
+```
+
+
+8. Extract the model parameters and class assignments for the observations from the results object of perform_lca() or rerun_lca() for further analysis or visualization.
+```r
+# for example
+titanic_lca_results$summary # overview of different models
+titanic_lca_results$models[[2]][[6]]$parameters # model parameters of model type 2, 6 classes
+titanic_lca_results$models[[2]][[6]]$savedata # class assignements
+```
+
+Please refer to the corresponding help functions (e.g., `?define_lca()`) to see a reference of all function arguments.
+
+
