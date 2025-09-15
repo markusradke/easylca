@@ -119,16 +119,16 @@ get_continuous_profiles <- function(model, profile_types, show_significance = FA
                                       paste(profile_types$continuous, collapse = '|'))) %>%
     dplyr::select(-'paramHeader')
   means <- get_means_from_profiles(continuous)
-  means <- correct_negbin_poisson_means(means, profile_types$negbin, profile_types$possion)
+  means <- correct_negbin_poisson_means(means, profile_types$negbin, profile_types$poisson)
   errors <- get_errors_from_profiles(continuous, means)
   errors <- correct_negbin_errors(means,
-                                                       errors,
-                                                       continuous,
-                                                       profile_types$negbin)
+                                  errors,
+                                  continuous,
+                                  profile_types$negbin)
   errors <- correct_poisson_errors(means,
-                                                        errors,
-                                                        continuous,
-                                                        profile_types$possion)
+                                   errors,
+                                   continuous,
+                                   profile_types$poisson)
   pzero <- get_pzero_from_profiles(continuous)
   continuous <- combine_continuous_items(means, errors, pzero)
   continuous <- calculate_ypos_for_pzero(continuous)
@@ -143,12 +143,12 @@ get_means_from_profiles <- function(continuous){
 
 correct_negbin_poisson_means <- function(means, negbin, poisson){
   if(length(negbin) > 0){
-    means <- means %>%
-      dplyr::mutate(est = ifelse(.data$item %in% negbin,
-                               exp(.data$est), .data$est))
+    means <- means %>% # negbin mean cannot be < 0
+      dplyr::mutate(est = ifelse(.data$item %in% negbin & .data$est < 0,
+                               0, .data$est))
   }
   if(length(poisson) > 0){
-    means <- means %>%
+    means <- means %>% # poisson mean cannot be < 0
       dplyr::mutate(est = ifelse(.data$item %in% poisson & .data$est < 0,
                                  0, .data$est))
   }
@@ -176,9 +176,9 @@ correct_negbin_errors <- function(means, errors, continuous, negbin){
                     'item',
                     'disp' = 'est') %>%
       dplyr::inner_join(means) %>%
-      dplyr::inner_join(errors) %>%
-      dplyr::mutate(upper = .data$est + sqrt(.data$est + exp(.data$disp) * .data$est ** 2),
-                    lower = .data$est - sqrt(.data$est + exp(.data$disp) * .data$est ** 2)) %>%
+      dplyr::inner_join(errors) %>% # V(negbin) = mean + disp * mean**2
+      dplyr::mutate(upper = .data$est + sqrt(.data$est + .data$disp * (.data$est ** 2)),
+                    lower = .data$est - sqrt(.data$est + .data$disp * (.data$est ** 2))) %>%
       dplyr::select('upper', 'lower', 'class', 'item')
   )
 
@@ -189,8 +189,7 @@ correct_negbin_errors <- function(means, errors, continuous, negbin){
 correct_poisson_errors <- function(means, errors, continuous, poisson){
   errors_poisson <- means %>%
     dplyr::filter(.data$item %in% poisson) %>%
-    dplyr::mutate(est = ifelse(.data$est < 0, 0, .data$est),
-                  upper = .data$est + sqrt(.data$est),
+    dplyr::mutate(upper = .data$est + sqrt(.data$est), # V(poi) = mean
                   lower = .data$est - sqrt(.data$est)) %>%
     dplyr::select('upper', 'lower', 'class', 'item')
 
