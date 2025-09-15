@@ -118,3 +118,21 @@ test_that('prevalences are extracted correctly', {
     length()
   expect_equal(n_unique_class1_counts, 1L)
 })
+
+test_that('means for negbin and poisson are extracted correctly', {
+  test <- data.frame(est = c(1,2,3) , item = c('ex_cont', 'ex_neg', 'ex_poi'))
+  negbin <- 'ex_neg'
+  poisson <- 'ex_poi'
+
+  expect_equal(correct_negbin_poisson_means(test, negbin, poisson),
+               data.frame(est = c(1, exp(2), exp(3)),
+                          item = c('ex_cont', 'ex_neg', 'ex_poi')))
+  expect_equal(correct_negbin_poisson_means(test, negbin, c()),
+               data.frame(est = c(1, exp(2), 3),
+                          item = c('ex_cont', 'ex_neg', 'ex_poi')))
+  expect_equal(correct_negbin_poisson_means(test, c(), poisson),
+               data.frame(est = c(1, 2, exp(3)),
+                          item = c('ex_cont', 'ex_neg', 'ex_poi')))
+  expect_equal(correct_negbin_poisson_means(test, c(), c()),
+               test)
+})

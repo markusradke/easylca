@@ -142,15 +142,10 @@ get_means_from_profiles <- function(continuous){
 }
 
 correct_negbin_poisson_means <- function(means, negbin, poisson){
-  if(length(negbin) > 0){
-    means <- means %>% # negbin mean cannot be < 0
-      dplyr::mutate(est = ifelse(.data$item %in% negbin & .data$est < 0,
-                               0, .data$est))
-  }
-  if(length(poisson) > 0){
-    means <- means %>% # poisson mean cannot be < 0
-      dplyr::mutate(est = ifelse(.data$item %in% poisson & .data$est < 0,
-                                 0, .data$est))
+  if(length(c(negbin, poisson)) > 0){
+    means <- means %>% # negbin and poisson mean are on logit scale
+      dplyr::mutate(est = ifelse(.data$item %in% c(negbin, poisson),
+                               exp(.data$est), .data$est))
   }
   means
 }
@@ -177,8 +172,8 @@ correct_negbin_errors <- function(means, errors, continuous, negbin){
                     'disp' = 'est') %>%
       dplyr::inner_join(means) %>%
       dplyr::inner_join(errors) %>% # V(negbin) = mean + disp * mean**2
-      dplyr::mutate(upper = .data$est + sqrt(.data$est + .data$disp * (.data$est ** 2)),
-                    lower = .data$est - sqrt(.data$est + .data$disp * (.data$est ** 2))) %>%
+      dplyr::mutate(upper = .data$est + sqrt(.data$est + (.data$est ** 2) / .data$disp),
+                    lower = .data$est - sqrt(.data$est + (.data$est ** 2) / .data$disp)) %>%
       dplyr::select('upper', 'lower', 'class', 'item')
   )
 
