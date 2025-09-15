@@ -25,7 +25,7 @@ BiocManager::install("rhdf5")
 
 ## How to conduct LCA with `easylca`
 Follow these steps to conduct a (mixed mode) latent class analysis (LCA) using `easylca`: 
-1. Prepare your data for an analysis with Mplus. Please note that all discrete variables must be stored in **integer**-vectors within your data frame with values greater or equal 1and with fewer than 10 different levels. All continuous variables must be stored in **numeric**/**double** vectors. For the analysis with *Mplus*, variable names also should not start with a number and must consists of a maximum of 8 characters.
+1. Prepare your data for an analysis with Mplus. Please note that all discrete variables must be stored in **integer**-vectors within your data frame with values greater or equal 1 and with fewer than 10 different levels. All continuous variables must be stored in **numeric**/**double** vectors. For the analysis with *Mplus*, variable names also should not start with a number and must consists of a maximum of 8 characters.
 ```r
 # This is our ready-made example data set:
 titanic_passengers 
