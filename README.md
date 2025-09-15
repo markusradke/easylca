@@ -12,9 +12,9 @@ You can install the development version of `easylca` from [GitHub](https://githu
 devtools::install_github("markusradke/easylca")
 ```
 
-::: {style="color: red"}
-**Be aware: *MPlus 8.4* must to be installed on your computer in order to use `easylca` and is *not* installed together with this package.**
-:::
+> [!IMPORTANT]
+> Be aware: *MPlus 8.4* must to be installed on your computer in order to use `easylca` and is *not* installed together with this package.
+
 
 `easylca` also depends on the `rhdf5` package. Depending on your environment you may need to install the `BiocManager` package manager first to install the `rhdf5` package. If required, please follow the two commands below to complete installation. 
 
