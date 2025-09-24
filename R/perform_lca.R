@@ -23,10 +23,19 @@
 #' @examples
 #' # for more model types, add them to the modeltype vector, take a while to compute
 #' # lca <- perform_lca(titanic_settings, modeltype = c(1, 2, 3))
-perform_lca <- function(settings, modeltypes = seq(6), vlmrt = FALSE){
-  if(! is_mplus_installed()){stop('Please make sure that Mplus is installed on this computer. It cannot be detected by the MplusAutomation package.')}
-  if(! methods::is(settings, 'lca_settings')) {stop('Please provide a settings object of type "lca_settings". It can be generated using the define_lca command.')}
+perform_lca <- function(settings, modeltypes = seq(6), vlmrt = FALSE) {
+  if (!is_mplus_installed()) {
+    stop(
+      'Please make sure that Mplus is installed on this computer. It cannot be detected by the MplusAutomation package.'
+    )
+  }
+  if (!methods::is(settings, 'lca_settings')) {
+    stop(
+      'Please provide a settings object of type "lca_settings". It can be generated using the define_lca command.'
+    )
+  }
   settings$vlmrt_last_run <- vlmrt
+  modeltypes <- set_modeltypes_1_if_only_discrete(settings, modeltypes)
   create_templates(settings)
 
   results <- list()
@@ -35,7 +44,7 @@ perform_lca <- function(settings, modeltypes = seq(6), vlmrt = FALSE){
   start_time <- Sys.time()
 
   models <- list()
-  for(type in modeltypes){
+  for (type in modeltypes) {
     model_for_type <- mplus_lca(settings, modeltype = type)
     models[[paste0('modeltype_', type)]] <- model_for_type
   }
@@ -45,7 +54,15 @@ perform_lca <- function(settings, modeltypes = seq(6), vlmrt = FALSE){
   results$summary <- create_modeloverview(results$models, settings, modeltypes)
 
   class(results) <- 'easylca'
-  saveRDS(results, paste0(settings$folder_name, '/', settings$analysis_name, '_lca_results.rds'))
+  saveRDS(
+    results,
+    paste0(
+      settings$folder_name,
+      '/',
+      settings$analysis_name,
+      '_lca_results.rds'
+    )
+  )
 
   end_time <- Sys.time()
   print_elapsed_time(start_time, end_time)
@@ -55,28 +72,47 @@ perform_lca <- function(settings, modeltypes = seq(6), vlmrt = FALSE){
 }
 
 
-mplus_lca <- function(settings, modeltype){
+set_modeltypes_1_if_only_discrete <- function(settings, modeltypes) {
+  if (all(modeltypes == 1)) {
+    return(modeltypes)
+  }
+  is_only_discrete <- setequal(
+    settings$use,
+    union(settings$categorical, settings$nominal)
+  )
+  if (is_only_discrete) {
+    modeltypes <- 1
+    warning(
+      'Only discret indicators in settings. Thus, only modeltype 1 will be estimated.'
+    )
+  }
+  return(modeltypes)
+}
+
+mplus_lca <- function(settings, modeltype) {
   setwd(settings$folder_name)
   type_folder <- sprintf('modeltype_%d', modeltype)
   template_file <- sprintf('modeltype_%d_template.txt', modeltype)
 
-  if (!dir.exists(type_folder)) {dir.create(type_folder)}
+  if (!dir.exists(type_folder)) {
+    dir.create(type_folder)
+  }
   list.files(type_folder, include.dirs = F, full.names = T) %>% file.remove()
   file.copy(template_file, paste0(type_folder, '/', template_file))
   file.remove(template_file)
 
   datafile <- paste0(type_folder, '/', type_folder, '.dat')
-  MplusAutomation::prepareMplusData(settings$frame,
-                                    datafile)
+  MplusAutomation::prepareMplusData(settings$frame, datafile)
   MplusAutomation::createModels(paste0(type_folder, '/', template_file))
-  MplusAutomation::runModels(type_folder,
-                             logFile = paste0(type_folder, '/', type_folder,'_log.txt'),
-                             showOutput = FALSE, quiet = FALSE)
-  mplus_results <- MplusAutomation::readModels(type_folder, recursive=TRUE)
-  saveRDS(mplus_results,paste0(type_folder, '/', type_folder, '.rds'))
+  MplusAutomation::runModels(
+    type_folder,
+    logFile = paste0(type_folder, '/', type_folder, '_log.txt'),
+    showOutput = FALSE,
+    quiet = FALSE
+  )
+  mplus_results <- MplusAutomation::readModels(type_folder, recursive = TRUE)
+  saveRDS(mplus_results, paste0(type_folder, '/', type_folder, '.rds'))
 
   setwd('..')
   return(mplus_results)
 }
-
-

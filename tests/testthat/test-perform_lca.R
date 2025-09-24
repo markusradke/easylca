@@ -1,44 +1,79 @@
 test_that('check for lca_settings object works', {
-  expect_error(perform_lca(6),
-               'Please provide a settings object of type "lca_settings". It can be generated using the define_lca command.')
+  expect_error(
+    perform_lca(6),
+    'Please provide a settings object of type "lca_settings". It can be generated using the define_lca command.'
+  )
 })
 
-perform_test_lca <- function(settings, modeltypes){
+perform_test_lca <- function(settings, modeltypes) {
   message('Performing test lca...')
   capture.output(perform_lca(settings, modeltypes = modeltypes))
-  results <- readRDS(paste0(settings$folder_name, '/', settings$analysis_name,
-                            '_lca_results.rds'))
+  results <- readRDS(paste0(
+    settings$folder_name,
+    '/',
+    settings$analysis_name,
+    '_lca_results.rds'
+  ))
   results
 }
 
-if(is_mplus_installed()){
+if (is_mplus_installed()) {
   test_that('mplus analysis creates necessary files and returns result', {
-    settings <- define_lca(random_testdata, 'test', 'id', nclasses = 2, starts = 5,
-                           categorical = c('var1', 'var2'),
-                           censored_below = c('var6', 'var8'),
-                           poisson = 'var7',
-                           inflated = c('var7', 'var8'))
+    settings <- define_lca(
+      random_testdata,
+      'test',
+      'id',
+      nclasses = 2,
+      starts = 5,
+      categorical = c('var1', 'var2'),
+      censored_below = c('var6', 'var8'),
+      poisson = 'var7',
+      inflated = c('var7', 'var8')
+    )
 
     modeltypes <- c(2, 4)
     results <- perform_test_lca(settings, modeltypes)
 
-
-    for(type in modeltypes){
+    for (type in modeltypes) {
       model_path <- paste0(settings$folder_name, '/modeltype_', type, '/')
       template <- paste0(model_path, 'modeltype_', type, '_template.txt')
       data <- paste0(model_path, 'modeltype_', type, '.dat')
       log <- paste0(model_path, 'modeltype_', type, '_log.txt')
 
-      expect_true(file.exists(template),
-                  info = paste0('Model ', type, ': Did not write file for model template ', template, '.'))
+      expect_true(
+        file.exists(template),
+        info = paste0(
+          'Model ',
+          type,
+          ': Did not write file for model template ',
+          template,
+          '.'
+        )
+      )
 
-      expect_true(file.exists(data),
-                  info = paste0('Model ', type, ': Did not write file for model data ', data, '.'))
+      expect_true(
+        file.exists(data),
+        info = paste0(
+          'Model ',
+          type,
+          ': Did not write file for model data ',
+          data,
+          '.'
+        )
+      )
 
-      expect_true(file.exists(log),
-                  info = paste0('Model ', type, ': Did not write file for model log ', log, '.'))
+      expect_true(
+        file.exists(log),
+        info = paste0(
+          'Model ',
+          type,
+          ': Did not write file for model log ',
+          log,
+          '.'
+        )
+      )
 
-      for(class in seq(settings$nclasses)){
+      for (class in seq(settings$nclasses)) {
         input <- sprintf('%s%.2d_classes.inp', model_path, class)
         output <- sprintf('%s%.2d_classes.out', model_path, class)
         expect_true(file.exists(input))
@@ -46,17 +81,55 @@ if(is_mplus_installed()){
       }
     }
 
-    expect_true(file.exists(paste0(settings$folder_name, '/test_lca_results.rds')),
-                info = 'Did not write general results file.')
+    expect_true(
+      file.exists(paste0(settings$folder_name, '/test_lca_results.rds')),
+      info = 'Did not write general results file.'
+    )
 
-    expect_setequal(results$summary %>% colnames, c('classes', 'Title', 'Parameters', 'LL', 'AIC', 'AICC', 'BIC', 'saBIC',
-                                                    'Entropy', 'nmin', 'replicated', 'boundary_values', 'modeltype'))
+    expect_setequal(
+      results$summary %>% colnames,
+      c(
+        'classes',
+        'Title',
+        'Parameters',
+        'LL',
+        'AIC',
+        'AICC',
+        'BIC',
+        'saBIC',
+        'Entropy',
+        'nmin',
+        'replicated',
+        'boundary_values',
+        'modeltype'
+      )
+    )
 
     expect_equal(results$settings %>% class, c('lca_settings'))
     expect_equal(results %>% class, 'easylca')
 
-    unlink(settings$folder_name, recursive = T)
+    unlink(settings$folder_name, recursive = TRUE)
   })
 }
 
-
+if (is_mplus_installed()) {
+  test_that('sets modeltypes to 1 and prints out warning if only discrete', {
+    data <- dplyr::select(titanic_passengers, id, survived, pasclass)
+    settings <- define_lca(
+      data,
+      'test',
+      'id',
+      nclasses = 2,
+      starts = 5,
+      categorical = 'survived',
+      nominal = 'pasclass'
+    )
+    expect_warning(
+      res <- perform_test_lca(settings, modeltypes = c(1, 2, 3, 4, 5, 6)),
+      'Only discret indicators in settings. Thus, only modeltype 1 will be estimated.'
+    )
+    expect_true(length(res$models) == 1)
+    expect_true(stringr::str_detect(names(res$models), 'modeltype_1'))
+    unlink(settings$folder_name, recursive = TRUE)
+  })
+}
