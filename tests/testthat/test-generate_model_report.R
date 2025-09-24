@@ -1,3 +1,15 @@
+perform_test_lca <- function(settings, modeltypes) {
+  message('Performing test lca...')
+  capture.output(perform_lca(settings, modeltypes = modeltypes))
+  results <- readRDS(paste0(
+    settings$folder_name,
+    '/',
+    settings$analysis_name,
+    '_lca_results.rds'
+  ))
+  results
+}
+
 test_that('assert easylca object', {
   expect_error(
     generate_model_report(1, 1, 1),
@@ -31,24 +43,26 @@ test_that("report generation creates file in the current wd directory", {
   }
 })
 
-test_that("report genreation works for only discret variables", {
-  data <- dplyr::select(titanic_passengers, id, survived, pasclass)
-  settings <- define_lca(
-    data,
-    'test',
-    'id',
-    nclasses = 2,
-    starts = 5,
-    categorical = 'survived',
-    nominal = 'pasclass'
-  )
-  res <- perform_lca(settings, modeltypes = 1)
-  generate_model_report(res, modeltype = 1, classes = 2)
-  path <- sprintf('modeltype-1_2-classes_%s.html', settings$folder_name)
-  is_file <- file.exists(path)
-  expect_true(is_file)
-  unlink(settings$folder_name, recursive = T)
-  if (is_file) {
-    file.remove(path)
-  }
-})
+if (is_mplus_installed()) {
+  test_that("report genreation works for only discret variables", {
+    data <- dplyr::select(titanic_passengers, id, survived, pasclass)
+    settings <- define_lca(
+      data,
+      'test',
+      'id',
+      nclasses = 2,
+      starts = 5,
+      categorical = 'survived',
+      nominal = 'pasclass'
+    )
+    res <- perform_test_lca(settings, modeltypes = 1)
+    generate_model_report(res, modeltype = 1, classes = 2)
+    path <- sprintf('modeltype-1_2-classes_%s.html', settings$folder_name)
+    is_file <- file.exists(path)
+    expect_true(is_file)
+    unlink(settings$folder_name, recursive = T)
+    if (is_file) {
+      file.remove(path)
+    }
+  })
+}
