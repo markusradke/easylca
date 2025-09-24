@@ -17,19 +17,15 @@ test_that('assert easylca object', {
   )
 })
 
-test_that('assert number of classes has been modeled', {
-  # TODO only catches the case when initial number of classes has not been surpassed
+test_that('assert solution has been modeled', {
   expect_error(
-    generate_model_report(random_testresults, modeltype = 1, classes = 4),
-    'You are looking for a class solution that has not been modeled.'
+    assert_solution_in_results(random_testresults, modeltype = 1, classes = 4),
+    'You are looking for solution that has not been estimated. Please check modeltype and class number.'
   )
-})
 
-test_that('assert modeltype has been modeled', {
-  # TODO only catches the case when initial number of classes has not been surpassed
   expect_error(
-    generate_model_report(random_testresults, modeltype = 7, classes = 3),
-    'You are looking for a modeltype that has not been modeled.'
+    assert_solution_in_results(random_testresults, modeltype = 7, classes = 3),
+    'You are looking for solution that has not been estimated. Please check modeltype and class number.'
   )
 })
 
