@@ -70,7 +70,7 @@ plot_kruskal_profiles(model)
 
 ## Continuous indicators
 
-```{r, continuous_indicators, echo=F, fig.height=ceiling(n_continuous /ifelse(classes > 6, 1, 2))*3}
+```{r, continuous_indicators, echo=F, fig.height=ceiling(n_continuous /ifelse(classes > 6, 1, 2))*3 + 0.01}
 if(n_continuous > 0){
   plot_continuous_profiles(model_parameters, 
                            show_significance = show_significance)
@@ -83,7 +83,7 @@ if(n_continuous == 0){cat('There are no continuous indicators.')}
 
 ## Binary indicators
 
-```{r, binary_indicators, echo=F, fig.width=classes * 1, fig.height=n_binary *1 + 0.5}
+```{r, binary_indicators, echo=F, fig.height=n_binary *1 + 0.5}
 if(n_binary > 0){
   plot_binary_profiles(model_parameters, 
                        show_significance = show_significance)
