@@ -50,7 +50,6 @@ perform_lca <- function(settings, modeltypes = seq(6), vlmrt = FALSE) {
   }
   remove_remaining_templates(settings)
   results$models <- models
-
   results$summary <- create_modeloverview(results$models, settings, modeltypes)
 
   class(results) <- 'easylca'
