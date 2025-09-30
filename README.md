@@ -1,4 +1,7 @@
 # easylca <img src="man/figures/logo.png" align="right" height="139" alt="" />
+<!-- badges: start -->
+  [![R-CMD-check](https://github.com/markusradke/easylca/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/markusradke/easylca/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
 
 `easylca` is an R package designed to make conducting latent class analyses with mixed indicators (LCAs) with *Mplus 8.4* more accessible. *Mplus* is a powerful commercial statistical software package developed by Muthen & Muthen ([check out their website here](https://www.statmodel.com)). It is based on text file input and output, and employs its own syntax for model formulation. With `easylca`, however, there is no need to worry about learning the *Mplus* syntax.
 

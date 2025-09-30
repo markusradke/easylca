@@ -4,3 +4,4 @@ data-raw
 ^LICENSE\.md$
 ^easylca_feature-requests.mm$
 ^data_diagnosis_titanic\.html$
+^\.github$
