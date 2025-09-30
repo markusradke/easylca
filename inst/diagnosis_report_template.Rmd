@@ -74,7 +74,7 @@ if(!continuous_greater_1){
 
 #### [Continuous indicators]{style="color: #c40d20"}
 
-```{r continuous_histograms, echo=F, fig.height=n_row_cont_histo*2.5+0.001,  warning=F}
+```{r continuous_histograms, echo=F, fig.height=n_row_cont_histo*2+1,  warning=F}
 if(length(continuous)>0){
   plot_continuous_histograms(data, continuous, n_col_cont_histo)
 }
