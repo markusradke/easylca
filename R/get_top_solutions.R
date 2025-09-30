@@ -28,3 +28,12 @@ get_ll_lines_from_output <- function(mplus_output) {
 get_seeds_from_ll_lines <- function(ll_lines) {
   stringr::str_extract(ll_lines, "\\s+(-?\\d+)(?=\\s)") %>% trimws()
 }
+
+create_input_files_for_replication <- function(
+  settings,
+  modeltype,
+  nclasses,
+  seeds
+) {
+  NULL
+}
