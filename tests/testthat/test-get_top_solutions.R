@@ -42,10 +42,11 @@ if (is_mplus_installed()) {
       seeds
     )
     expect_true(file.exists(sprintf('%s/modeltype_1.dat', folder)))
-    expect_true(file.exists(sprintf('%s/01_seed_%s', folder, seeds[1])))
-    expect_true(file.exists(sprintf('%s/02_seed_%s', folder, seeds[2])))
+    expect_true(file.exists(sprintf('%s/01_seed_%s.inp', folder, seeds[1])))
+    expect_true(file.exists(sprintf('%s/02_seed_%s.inp', folder, seeds[2])))
 
-    expected_analysis_seed1 <- c(
+    expected_inp_seed1 <- c(
+      '',
       'TITLE: test2 classes',
       'DATA: FILE IS modeltype_1.dat;',
       '',
@@ -54,7 +55,7 @@ if (is_mplus_installed()) {
       'IDVARIABLE = id;',
       'USEVARIABLES = pasclass survived;',
       'NOMINAL = pasclass;',
-      'CATEGORICAL = survived',
+      'CATEGORICAL = survived;',
       'AUXILIARY = age fare nsibsp nparchi isfem port;',
       'MISSING = .;',
       'CLASSES = class (2);',
@@ -64,8 +65,8 @@ if (is_mplus_installed()) {
       sprintf('OPTSEED = %s;', seeds[1]),
       'TYPE = MIXTURE;',
       'PROCESSORS = 16;',
-      'STITERATIONS = 1;',
-      'STARTS = 5 1;',
+      'STITERATIONS = 2;',
+      'STARTS = 10 2;',
       '',
       'OUTPUT:',
       'SVALUES ENTROPY TECH1 TECH4 TECH10;',
@@ -73,8 +74,8 @@ if (is_mplus_installed()) {
       'FILE IS 02_classes.dat;',
       'SAVE = cprobabilities bchweights loglikelihood;'
     )
-    actual <- readLines(sprintf('%s/01_seed_%s', folder, seeds[1]))
-    expect_equal(actual, expected)
+    actual <- readLines(sprintf('%s/01_seed_%s.inp', folder, seeds[1]))
+    expect_equal(actual, expected_inp_seed1)
     unlink(settings$folder, recursive = TRUE)
   })
 }

@@ -38,6 +38,9 @@ create_input_files_for_replication <- function(
   folders <- get_modeltype_and_replication_folder(settings, modeltype, nclasses)
   create_folder(folders$replication)
   copy_dat_file_for_replication(folders, modeltype, nclasses)
+  new_inp_content <- get_new_input_files_lines(seeds, nclasses, folders)
+  new_inp_filepaths <- get_new_input_files_paths(seeds, folders)
+  create_new_input_files(new_inp_content, new_inp_filepaths)
 }
 
 get_modeltype_and_replication_folder <- function(
@@ -73,4 +76,34 @@ copy_dat_file_for_replication <- function(folders, modeltype, nclasses) {
       modeltype
     )
   )
+}
+
+get_new_input_files_lines <- function(seeds, nclasses, folders) {
+  mplus_input_wout_seed <- readLines(sprintf(
+    '%s/%.2d_classes.inp',
+    folders$modeltype,
+    nclasses
+  ))
+  seed_idx <- which(mplus_input_wout_seed == 'ANALYSIS:') + 1
+  lapply(seeds, function(seed) {
+    c(
+      mplus_input_wout_seed[1:seed_idx - 1],
+      sprintf('OPTSEED = %s;', seed),
+      mplus_input_wout_seed[seed_idx:length(mplus_input_wout_seed)]
+    )
+  })
+}
+
+
+get_new_input_files_paths <- function(seeds, folders) {
+  lapply(seq_along(seeds), function(i) {
+    sprintf('%s/%.2d_seed_%s.inp', folders$replication, i, seeds[i])
+  }) %>%
+    unlist()
+}
+
+create_new_input_files <- function(new_inp_content, new_inp_filepaths) {
+  lapply(seq_along(new_inp_content), function(i) {
+    writeLines(text = new_inp_content[[i]], con = new_inp_filepaths[i])
+  })
 }
