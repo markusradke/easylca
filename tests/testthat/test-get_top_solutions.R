@@ -88,12 +88,12 @@ if (is_mplus_installed()) {
     expect_true('OUTLOGL' %in% colnames(replication_models[[1]]$savedata))
     unlink(settings$folder, recursive = TRUE)
 
-    case_statistics <- get_case_cprob_and_ll(replication_models)
+    case_statistics <- get_case_cprob_and_ll(replication_models, settings)
     expect_true(methods::is(case_statistics, 'data.frame'))
-    expect_equal(nrow(case_statistics), 2000)
+    expect_equal(nrow(case_statistics), 2 * nrow(titanic_passengers))
     expect_setequal(
       colnames(case_statistics),
-      c('id', 'cprob1', 'cprob2', 'll_case', 'll_model')
+      c('id', 'top_n', 'cprob1', 'cprob2', 'll_case', 'll_model')
     )
   })
 }

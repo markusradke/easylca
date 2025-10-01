@@ -121,6 +121,23 @@ run_replication_models <- function(settings, modeltype, nclasses) {
   ))
 }
 
-get_case_cprob_and_ll <- function(replication_models) {
-  NULL
+get_case_cprob_and_ll <- function(replication_models, settings) {
+  save_data <- do.call(
+    dplyr::bind_rows,
+    lapply(seq_along(replication_models), function(i) {
+      replication_models[[i]]$savedata %>% dplyr::mutate(top_n = i)
+    })
+  )
+  colnames(save_data) <- tolower(colnames(save_data))
+  case_statistics <- save_data %>%
+    dplyr::select(
+      tolower(settings$id),
+      dplyr::contains('cprob'),
+      'top_n',
+      'll_case' = 'outlogl'
+    )
+  ll_model <- case_statistics %>%
+    dplyr::group_by(.data[['top_n']]) %>%
+    dplyr::summarize(ll_model = sum(.data[['ll_case']]))
+  dplyr::inner_join(case_statistics, ll_model, by = 'top_n')
 }
