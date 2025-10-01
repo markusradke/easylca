@@ -35,5 +35,42 @@ create_input_files_for_replication <- function(
   nclasses,
   seeds
 ) {
-  NULL
+  folders <- get_modeltype_and_replication_folder(settings, modeltype, nclasses)
+  create_folder(folders$replication)
+  copy_dat_file_for_replication(folders, modeltype, nclasses)
+}
+
+get_modeltype_and_replication_folder <- function(
+  settings,
+  modeltype,
+  nclasses
+) {
+  modeltype_folder <- sprintf('%s/modeltype_%d', settings$folder, modeltype)
+  replication_folder <- sprintf(
+    '%s/check_replication_%.2d_classes',
+    modeltype_folder,
+    nclasses
+  )
+  list(modeltype = modeltype_folder, replication = replication_folder)
+}
+
+create_folder <- function(folder) {
+  if (!dir.exists(folder)) {
+    dir.create(folder)
+  }
+}
+
+copy_dat_file_for_replication <- function(folders, modeltype, nclasses) {
+  file.copy(
+    from = sprintf(
+      '%s/modeltype_%d.dat',
+      folders$modeltype,
+      modeltype
+    ),
+    to = sprintf(
+      '%s/modeltype_%d.dat',
+      folders$replication,
+      modeltype
+    )
+  )
 }
