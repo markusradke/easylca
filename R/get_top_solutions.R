@@ -107,3 +107,7 @@ create_new_input_files <- function(new_inp_content, new_inp_filepaths) {
     writeLines(text = new_inp_content[[i]], con = new_inp_filepaths[i])
   })
 }
+
+run_replication_models <- function(modeltype, classes) {
+  NULL
+}

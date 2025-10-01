@@ -1,4 +1,4 @@
-test_that("test seed retrieval for best solutions for model", {
+test_that("seed retrieval for best solutions for model", {
   model <- titanic_lca_results$models$modeltype_1$modeltype_1.06_classes.out
   expected <- c('565819', '752769', '520177', '30098', '957392')
   expect_equal(get_top_n_solution_seeds(model, 5), expected)
@@ -18,7 +18,7 @@ test_that("test seed retrieval for best solutions for model", {
 })
 
 if (is_mplus_installed()) {
-  test_that("test writes necessary input files", {
+  test_that("writes necessary input files and runs them correctly", {
     settings <- define_lca(
       titanic_passengers,
       'test',
@@ -76,6 +76,13 @@ if (is_mplus_installed()) {
     )
     actual <- readLines(sprintf('%s/01_seed_%s.inp', folder, seeds[1]))
     expect_equal(actual, expected_inp_seed1)
+
+    replication_models <- run_replication_models(modeltype, nclasses)
+    expect_true(file.exists(sprintf('%s/01_seed_%s.out', folder, seeds[1])))
+    expect_true(file.exists(sprintf('%s/02_seed_%s.out', folder, seeds[2])))
+    expect_equal(length(replication_models), 2)
+    expect_equal(ncol(replication_models[[1]]$savedata), 9)
+
     unlink(settings$folder, recursive = TRUE)
   })
 }
