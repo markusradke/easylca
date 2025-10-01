@@ -98,7 +98,7 @@ if (is_mplus_installed()) {
   })
 }
 
-test_that('get replication check works', {
+test_that('get functional stability check works', {
   settings <- define_lca(
     titanic_passengers,
     'test',
@@ -117,7 +117,6 @@ test_that('get replication check works', {
     1,
     5
   )))
-  browser()
   res <- get_stability_check(testmodel, settings, 1, 3)
   expect_true(methods::is(res, 'list'))
   expect_setequal(

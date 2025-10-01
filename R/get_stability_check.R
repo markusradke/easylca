@@ -25,6 +25,7 @@ get_stability_check <- function(model, settings, modeltype, ntop = 10) {
     )
     replication_models <- run_replication_models(settings, modeltype, nclasses)
     case_estimates <- get_case_cprob_and_ll(replication_models, settings)
+    return(get_stability_statistics(case_estimates))
   } else {
     return(NULL)
   }
@@ -170,7 +171,7 @@ get_case_cprob_and_ll <- function(replication_models, settings) {
   case_estimates <- save_data %>%
     dplyr::select(
       tolower(settings$id),
-      dplyr::contains('cprob'),
+      dplyr::match('^cprob[0-9]{1,2}$'),
       'top_n',
       'll_case' = 'outlogl'
     )

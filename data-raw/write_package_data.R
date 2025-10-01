@@ -1,4 +1,4 @@
-rm(list=ls())
+rm(list = ls())
 library(devtools)
 load_all()
 
@@ -13,20 +13,31 @@ titanic_passengers <- titanic::titanic_train %>%
     isfem = ifelse(Sex == 'female', 2, 1) %>% as.integer(),
     port = ports_lookup[Embarked] %>% as.integer(),
     nsibsp = (ifelse(SibSp < 2, SibSp, 2) + 1) %>% as.integer(),
-    nparchi = (ifelse(Parch < 2, Parch, 2) + 1) %>% as.integer()) %>%
-  dplyr::select(id = PassengerId, survived, pasclass = Pclass,
-                age = Age,  fare = Fare, nsibsp, nparchi,
-                isfem, port)
+    nparchi = (ifelse(Parch < 2, Parch, 2) + 1) %>% as.integer()
+  ) %>%
+  dplyr::select(
+    id = PassengerId,
+    survived,
+    pasclass = Pclass,
+    age = Age,
+    fare = Fare,
+    nsibsp,
+    nparchi,
+    isfem,
+    port
+  )
 
 
-titanic_settings <- define_lca(frame = titanic_passengers,
-                               analysis_name = 'titanic',
-                               id_variable = 'id',
-                               nclasses = 3,
-                               nominal = c('port', 'pasclass'),
-                               categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
-                               starts = 80,
-                               cores = 16)
+titanic_settings <- define_lca(
+  frame = titanic_passengers,
+  analysis_name = 'titanic',
+  id_variable = 'id',
+  nclasses = 3,
+  nominal = c('port', 'pasclass'),
+  categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
+  starts = 80,
+  cores = 16
+)
 
 titanic_lca_results <- readRDS('data-raw/titanic_lca_results.rds')
 
@@ -53,16 +64,22 @@ random_testresults <- readRDS('data-raw/testresults.rds')
 # other utility data for functions ----
 discrete_colors_for_classes <- Polychrome::dark.colors() # 24 distinct colors
 names(discrete_colors_for_classes) <- NULL
+stability_check_testcases <- readRDS('data-raw/stability_check_testcases.rds')
 
-use_data(titanic_passengers,
-         titanic_settings,
-         titanic_lca_results,
-         internal = F,
-         overwrite = T)
-use_data(random_testdata,
-         random_testdata_weights,
-         random_testresults,
-         discrete_colors_for_classes,
-         internal = T,
-         overwrite = T)
-rm(list=ls())
+use_data(
+  titanic_passengers,
+  titanic_settings,
+  titanic_lca_results,
+  internal = F,
+  overwrite = T
+)
+use_data(
+  random_testdata,
+  random_testdata_weights,
+  random_testresults,
+  discrete_colors_for_classes,
+  stability_check_testcases,
+  internal = T,
+  overwrite = T
+)
+rm(list = ls())
