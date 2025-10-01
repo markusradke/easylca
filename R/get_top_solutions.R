@@ -94,7 +94,6 @@ get_new_input_files_lines <- function(seeds, nclasses, folders) {
   })
 }
 
-
 get_new_input_files_paths <- function(seeds, folders) {
   lapply(seq_along(seeds), function(i) {
     sprintf('%s/%.2d_seed_%s.inp', folders$replication, i, seeds[i])
@@ -108,6 +107,16 @@ create_new_input_files <- function(new_inp_content, new_inp_filepaths) {
   })
 }
 
-run_replication_models <- function(modeltype, classes) {
-  NULL
+run_replication_models <- function(settings, modeltype, nclasses) {
+  folders <- get_modeltype_and_replication_folder(settings, modeltype, nclasses)
+  MplusAutomation::runModels(
+    folders$replication,
+    logFile = sprintf('%s/replication_log.txt', folders$replication),
+    showOutput = FALSE,
+    quiet = TRUE
+  )
+  suppressWarnings(MplusAutomation::readModels(
+    folders$replication,
+    recursive = TRUE
+  ))
 }

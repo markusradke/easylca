@@ -77,12 +77,15 @@ if (is_mplus_installed()) {
     actual <- readLines(sprintf('%s/01_seed_%s.inp', folder, seeds[1]))
     expect_equal(actual, expected_inp_seed1)
 
-    replication_models <- run_replication_models(modeltype, nclasses)
+    replication_models <- run_replication_models(settings, 1, 2)
     expect_true(file.exists(sprintf('%s/01_seed_%s.out', folder, seeds[1])))
     expect_true(file.exists(sprintf('%s/02_seed_%s.out', folder, seeds[2])))
     expect_equal(length(replication_models), 2)
-    expect_equal(ncol(replication_models[[1]]$savedata), 9)
-
+    expect_equal(ncol(replication_models[[1]]$savedata), 15)
+    expect_true('CPROB1' %in% colnames(replication_models[[1]]$savedata))
+    expect_true('CPROB2' %in% colnames(replication_models[[1]]$savedata))
+    expect_true('ID' %in% colnames(replication_models[[1]]$savedata))
+    expect_true('OUTLOGL' %in% colnames(replication_models[[1]]$savedata))
     unlink(settings$folder, recursive = TRUE)
   })
 }
