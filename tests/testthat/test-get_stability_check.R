@@ -97,3 +97,38 @@ if (is_mplus_installed()) {
     )
   })
 }
+
+test_that('get replication check works', {
+  settings <- define_lca(
+    titanic_passengers,
+    'test',
+    'id',
+    nclasses = 2,
+    use = c('pasclass', 'survived'),
+    categorical = 'survived',
+    nominal = 'pasclass',
+    starts = 15
+  )
+  lca <- perform_lca(settings, 1)
+  testmodel <- lca$models[[1]][[2]]
+  expect_null(suppressWarnings(get_stability_check(
+    testmodel,
+    settings,
+    1,
+    5
+  )))
+  browser()
+  res <- get_stability_check(testmodel, settings, 1, 3)
+  expect_true(methods::is(res, 'list'))
+  expect_setequal(
+    names(list),
+    c(
+      'ntop',
+      'max_diff_BIC',
+      'test_param_stability',
+      'sd_param_stability',
+      'test_cprob_stability',
+      'sd_cprob_stability'
+    )
+  )
+})

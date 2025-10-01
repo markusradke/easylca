@@ -1,3 +1,41 @@
+#' Get model stability check during perform_lca
+#'
+#' Performs a stability check for the current combination of modeltype and class. The function reestimates the top n models using their corresponding seed and extracts the resulting casewise (N cases) log likelihoods (LL) and class assignment probabilities. These are then used to calculate:
+#' 1. max. difference of BIC
+#' 2. a parameter stability test p-value: Wilcoxon signed rank test on the parameters
+#' 3. a parameter stability value: standard deviation of difference in casewise LL, standardized on the BIC scale: BIC = nclasses * ln(N) - 2ln(sd(LL))
+#' 4. a class assignement test p-value: permuation test on the assingement probabilities with matched classes (with Hungarian algorithm)
+#' 5. a class assignement stability value: standard deviation of difference in class assignement, one class left out (redundant information)
+#'
+#' @param model an MplusAutomation model as result of an LCA (single solution for a combination of modeltype and class)
+#' @param settings as easylca settings object corresponding to the model
+#' @param modeltype the modeltype for the model
+#' @param ntop the number of top n solutions that will be compared for the replication check. Defaults to 10
+#'
+#' @returns list object with the stability check results
+get_stability_check <- function(model, settings, modeltype, ntop = 10) {
+  nclasses <- get_nclasses_from_model(model)
+  seeds <- get_top_n_solution_seeds(model, ntop)
+  if (!is.null(seeds)) {
+    create_input_files_for_replication(
+      settings,
+      modeltype,
+      nclasses,
+      seeds
+    )
+    replication_models <- run_replication_models(settings, modeltype, nclasses)
+    case_estimates <- get_case_cprob_and_ll(replication_models, settings)
+  } else {
+    return(NULL)
+  }
+}
+
+get_nclasses_from_model <- function(model) {
+  model$input$variable$classes %>%
+    stringr::str_extract('[0-9]+') %>%
+    as.integer()
+}
+
 get_top_n_solution_seeds <- function(model, n) {
   mplus_output <- model$output
   ll_lines <- get_ll_lines_from_output(mplus_output)
@@ -129,15 +167,15 @@ get_case_cprob_and_ll <- function(replication_models, settings) {
     })
   )
   colnames(save_data) <- tolower(colnames(save_data))
-  case_statistics <- save_data %>%
+  case_estimates <- save_data %>%
     dplyr::select(
       tolower(settings$id),
       dplyr::contains('cprob'),
       'top_n',
       'll_case' = 'outlogl'
     )
-  ll_model <- case_statistics %>%
+  ll_model <- case_estimates %>%
     dplyr::group_by(.data[['top_n']]) %>%
     dplyr::summarize(ll_model = sum(.data[['ll_case']]))
-  dplyr::inner_join(case_statistics, ll_model, by = 'top_n')
+  dplyr::inner_join(case_estimates, ll_model, by = 'top_n')
 }
