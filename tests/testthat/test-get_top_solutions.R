@@ -18,7 +18,7 @@ test_that("seed retrieval for best solutions for model", {
 })
 
 if (is_mplus_installed()) {
-  test_that("writes necessary input files and runs them correctly", {
+  test_that("writes necessary input files, runs them correctly and reads out the values", {
     settings <- define_lca(
       titanic_passengers,
       'test',
@@ -87,5 +87,13 @@ if (is_mplus_installed()) {
     expect_true('ID' %in% colnames(replication_models[[1]]$savedata))
     expect_true('OUTLOGL' %in% colnames(replication_models[[1]]$savedata))
     unlink(settings$folder, recursive = TRUE)
+
+    case_statistics <- get_case_cprob_and_ll(replication_models)
+    expect_true(methods::is(case_statistics, 'data.frame'))
+    expect_equal(nrow(case_statistics), 2000)
+    expect_setequal(
+      colnames(case_statistics),
+      c('id', 'cprob1', 'cprob2', 'll_case', 'll_model')
+    )
   })
 }

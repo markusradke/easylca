@@ -120,3 +120,7 @@ run_replication_models <- function(settings, modeltype, nclasses) {
     recursive = TRUE
   ))
 }
+
+get_case_cprob_and_ll <- function(replication_models) {
+  NULL
+}
