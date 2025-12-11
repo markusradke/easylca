@@ -62,3 +62,16 @@ if (is_mplus_installed()) {
     }
   })
 }
+
+test_that("report genreation works on wehner data", {
+  generate_model_report(wehner_testresults, modeltype = 1, classes = 4)
+  path <- sprintf(
+    'modeltype-1_4-classes_%s.html',
+    wehner_testresults$settings$folder_name
+  )
+  is_file <- file.exists(path)
+  expect_true(is_file)
+  if (is_file) {
+    file.remove(path)
+  }
+})

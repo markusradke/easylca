@@ -104,6 +104,7 @@ get_categorical_profiles <- function(
   binary,
   show_significance = FALSE
 ) {
+  categorical <- tolower(categorical)
   categoricals <- model$parameters$probability.scale %>%
     dplyr::mutate(
       item = .data$param %>% tolower(),

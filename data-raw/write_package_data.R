@@ -1,4 +1,4 @@
-rm(list=ls())
+rm(list = ls())
 library(devtools)
 load_all()
 
@@ -13,22 +13,94 @@ titanic_passengers <- titanic::titanic_train %>%
     isfem = ifelse(Sex == 'female', 2, 1) %>% as.integer(),
     port = ports_lookup[Embarked] %>% as.integer(),
     nsibsp = (ifelse(SibSp < 2, SibSp, 2) + 1) %>% as.integer(),
-    nparchi = (ifelse(Parch < 2, Parch, 2) + 1) %>% as.integer()) %>%
-  dplyr::select(id = PassengerId, survived, pasclass = Pclass,
-                age = Age,  fare = Fare, nsibsp, nparchi,
-                isfem, port)
+    nparchi = (ifelse(Parch < 2, Parch, 2) + 1) %>% as.integer()
+  ) %>%
+  dplyr::select(
+    id = PassengerId,
+    survived,
+    pasclass = Pclass,
+    age = Age,
+    fare = Fare,
+    nsibsp,
+    nparchi,
+    isfem,
+    port
+  )
 
 
-titanic_settings <- define_lca(frame = titanic_passengers,
-                               analysis_name = 'titanic',
-                               id_variable = 'id',
-                               nclasses = 3,
-                               nominal = c('port', 'pasclass'),
-                               categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
-                               starts = 80,
-                               cores = 16)
+titanic_settings <- define_lca(
+  frame = titanic_passengers,
+  analysis_name = 'titanic',
+  id_variable = 'id',
+  nclasses = 3,
+  nominal = c('port', 'pasclass'),
+  categorical = c('survived', 'isfem', 'nsibsp', 'nparchi'),
+  starts = 80,
+  cores = 16
+)
 
 titanic_lca_results <- readRDS('data-raw/titanic_lca_results.rds')
+
+
+wehner_testdata <- read.csv(
+  "wehner_data.csv",
+  sep = ";",
+  dec = ",",
+  fileEncoding = "UTF-8"
+)
+wehner_testdata$BIRTH <- as.double(wehner_testdata$BIRTH)
+wehner_testdata$SCYEARS <- as.double(wehner_testdata$SCYEARS)
+wehner_testdata$FESTUSE <- as.double(wehner_testdata$FESTUSE)
+
+# wehner_testresults were generated like this:
+# lca_settings <- easylca::define_lca(
+#   frame = wehner_testdata,
+#   analysis_name = "LCA_Max",
+#   id_variable = "ID",
+#   nclasses = 4,
+#   starts = 50,
+#   cores = 4,
+#   use = c(
+#     "CLUBUSE",
+#     "HOWMUSIC",
+#     "HOWSCENE",
+#     "HOWPEOPL",
+#     "HOWORG",
+#     "HOWCLOTH",
+#     "HOWMONEY",
+#     "HOWSOCM",
+#     "HOWDRUG",
+#     "HOWVOCAL",
+#     "HOWDAYNI",
+#     "HOWOPAIR",
+#     "HOWPSYCH",
+#     "HOWSCINT",
+#     "MUSK",
+#     "SCEARS"
+#   ),
+
+#   categorical = c(
+#     "CLUBUSE",
+#     "HOWMUSIC",
+#     "HOWSCENE",
+#     "HOWPEOPL",
+#     "HOWORG",
+#     "HOWCLOTH",
+#     "HOWMONEY",
+#     "HOWSOCM",
+#     "HOWDRUG",
+#     "HOWVOCAL",
+#     "HOWDAYNI",
+#     "HOWOPAIR",
+#     "HOWPSYCH",
+#     "HOWSCINT",
+#     "MUSK",
+#     "SCEARS"
+#   )
+# )
+
+# lca_results <- perform_lca(lca_settings, modeltypes = 1, vlmrt = FALSE)
+wehner_testresults <- readRDS('data-raw/wehner_testresults.rds')
 
 # small random test data for testing ----
 random_testdata <- readRDS('data-raw/testdata.rds')
@@ -54,15 +126,21 @@ random_testresults <- readRDS('data-raw/testresults.rds')
 discrete_colors_for_classes <- Polychrome::dark.colors() # 24 distinct colors
 names(discrete_colors_for_classes) <- NULL
 
-use_data(titanic_passengers,
-         titanic_settings,
-         titanic_lca_results,
-         internal = F,
-         overwrite = T)
-use_data(random_testdata,
-         random_testdata_weights,
-         random_testresults,
-         discrete_colors_for_classes,
-         internal = T,
-         overwrite = T)
-rm(list=ls())
+use_data(
+  titanic_passengers,
+  titanic_settings,
+  titanic_lca_results,
+  internal = F,
+  overwrite = T
+)
+use_data(
+  random_testdata,
+  random_testdata_weights,
+  random_testresults,
+  discrete_colors_for_classes,
+  wehner_testdata,
+  wehner_testresults,
+  internal = T,
+  overwrite = T
+)
+rm(list = ls())
