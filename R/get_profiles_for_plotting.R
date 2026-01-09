@@ -76,7 +76,7 @@ get_model_estimated_profiles <- function(
     'level' = integer(),
     'upper' = double(),
     'lower' = double(),
-    'pzero' = character(),
+    'pzero' = NULL,
     'yposinflation' = double()
   )
   dplyr::bind_rows(
