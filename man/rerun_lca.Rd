@@ -4,14 +4,22 @@
 \alias{rerun_lca}
 \title{Rerun LCA}
 \usage{
-rerun_lca(easylca, models_and_starts = NULL, recursive = FALSE, vlmrt = FALSE)
+rerun_lca(
+  easylca,
+  models_and_starts = NULL,
+  recursive = FALSE,
+  max_repeats = 10,
+  vlmrt = FALSE
+)
 }
 \arguments{
 \item{easylca}{easylca object obtained from the \code{\link[=perform_lca]{perform_lca()}} or \code{\link[=rerun_lca]{rerun_lca()}} command.}
 
 \item{models_and_starts}{models to rerun with new start values. Must be a data.frame with columns: classes, modeltype, starts. If NULL (default) will rerun all models that were not replicated with doubled number of starts.}
 
-\item{recursive}{If TRUE will repeat the rerun process while doubling the number of starts until all models are converged and replicated (maximum number of 10 repeats).}
+\item{recursive}{If TRUE will repeat the rerun process while doubling the number of starts until all models are converged and replicated (maximum number of repeats determined by max_repeats parameter).}
+
+\item{max_repeats}{Maximum number of reruns if recursive = TRUE. Default is 10.}
 
 \item{vlmrt}{Logical indicating wether to perform a Likelihood Ratio Test for class enumaration. The test was proposed by Lo, Mendell, & Rubin (2001) based on work by Vuong (1989). Attention: Takes a lot of time to perform.}
 }
