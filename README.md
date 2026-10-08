@@ -26,6 +26,12 @@ install.packages("BiocManager")
 BiocManager::install("rhdf5")
 ```
 
+Finally, we have also made slight changes to the `MplusAutomation` package by adding the SE to the TECH 4 output of MPLUS. Please therefore also install our forked version of the package with: 
+
+``` r
+devtools::install_github("markusradke/MplusAutomation")
+```
+
 ## How to conduct LCA with `easylca`
 Follow these steps to conduct a (mixed mode) latent class analysis (LCA) using `easylca`: 
 1. Prepare your data for an analysis with Mplus. Please note that all discrete variables must be stored in **integer**-vectors within your data frame with values greater or equal 1 and with fewer than 10 different levels. All continuous variables must be stored in **numeric**/**double** vectors. For the analysis with *Mplus*, variable names also should not start with a number and must consists of a maximum of 8 characters.
