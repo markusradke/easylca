@@ -89,6 +89,9 @@ get_model_estimated_profiles <- function(
 
 get_binary_indicators <- function(settings) {
   potential_variables <- union(settings$categorical, settings$nominal)
+  if (length(potential_variables) == 0) {
+    return(c())
+  }
   dplyr::summarize_at(settings$frame, potential_variables, function(x) {
     length(unique(x))
   }) %>%
@@ -168,7 +171,7 @@ calculate_probabilities_from_logits <- function(
     ) %>%
     dplyr::ungroup()
   if (!show_significance) {
-    reference_levels$significance = ''
+    reference_levels$significance <- ''
   }
   dplyr::bind_rows(probabilites, reference_levels)
 }
